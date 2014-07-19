@@ -1,5 +1,5 @@
-#ifndef __JCONER_LOGGING_HPP__
-#define __JCONER_LOGGING_HPP__
+#ifndef __GDRIVE_LOGGING_HPP__
+#define __GDRIVE_LOGGING_HPP__
 
 #include <stdarg.h>
 #include <string>
