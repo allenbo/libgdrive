@@ -1,4 +1,4 @@
-#include "logging.hpp"
+#include "gdrive/logging.hpp"
 
 using namespace GDRIVE;
 class LoggingTest {
@@ -21,7 +21,7 @@ class LoggingTest {
             FLOG_DEBUG("This is a debug information\n");
             FLOG_INFO("This is a info information\n");
             FLOG_WARN("This is a warn information\n");
-            //FLOG_ERROR("This is a error information\n");
+            FLOG_ERROR("This is a error information\n");
         }
 };
 
