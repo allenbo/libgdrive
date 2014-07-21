@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <curl.h>
+#include <curl/curl.h>
 
 namespace GDRIVE {
 
@@ -36,13 +36,13 @@ class Request {
         void set_body(RequestBody &body);
 
         Response get_response();
-        ~Response();
+        ~Request();
     private:
         std::string _uri;
         RequestMethod _method;
         RequestHeader _header;
         RequestBody _body;
-        CULR* _handle;
+        CURL *_handle;
         
         void _init_curl_handle();
         std::string _build_body();

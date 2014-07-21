@@ -5,7 +5,7 @@ class LoggingTest {
     CLASS_MAKE_LOGGER
     public:
         LoggingTest() {
-            CLASS_INIT_LOGGER("LoggingTest", DEBUG)
+            CLASS_INIT_LOGGER("LoggingTest", L_DEBUG)
         }
 
         void testClassLogger() {
@@ -17,7 +17,7 @@ class LoggingTest {
 
         void testFunctionLogger() {
             FUNC_MAKE_LOGGER
-            FUNC_LOGGER_SET_LEVEL(DEBUG);
+            FUNC_LOGGER_SET_LEVEL(L_DEBUG);
             FLOG_DEBUG("This is a debug information\n");
             FLOG_INFO("This is a info information\n");
             FLOG_WARN("This is a warn information\n");

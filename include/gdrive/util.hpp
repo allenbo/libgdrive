@@ -104,6 +104,10 @@ class VarString {
             return s;
         }
 
+        inline void clear() {
+            _cur = _p;
+        }
+
         inline int size() const { return _cur - _p; }
 
         ~VarString() {

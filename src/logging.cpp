@@ -27,35 +27,35 @@ static const char* baseFilename(const char* path) {
 void Logger::debug(const char* funcname, const char* filename, int lineno, const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
-    _log(funcname, filename, lineno, DEBUG, fmt, va);
+    _log(funcname, filename, lineno, L_DEBUG, fmt, va);
     va_end(va);
 }
 
 void Logger::info(const char* funcname, const char* filename, int lineno, const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
-    _log(funcname, filename, lineno, INFO, fmt, va);
+    _log(funcname, filename, lineno, L_INFO, fmt, va);
     va_end(va);
 }
 
 void Logger::warn(const char* funcname, const char* filename, int lineno, const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
-    _log(funcname, filename, lineno, WARN, fmt, va);
+    _log(funcname, filename, lineno, L_WARN, fmt, va);
     va_end(va);
 }
 
 void Logger::error(const char* funcname, const char* filename, int lineno, const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
-    _log(funcname, filename, lineno, ERROR, fmt, va);
+    _log(funcname, filename, lineno, L_ERROR, fmt, va);
     va_end(va);
 }
 
 void Logger::fatal(const char* funcname, const char* filename, int lineno, const char* fmt, ...) {
     va_list va;
     va_start(va, fmt);
-    _log(funcname, filename, lineno, FATAL, fmt, va);
+    _log(funcname, filename, lineno, L_FATAL, fmt, va);
     va_end(va);
 }
 
@@ -70,7 +70,7 @@ void Logger::_log(const char* funcname, const char* filename, int line, Level le
     }
     vfprintf(stderr, fullfmt, va);
 
-    if (level == ERROR or level == FATAL) {
+    if (level == L_ERROR or level == L_FATAL) {
         fprintf(stderr, "Abort!\n");
         exit(-1);
     }

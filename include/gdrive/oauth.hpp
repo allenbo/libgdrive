@@ -11,7 +11,7 @@
 #define REDIRECT_URI "urn:ietf:wg:oauth:2.0:oob"
 #define RESPONSE_TYPE "code"
 #define ACCESS_TYPE "offline"
-#define USE_AGENT "allenbo_gdrive/2.0"
+#define USER_AGENT "allenbo_gdrive/2.0"
 
 namespace GDRIVE {
 

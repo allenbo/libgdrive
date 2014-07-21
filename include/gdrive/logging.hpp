@@ -28,11 +28,11 @@ namespace GDRIVE {
 
 
 enum Level {
-    DEBUG = 0,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL
+    L_DEBUG = 0,
+    L_INFO,
+    L_WARN,
+    L_ERROR,
+    L_FATAL
 };
 
 enum LoggerType {
@@ -43,7 +43,7 @@ enum LoggerType {
 class Logger {
     public:
         Logger()
-            : _level(INFO), _type(LT_FUNCTION) {}
+            : _level(L_INFO), _type(LT_FUNCTION) {}
 
         Logger(Level level)
             : _level(level), _type(LT_FUNCTION) {}

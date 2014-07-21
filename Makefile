@@ -8,7 +8,7 @@ CPP := g++
 CC := gcc
 
 CFLAG := -g
-LFLAG := -g
+LFLAG := -g -lcurl
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst %.cpp,%.o, $(subst $(SRC_DIR),$(BUILD_DIR), $(SRC)))

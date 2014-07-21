@@ -15,7 +15,7 @@ std::string OAuth::get_authorize_url() {
     return vs.toString();
 }
 
-void OAuth::build_credential(std::string code) {
+bool OAuth::build_credential(std::string code) {
     _code = code;
     RequestBody body;
     body["grant_type"] = "authorization_code";
@@ -26,11 +26,12 @@ void OAuth::build_credential(std::string code) {
     body["scope"] = SCOPE;
 
     RequestHeader header;
-    header["content-type"] = "application/x-www-form-unrencoded";
+    header["content-type"] = "application/x-www-form-urlencoded";
     header["user-agent"] = USER_AGENT;
 
     Request request(TOKEN_URL, RM_POST, body, header);
     request.get_response();
+    return true;
 }
 
 }
