@@ -43,6 +43,13 @@ class VarString {
             return *this;
         }
 
+        inline VarString& drop() {
+            if (_cur != _p) {
+                _cur --;
+            }
+            return *this;
+        }
+
         VarString& append(const char* p) {
             int len = strlen(p);
             return append(p, len);
