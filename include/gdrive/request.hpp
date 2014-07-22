@@ -1,7 +1,8 @@
 #ifndef __GDRIVE_REQUEST_HPP__
 #define __GDRIVE_REQUEST_HPP__
 
-#include "logging.hpp"
+#include "gdrive/logging.hpp"
+#include "gdrive/config.hpp"
 #include <string>
 #include <map>
 #include <vector>
@@ -22,9 +23,9 @@ class Response {
     CLASS_MAKE_LOGGER
     public:
         Response();
+        static 
 };
 */
-
 typedef int Response;
 
 class Request {
@@ -34,8 +35,11 @@ class Request {
         Request(std::string uri, RequestMethod method, RequestBody& body, RequestHeader& header);
         void set_header(RequestHeader &header);
         void set_body(RequestBody &body);
-
+#ifdef DEBUG
+        Response get_response(const char* msg = NULL);
+#else
         Response get_response();
+#endif
         ~Request();
     private:
         std::string _uri;

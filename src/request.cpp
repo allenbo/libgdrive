@@ -30,7 +30,7 @@ Request::~Request() {
 }
 
 void Request::_init_curl_handle() {
-    curl_global_init(CURL_GLOBAL_ALL);
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     _handle = curl_easy_init();
     curl_easy_setopt(_handle, CURLOPT_URL, _uri.c_str());
 }
@@ -53,12 +53,24 @@ std::string Request::_build_body() {
     return vs.drop().toString();
 }
 
+#ifdef DEBUG
+Response Request::get_response(const char* msg) {
+    if (msg != NULL) {
+        curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, msg);
+    } else {
+#else
 Response Request::get_response() {
+#endif
     if (_body.size() > 0) {
         std::string encoded_body = _build_body();
-        CLOG_DEBUG("Generate encoded body:%s\n", encoded_body.c_str());
         if (_method == RM_POST) {
-            curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
+            //CLOG_DEBUG("Generate encoded body:%s\n", encoded_body.c_str());
+            //curl_easy_setopt(_handle, CURLOPT_POST, 1);
+            char* message = NULL;
+            MALLOC(char, message, encoded_body.size() + 1);
+            strcpy(message, encoded_body.c_str());
+            CLOG_DEBUG("Generate encoded body:%s\n", message);
+            curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, message);
             //curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, encoded_body.size());
         } else if (_method == RM_GET) {
             VarString vs;
@@ -66,9 +78,12 @@ Response Request::get_response() {
             curl_easy_setopt(_handle, CURLOPT_URL, vs.toString().c_str());
         }
     }
+#ifdef DEBUG
+    }
+#endif
     curl_easy_setopt(_handle, CURLOPT_VERBOSE, 1);
-    //curl_easy_setopt(_handle, CURLOPT_USE_SSL, CURLUSESSL_ALL);
-    //curl_easy_setopt(_handle, CURLOPT_HEADER, 1);
+    curl_easy_setopt(_handle, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+    curl_easy_setopt(_handle, CURLOPT_HEADER, 1);
     curl_slist* header_list = NULL;
     if (_header.size() > 0) {
         header_list = _build_header();
