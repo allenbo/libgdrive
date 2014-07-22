@@ -3,12 +3,15 @@ TEST_SRC_DIR := ./test
 INCLUDE_DIR := ./include
 BUILD_DIR := ./build
 TESTBIN_DIR := $(BUILD_DIR)/test
+LIB_DIR := ./lib 
+
+LIB := -ljconer
 
 CPP := g++
 CC := gcc
 
 CFLAG := -g
-LFLAG := -g -lcurl
+LFLAG := -g -lcurl -L$(LIB_DIR) $(LIB)
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst %.cpp,%.o, $(subst $(SRC_DIR),$(BUILD_DIR), $(SRC)))
@@ -32,7 +35,7 @@ $(TESTBIN_DIR):
 
 
 $(TESTBIN_DIR)/%:$(TEST_SRC_DIR)/%.cpp $(OBJ)
-	$(CPP) $^ $(CFLAG) $(LFLAG) -o $@ -I$(INCLUDE_DIR) -L$(BUILD_DIR)
+	$(CPP) $^ $(CFLAG) $(LFLAG) -o $@ -I$(INCLUDE_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR) $(TESTBIN_DIR)

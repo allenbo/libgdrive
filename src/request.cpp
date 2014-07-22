@@ -16,7 +16,7 @@ Request::Request(std::string uri, RequestMethod method)
     :_uri(uri), _method(method) 
 {
     _init_curl_handle();    
-#ifdef DEBUG
+#ifdef GDIRVE_DEBUG
     CLASS_INIT_LOGGER("Request", L_DEBUG);
 #endif
 }
@@ -27,7 +27,7 @@ Request::Request(std::string uri, RequestMethod method, RequestBody& body, Reque
     _init_curl_handle();
     _body.insert(body.begin(), body.end());
     _header.insert(header.begin(), header.end());
-#ifdef DEBUG
+#ifdef GDRIVE_DEBUG
     CLASS_INIT_LOGGER("Request", L_DEBUG);
 #endif
 }

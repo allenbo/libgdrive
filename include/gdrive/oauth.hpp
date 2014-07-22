@@ -2,7 +2,9 @@
 #define __GDRIVE_OAUTH_HPP__
 
 #include <string>
+#include "gdrive/config.hpp"
 #include "gdrive/util.hpp"
+#include "gdrive/logging.hpp"
 
 #define OAUTH_URL "https://accounts.google.com/o/oauth2/auth"
 #define REVOKE_URL "https://accounts.google.com/o/oauth2/revoke"
@@ -16,9 +18,9 @@
 namespace GDRIVE {
 
 class OAuth {
+    CLASS_MAKE_LOGGER
     public:
-        OAuth(std::string client_id, std::string client_secret)
-            :_client_id(client_id), _client_secret(client_secret) {}
+        OAuth(std::string client_id, std::string client_secret);
 
         std::string get_authorize_url();
         bool build_credential(std::string code);
