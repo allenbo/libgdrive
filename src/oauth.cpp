@@ -30,8 +30,10 @@ bool OAuth::build_credential(std::string code) {
     header["user-agent"] = USER_AGENT;
 
     Request request(TOKEN_URL, RM_POST, body, header);
-    request.get_response();
-    return true;
+    request.request();
+    Response resp = request.response();
+
+    return resp.status() == 200;
 }
 
 }

@@ -18,15 +18,27 @@ enum RequestMethod {
 
 typedef std::map<std::string, std::string> RequestHeader;
 typedef std::map<std::string, std::string> RequestBody;
-/*
+
+class Response;
+class Request;
+
 class Response {
     CLASS_MAKE_LOGGER
     public:
-        Response();
-        static 
+        Response() {}
+        static size_t curl_write_callback(void* content, size_t size, size_t nmemb, void* userp);
+        inline std::string content() const { return _content; };
+        inline std::string header() const { return _header; };
+        inline int status() const { return _status; }
+        inline void set_status(int status) { _status = status;}
+    private:
+        std::string _content;
+        std::string _header;
+        int _status;
+
+        friend class Request;
 };
-*/
-typedef int Response;
+
 
 class Request {
     CLASS_MAKE_LOGGER
@@ -35,17 +47,15 @@ class Request {
         Request(std::string uri, RequestMethod method, RequestBody& body, RequestHeader& header);
         void set_header(RequestHeader &header);
         void set_body(RequestBody &body);
-#ifdef DEBUG
-        Response get_response(const char* msg = NULL);
-#else
-        Response get_response();
-#endif
+        void request();
+        inline Response& response() { return _resp;}
         ~Request();
     private:
         std::string _uri;
         RequestMethod _method;
         RequestHeader _header;
         RequestBody _body;
+        Response _resp;
         CURL *_handle;
         
         void _init_curl_handle();

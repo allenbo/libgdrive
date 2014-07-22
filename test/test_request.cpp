@@ -1,4 +1,5 @@
 #include "gdrive/request.hpp"
+#include <iostream>
 
 using namespace GDRIVE;
 
@@ -9,9 +10,9 @@ int main() {
 
     RequestHeader header;
     Request request("http://bitworking.org/news/223/Meet-Ares", RM_POST, body, header);
-#ifdef DEBUG
-    request.get_response("name=joe&comment=A test comment");
-#else
-    request.get_response();
-#endif
+    request.request();
+    Response resp = request.response();
+    std::cout << resp.content() << std::endl;
+    std::cout << resp.header() << std::endl;
+    std::cout << resp.status() << std::endl;
 }
