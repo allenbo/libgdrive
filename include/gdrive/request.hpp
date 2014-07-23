@@ -45,8 +45,12 @@ class Request {
     public:
         Request(std::string uri, RequestMethod method);
         Request(std::string uri, RequestMethod method, RequestBody& body, RequestHeader& header);
-        void set_header(RequestHeader &header);
-        void set_body(RequestBody &body);
+        void add_header(RequestHeader &header);
+        void add_body(RequestBody &body);
+        void add_header(std::string key, std::string value);
+        void add_body(std::string key, std::string value);
+        inline void clear_body() { _body.clear();}
+        inline void clear_header() { _header.clear();}
         void request();
         inline Response& response() { return _resp;}
         ~Request();

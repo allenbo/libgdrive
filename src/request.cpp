@@ -45,6 +45,22 @@ void Request::_init_curl_handle() {
     curl_easy_setopt(_handle, CURLOPT_WRITEFUNCTION, Response::curl_write_callback);
 }
 
+void Request::add_header(RequestHeader& header) {
+    _header.insert(header.begin(), header.end());
+}
+
+void Request::add_header(std::string key, std::string value) {
+    _header[key] = value;
+}
+
+void Request::add_body(RequestBody& body) {
+    _body.insert(body.begin(), body.end());
+}
+
+void Request::add_body(std::string key, std::string value) {
+    _body[key] = value;
+}
+
 curl_slist* Request::_build_header() {
     curl_slist* list = NULL;
     VarString vs;
