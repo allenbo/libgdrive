@@ -42,9 +42,9 @@ void OAuth::_parse_response(std::string content) {
         if (rst->contain("token_type")) {
             _resp.token_type = ((JString*)rst->get("token_type"))->getValue();
         }
-        if (rst->contain("expire_in")) {
-            _resp.expire_in = ((JInt*)rst->get("expire_in"))->getValue();
-            _resp.token_expiry = (long)time(NULL) + _resp.expire_in;
+        if (rst->contain("expires_in")) {
+            _resp.expires_in = ((JInt*)rst->get("expires_in"))->getValue();
+            _resp.token_expiry = (long)time(NULL) + _resp.expires_in;
         }
         delete rst;
     }

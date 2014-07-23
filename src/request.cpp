@@ -55,6 +55,7 @@ void Request::add_header(std::string key, std::string value) {
 
 void Request::add_body(RequestBody& body) {
     _body.insert(body.begin(), body.end());
+    CLOG_DEBUG("After add, body size: %d\n", _body.size());
 }
 
 void Request::add_body(std::string key, std::string value) {
@@ -80,18 +81,18 @@ std::string Request::_build_body() {
 }
 
 void Request::request() {
-    std::string encoded_body;
+    std::string encoded_body = _build_body();
+    VarString vs;
     if (_body.size() > 0) {
         if (_method == RM_POST) {
-            encoded_body = _build_body();
+            CLOG_DEBUG("Send data: %s\n", encoded_body.c_str());
             curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
         } else if (_method == RM_GET) {
-            VarString vs;
-            vs.append(_uri).append('&').append(encoded_body);
+            vs.append(_uri).append('?').append(encoded_body);
             curl_easy_setopt(_handle, CURLOPT_URL, vs.toString().c_str());
         }
     }
-#ifdef DEBUG
+#ifdef GDRIVE_DEBUG
     curl_easy_setopt(_handle, CURLOPT_VERBOSE, 1);
 #endif
     curl_easy_setopt(_handle, CURLOPT_USE_SSL, CURLUSESSL_ALL);

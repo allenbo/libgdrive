@@ -10,6 +10,9 @@ Credential::Credential(std::string access_token, std::string client_id,
                    long token_expiry, std::string token_uri,
                    std::string user_agent, std::string revoke_uri,
                    std::string id_token) {
+ #ifdef GDRIVE_DEBUG
+    CLASS_INIT_LOGGER("Credential", L_DEBUG);
+#endif
     _access_token = access_token;
     _client_id = client_id;
     _client_secret = client_secret;
@@ -21,9 +24,7 @@ Credential::Credential(std::string access_token, std::string client_id,
     _id_token = id_token;
     _invalid = false;
 
-#ifdef GDRIVE_DEBUG
-    CLASS_INIT_LOGGER("Credential", L_DEBUG);
-#endif
+    CLOG_DEBUG("Create Credential sucessfully\n");
 }
 
 Credential::Credential() {
@@ -107,6 +108,7 @@ void Credential::_refresh() {
     RequestBody body = _generate_request_body(); 
     
     Request request(_token_uri, RM_POST, body, header);
+    request.request();
     Response resp = request.response();
 
     if (resp.status() == 200) {
@@ -123,12 +125,15 @@ Response Credential::request(Request& req) {
     }
 
     _apply_header(req);
+    CLOG_DEBUG("Apply header to request\n");
     
+    req.request();
     Response resp = req.response();
     if (resp.status() == 401 or resp.status() == 403) {
         CLOG_INFO("Need to refresh\n");
         _refresh();
         _apply_header(req);
+        req.request();
         return req.response();
     } else {
         return resp;

@@ -1,5 +1,6 @@
 #include "gdrive/oauth.hpp"
 #include "gdrive/credential.hpp"
+#include "gdrive/drive.hpp"
 #include <iostream>
 
 using namespace GDRIVE;
@@ -14,16 +15,8 @@ int main() {
     std::string code;
     std::cin >> code;
     Credential cred = oauth.build_credential(code);
-    RequestBody body;
-    body["maxResults"] = "1000";
-    //body["key"] = client_secret;
-
-    Request req("https://www.googleapis.com/drive/v2/files", RM_GET);
-    req.add_body(body);
-    Response resp = cred.request(req);
-    //req.request();
-    //Response resp = req.response();
-    std::cout << resp.content() << std::endl;
+    FileService fs(cred);
+    fs.List();
 }
 
 

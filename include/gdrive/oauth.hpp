@@ -38,7 +38,7 @@ class OAuth {
                 token_type = "";
                 refresh_token = "";
                 id_token = "";
-                expire_in = 0;
+                expires_in = 0;
                 token_expiry = 0;
             }
 
@@ -46,7 +46,7 @@ class OAuth {
             std::string token_type;
             std::string refresh_token;
             std::string id_token;
-            long expire_in;
+            long expires_in;
             long token_expiry;
         };
 
