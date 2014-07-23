@@ -24,8 +24,8 @@ std::vector<GFile> FileService::List() {
     Request request(FILE_URL, RM_GET);
     request.add_body(body);
 
-    Response resp = _cred.request(request);
     while(true) {
+        Response resp = _cred.request(request);
         PError error;
         JObject* value = (JObject*)loads(resp.content(), error);
         if (value != NULL) {
@@ -41,6 +41,7 @@ std::vector<GFile> FileService::List() {
             }
             if (value->contain("nextLink")) {
                 next_link = ((JString*)value->get("nextLink"))->getValue();
+                request = Request(next_link, RM_GET);
                 delete value;
             } else {
                 delete value;
