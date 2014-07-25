@@ -16,7 +16,7 @@ int main() {
     std::cin >> code;
     Credential cred = oauth.build_credential(code);
     FileService fs(cred);
-    fs.List();
+    std::vector<GFile> files = fs.List();
+    fs.Get(files[0].id);
 }
-
 

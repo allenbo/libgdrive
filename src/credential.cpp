@@ -27,6 +27,21 @@ Credential::Credential(std::string access_token, std::string client_id,
     CLOG_DEBUG("Create Credential sucessfully\n");
 }
 
+Credential::Credential(Store* store, std::string token_uri, std::string user_agent,
+                       std::string revoke_uri, std::string id_token) {
+ #ifdef GDRIVE_DEBUG
+    CLASS_INIT_LOGGER("Credential", L_DEBUG);
+#endif
+    _token_uri = token_uri;
+    _user_agent = user_agent;
+    _revoke_uri = revoke_uri;
+    _id_token = id_token;
+    _invalid = false;
+    _store = store;
+
+    CLOG_DEBUG("Create Credential sucessfully\n");
+}
+
 Credential::Credential() {
     _access_token = "";
     _client_id = "";

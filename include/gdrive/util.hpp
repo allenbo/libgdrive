@@ -1,6 +1,6 @@
 #ifndef __GDRIVE_UTIL_HPP__
 #define __GDRIVE_UTIL_HPP__
-
+#include <string>
 #include <string.h>
 #include <stdlib.h>
 

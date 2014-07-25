@@ -36,7 +36,7 @@ std::vector<GFile> FileService::List() {
                     GFile file;
                     file.from_json(item);
                     files.push_back(file);
-                    CLOG_DEBUG("Get %d file\n", files.size());
+                    CLOG_DEBUG("Get file %s\n", file.title.c_str());
                 }
             }
             if (value->contain("nextLink")) {
@@ -51,4 +51,13 @@ std::vector<GFile> FileService::List() {
     }
     return files;
 }
+
+GFile FileService::Get(std::string id) {
+    std::string url(FILE_URL "/");
+    url += id;
+    Request request(url, RM_GET);
+    Response resp = _cred.request(request);
+    CLOG_DEBUG("%s\n", resp.content().c_str());
+}
+
 }

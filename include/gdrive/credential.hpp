@@ -5,6 +5,7 @@
 #include "gdrive/config.hpp"
 #include "gdrive/util.hpp"
 #include "gdrive/request.hpp"
+#include "gdrive/store.hpp"
 
 #include <string>
 
@@ -19,6 +20,8 @@ class Credential {
                    std::string user_agent, std::string revoke_uri,
                    std::string id_token);
         Credential(const Credential& other);
+        Credential(Store * store, std::string token_uri, std::string user_agent,
+                   std::string revoke_uri, std::string id_token);
         Credential();
         
         Response request(Request&);
@@ -33,6 +36,8 @@ class Credential {
         std::string _revoke_uri;
         std::string _id_token;
         bool _invalid;
+
+        Store *_store;
 
         void _apply_header(Request& req);
         void _refresh();

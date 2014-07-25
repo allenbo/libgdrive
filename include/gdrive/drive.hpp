@@ -27,6 +27,7 @@ class FileService : public DriveService {
     public:
         FileService(Credential cred);
         std::vector<GFile> List();
+        GFile Get(std::string id);
 };
 
 }
