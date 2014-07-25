@@ -7,9 +7,7 @@ namespace GDRIVE {
 
 Credential::Credential(std::string access_token, std::string client_id,
                    std::string client_secret, std::string refresh_token,
-                   long token_expiry, std::string token_uri,
-                   std::string user_agent, std::string revoke_uri,
-                   std::string id_token) {
+                   long token_expiry, std::string id_token) {
  #ifdef GDRIVE_DEBUG
     CLASS_INIT_LOGGER("Credential", L_DEBUG);
 #endif
@@ -18,28 +16,12 @@ Credential::Credential(std::string access_token, std::string client_id,
     _client_secret = client_secret;
     _refresh_token = refresh_token;
     _token_expiry = token_expiry;
-    _token_uri = token_uri;
-    _user_agent = user_agent;
-    _revoke_uri = revoke_uri;
+    _token_uri = TOKEN_URL;
+    _user_agent = USER_AGENT;
+    _revoke_uri = REVOKE_URL;
     _id_token = id_token;
     _invalid = false;
-
-    CLOG_DEBUG("Create Credential sucessfully\n");
-}
-
-Credential::Credential(Store* store, std::string token_uri, std::string user_agent,
-                       std::string revoke_uri, std::string id_token) {
- #ifdef GDRIVE_DEBUG
-    CLASS_INIT_LOGGER("Credential", L_DEBUG);
-#endif
-    _token_uri = token_uri;
-    _user_agent = user_agent;
-    _revoke_uri = revoke_uri;
-    _id_token = id_token;
-    _invalid = false;
-    _store = store;
-
-    CLOG_DEBUG("Create Credential sucessfully\n");
+    _store = NULL;
 }
 
 Credential::Credential() {
@@ -48,11 +30,12 @@ Credential::Credential() {
     _client_secret = "";
     _refresh_token = "";
     _token_expiry = 0;
-    _token_uri = "";
-    _user_agent = "";
-    _revoke_uri = "";
+    _token_uri = TOKEN_URL;
+    _user_agent = USER_AGENT;
+    _revoke_uri = REVOKE_URL;
     _id_token = "";
     _invalid = true;
+    _store = NULL;
 
 #ifdef GDRIVE_DEBUG
     CLASS_INIT_LOGGER("Credential", L_DEBUG);
@@ -70,6 +53,7 @@ Credential::Credential(const Credential& other) {
     _revoke_uri = other._revoke_uri;
     _id_token = other._id_token;
     _invalid = other._invalid;
+    _store = other._store;
 
 #ifdef GDRIVE_DEBUG
     CLASS_INIT_LOGGER("Credential", L_DEBUG);
@@ -117,6 +101,28 @@ void Credential::_parse_response(std::string content) {
     }
 }
 
+void Credential::_fresh() {
+    if (_store == NULL) {
+        CLOG_WARN("This is no store to save tokens\n");
+        return;
+    }
+    _store->put("access_token", _access_token);
+    _store->put("client_id", _client_id);
+    _store->put("client_secret", _client_secret);
+    _store->put("refresh_token", _refresh_token);
+    _store->put("id_token", _id_token);
+    _store->dump(); 
+}
+
+void Credential::from_store(Store* store) {
+    _store = store;
+    _invalid = false;
+    _access_token = _store->get("access_token");
+    _client_id = _store->get("client_id");
+    _client_secret = _store->get("client_secret");
+    _refresh_token = _store->get("refresh_token");
+    _id_token = _store->get("id_token");
+}
 
 void Credential::_refresh() {
     RequestHeader header = _generate_request_header(); 
@@ -128,6 +134,7 @@ void Credential::_refresh() {
 
     if (resp.status() == 200) {
         _parse_response(resp.content());
+        _fresh();
     } else {
         CLOG_ERROR("error_msg:%s\n", resp.content().c_str());
     }

@@ -19,4 +19,3 @@ int main() {
     std::vector<GFile> files = fs.List();
     fs.Get(files[0].id);
 }
-

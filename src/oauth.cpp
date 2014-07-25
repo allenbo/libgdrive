@@ -76,7 +76,7 @@ Credential OAuth::build_credential(std::string code) {
         CLOG_DEBUG("refresh_token:%s\n", _resp.refresh_token.c_str());
         CLOG_DEBUG("token_expiry:%d\n", _resp.token_expiry); 
         Credential rst(_resp.access_token, _client_id, _client_secret, _resp.refresh_token, _resp.token_expiry,
-                       TOKEN_URL, USER_AGENT, REVOKE_URL, _resp.id_token);
+                       _resp.id_token);
         return rst;
     }
     else {

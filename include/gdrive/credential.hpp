@@ -16,14 +16,12 @@ class Credential {
     public:
         Credential(std::string access_token, std::string client_id,
                    std::string client_secret, std::string refresh_token,
-                   long token_expiry, std::string token_uri,
-                   std::string user_agent, std::string revoke_uri,
-                   std::string id_token);
+                   long token_expiry, std::string id_token);
         Credential(const Credential& other);
-        Credential(Store * store, std::string token_uri, std::string user_agent,
-                   std::string revoke_uri, std::string id_token);
         Credential();
-        
+
+        void set_store(Store* store) { _store = store; _fresh();}
+        void from_store(Store* store);
         Response request(Request&);
     private:
         std::string _access_token;
@@ -41,6 +39,7 @@ class Credential {
 
         void _apply_header(Request& req);
         void _refresh();
+        void _fresh();
 
         RequestBody _generate_request_body();
         RequestHeader _generate_request_header();
