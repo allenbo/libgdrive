@@ -76,8 +76,8 @@ RequestBody Credential::_generate_request_body() {
 
 RequestHeader Credential::_generate_request_header() {
     RequestHeader header;
-    header["user-agent"] = _user_agent;
-    header["content-type"] = "x-www-form-urlencoded";
+    header["User-Agent"] = _user_agent;
+    header["Content-Type"] = "application/x-www-form-urlencoded";
     return header;
 }
 

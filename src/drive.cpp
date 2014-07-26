@@ -57,7 +57,15 @@ GFile FileService::Get(std::string id) {
     url += id;
     Request request(url, RM_GET);
     Response resp = _cred.request(request);
-    CLOG_DEBUG("%s\n", resp.content().c_str());
+    PError error;
+    JObject* obj = (JObject*)loads(resp.content(), error);
+    GFile file;
+    if (obj != NULL) {
+        file.from_json(obj);
+        delete obj;
+    }
+    return file;
+    //CLOG_DEBUG("%s\n", resp.content().c_str());
 }
 
 }

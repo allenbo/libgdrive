@@ -52,7 +52,5 @@ int main() {
     Request req("https://www.googleapis.com/drive/v2/files", RM_GET);
     req.add_body(body);
     Response resp = cred.request(req);
-    //req.request();
-    //Response resp = req.response();
-    std::cout << resp.content() << std::endl;
+    assert(resp.status() == 200);
 }
