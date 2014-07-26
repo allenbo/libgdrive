@@ -53,9 +53,9 @@ std::vector<GFile> FileService::List() {
 }
 
 GFile FileService::Get(std::string id) {
-    std::string url(FILE_URL "/");
-    url += id;
-    Request request(url, RM_GET);
+    VarString vs;
+    vs.append(FILE_URL).append('/').append(id);
+    Request request(vs.toString(), RM_GET);
     Response resp = _cred.request(request);
     PError error;
     JObject* obj = (JObject*)loads(resp.content(), error);
@@ -65,7 +65,6 @@ GFile FileService::Get(std::string id) {
         delete obj;
     }
     return file;
-    //CLOG_DEBUG("%s\n", resp.content().c_str());
 }
 
 }
