@@ -151,7 +151,7 @@ Response Credential::request(Request& req) {
     
     req.request();
     Response resp = req.response();
-    if (resp.status() == 401 or resp.status() == 403) {
+    if (resp.status() == 401) {
         CLOG_INFO("Need to refresh\n");
         _refresh();
         _apply_header(req);

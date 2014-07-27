@@ -57,14 +57,58 @@ GFile FileService::Get(std::string id) {
     vs.append(FILE_URL).append('/').append(id);
     Request request(vs.toString(), RM_GET);
     Response resp = _cred.request(request);
-    PError error;
-    JObject* obj = (JObject*)loads(resp.content(), error);
-    GFile file;
-    if (obj != NULL) {
-        file.from_json(obj);
-        delete obj;
+    if (resp.status() == 200) {
+        PError error;
+        JObject* obj = (JObject*)loads(resp.content(), error);
+        GFile file;
+        if (obj != NULL) {
+            file.from_json(obj);
+            delete obj;
+        }
+        return file;
+    } else if (resp.status() == 404) {
+        CLOG_ERROR("There is no such file found: %s\n", id.c_str()); 
+    } else {
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", resp.status(), resp.content().c_str());
     }
-    return file;
+}
+
+GFile FileService::Trash(std::string id) {
+    VarString vs;
+    vs.append(FILE_URL).append('/').append(id).append("/trash");
+    Request request(vs.toString(), RM_POST);
+    Response resp = _cred.request(request);
+    if (resp.status() == 200) {
+        PError error;
+        JObject* obj = (JObject*)loads(resp.content(), error);
+        GFile file;
+        if (obj != NULL) {
+            file.from_json(obj);
+            delete obj;
+        }
+        return file;
+    } else {
+        CLOG_ERROR("Not sucessful, server returns %d: %s\n", resp.status(), resp.content().c_str());
+    }
+}
+
+GFile FileService::Untrash(std::string id) {
+    VarString vs;
+    vs.append(FILE_URL).append('/').append(id).append("/untrash");
+    Request request(vs.toString(), RM_POST);
+    Response resp = _cred.request(request);
+    if (resp.status() == 200) {
+        PError error;
+        JObject* obj = (JObject*)loads(resp.content(), error);
+        GFile file;
+        if (obj != NULL) {
+            file.from_json(obj);
+            delete obj;
+        }
+        return file;
+    } else {
+        CLOG_ERROR("Not sucessful, server returns %d: %s\n", resp.status(), resp.content().c_str());
+    }
 }
 
 }

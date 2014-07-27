@@ -45,5 +45,11 @@ int main() {
 
     FileService service(cred);
     std::vector<GFile> files = service.List();
-    service.Get(files[0].id);
+    for (int i = 0; i < files.size(); i ++ ) {
+        if (files[i].title == "personal") {
+            std::cout <<  "Find the file we need" << std::endl;
+            GFile file = service.Untrash(files[i].id);
+            break;
+        }
+    }
 }

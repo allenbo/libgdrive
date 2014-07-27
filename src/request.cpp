@@ -18,6 +18,7 @@ Request::Request(std::string uri, RequestMethod method)
     _init_curl_handle();    
 #ifdef GDIRVE_DEBUG
     CLASS_INIT_LOGGER("Request", L_DEBUG);
+    CLOG_DEBUG("The method is %s\n", _method == RM_POST? "post" : "get");
 #endif
 }
 
@@ -77,20 +78,28 @@ std::string Request::_build_body() {
     for(RequestBody::iterator iter = _body.begin(); iter != _body.end(); iter ++) {
         vs.append(iter->first).append('=').append(URLHelper::encode(iter->second)).append('&');
     }
-    return vs.drop().toString();
+    if (_body.size() > 0) {
+        return vs.drop().toString();
+    } else {
+        return "";
+    }
 }
 
 void Request::request() {
     std::string encoded_body = _build_body();
     VarString vs;
-    if (_body.size() > 0) {
-        if (_method == RM_POST) {
-            CLOG_DEBUG("Send data: %s\n", encoded_body.c_str());
-            curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
-        } else if (_method == RM_GET) {
+    if (_method == RM_POST) {
+        curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
+        if (_body.size() == 0) {
+            _header["Content-Type"] = "";
+        }
+    } else if (_method == RM_GET) {
+        if (_body.size() > 0) {
             vs.append(_uri).append('?').append(encoded_body);
             curl_easy_setopt(_handle, CURLOPT_URL, vs.toString().c_str());
         }
+    } else {
+        CLOG_FATAL("Unknown  method\n");
     }
 #ifdef GDRIVE_DEBUG
     curl_easy_setopt(_handle, CURLOPT_VERBOSE, 1);
