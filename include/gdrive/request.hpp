@@ -13,7 +13,8 @@ namespace GDRIVE {
 enum RequestMethod {
     RM_GET,
     RM_POST,
-    RM_PUT
+    RM_PUT,
+    RM_DELETE
 };
 
 typedef std::map<std::string, std::string> RequestHeader;

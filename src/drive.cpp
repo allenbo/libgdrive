@@ -111,4 +111,17 @@ GFile FileService::Untrash(std::string id) {
     }
 }
 
+bool FileService::Delete(std::string id) {
+    VarString vs;
+    vs.append(FILE_URL).append('/').append(id);
+    Request request(vs.toString(), RM_DELETE);
+    Response resp = _cred.request(request);
+    if ( resp.status() == 200) {
+        return true;
+    } else {
+        CLOG_WARN("%d: %s\n", resp.status(), resp.content().c_str());
+        return false;
+    }
+}
+
 }

@@ -44,6 +44,7 @@ int main() {
     }
 
     FileService service(cred);
+    /*
     std::vector<GFile> files = service.List();
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].title == "personal") {
@@ -52,4 +53,6 @@ int main() {
             break;
         }
     }
+    */
+    service.Delete("whatever");
 }

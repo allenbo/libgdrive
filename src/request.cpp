@@ -98,6 +98,11 @@ void Request::request() {
             vs.append(_uri).append('?').append(encoded_body);
             curl_easy_setopt(_handle, CURLOPT_URL, vs.toString().c_str());
         }
+    } else if (_method == RM_DELETE) {
+        curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
+        if(_body.size() > 0)  {
+            curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
+        }
     } else {
         CLOG_FATAL("Unknown  method\n");
     }
