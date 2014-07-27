@@ -47,12 +47,12 @@ int main() {
     /*
     std::vector<GFile> files = service.List();
     for (int i = 0; i < files.size(); i ++ ) {
-        if (files[i].title == "personal") {
-            std::cout <<  "Find the file we need" << std::endl;
-            GFile file = service.Untrash(files[i].id);
+        if (files[i].title == "testforgdrive") {
+            std::cout <<  "Find the file we need" << files[i].id << std::endl;
+            //service.Delete(files[i].id);
             break;
         }
     }
     */
-    service.Delete("whatever");
+    service.EmptyTrash();
 }

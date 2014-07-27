@@ -116,12 +116,26 @@ bool FileService::Delete(std::string id) {
     vs.append(FILE_URL).append('/').append(id);
     Request request(vs.toString(), RM_DELETE);
     Response resp = _cred.request(request);
-    if ( resp.status() == 200) {
+    if ( resp.status() == 204) {
         return true;
     } else {
         CLOG_WARN("%d: %s\n", resp.status(), resp.content().c_str());
         return false;
     }
+}
+
+bool FileService::EmptyTrash() {
+    VarString vs;
+    vs.append(FILE_URL).append("/trash");
+    Request request(vs.toString(), RM_DELETE);
+    Response resp = _cred.request(request);
+    if ( resp.status() == 204) {
+        return true;
+    } else {
+        CLOG_WARN("%d: %s\n", resp.status(), resp.content().c_str());
+        return false;
+    }
+
 }
 
 }
