@@ -10,6 +10,7 @@ using namespace JCONER;
 namespace GDRIVE {
 
 struct GFileLabel {
+    GFileLabel();
     bool starred;
     bool hidden;
     bool trashed;
@@ -19,6 +20,7 @@ struct GFileLabel {
 };
 
 struct GUser {
+    GUser();
     std::string display_name;
     std::string picture_url;
     bool isAuthenticated;
@@ -27,6 +29,7 @@ struct GUser {
 };
 
 struct GParent {
+    GParent();
     std::string id;
     std::string self_link;
     std::string parent_link;
@@ -36,6 +39,7 @@ struct GParent {
 
 
 struct GProperty {
+    GProperty();
     std::string etag;
     std::string self_link;
     std::string key;
@@ -44,7 +48,26 @@ struct GProperty {
     void from_json(JObject* obj);
 };
 
+struct GPermission {
+    GPermission();
+    std::string etag;
+    std::string id;
+    std::string self_link;
+    std::string name;
+    std::string email_address;
+    std::string domain;
+    std::string role;
+    std::vector<std::string> additional_roles;
+    std::string type;
+    std::string value;
+    std::string auth_key;
+    std::string with_link;
+    std::string photo_link;
+    void from_json(JObject* obj);
+};
+
 struct GImageMediaMetaData {
+    GImageMediaMetaData();
     int width;
     int height;
     int rotation;
@@ -70,22 +93,14 @@ struct GImageMediaMetaData {
     double exposure_bias;
     double max_aperture_value;
     int subject_distance;
-    std::stirng lens;
-    void from_json(JObject* obj);
-};
-
-struct GUserPermission {
-    std::string etag;
-    std::string id;
-    std::string self_link;
-    std::string role;
-    std::string type;
+    std::string lens;
     void from_json(JObject* obj);
 };
 
 typedef std::map<std::string, std::string> GExportLink;
 
 struct GFile {
+    GFile();
     std::string id;
     std::string etag;
     std::string self_link;
@@ -101,18 +116,18 @@ struct GFile {
     std::string mime_type;
     std::string description;
     GFileLabel labels;
-    time_t created_date;
-    time_t modified_date;
-    time_t modifiedbyme_date;
-    time_t lastviewedbyme_date;
-    time_t sharedwithme_date;
+    struct tm created_date;
+    struct tm modified_date;
+    struct tm modifiedbyme_date;
+    struct tm lastviewedbyme_date;
+    struct tm sharedwithme_date;
     std::string version;
     GUser sharing_user;
     std::vector<GParent> parents;
     GExportLink export_links;
     std::string indexable_text;
-    GUserPermission user_permission;
-    std::vector<GUserPermission> permissions;
+    GPermission user_permission;
+    std::vector<GPermission> permissions;
     std::string original_filename;
     std::string file_extension;
     std::string md5_checksum;
@@ -131,7 +146,6 @@ struct GFile {
     std::string head_revision_id;
     std::vector<GProperty> properties;
     GImageMediaMetaData image_media_meta_data;
-
 
     void from_json(JObject* obj);
 };
