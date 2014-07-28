@@ -44,15 +44,13 @@ int main() {
     }
 
     FileService service(cred);
-    /*
     std::vector<GFile> files = service.List();
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].title == "testforgdrive") {
             std::cout <<  "Find the file we need" << files[i].id << std::endl;
-            //service.Delete(files[i].id);
+            GFile file = service.Touch(files[i].id);
             break;
         }
     }
-    */
-    service.EmptyTrash();
+    //service.EmptyTrash();
 }

@@ -32,6 +32,7 @@ class FileService : public DriveService {
         GFile Untrash(std::string id);
         bool Delete(std::string id);
         bool EmptyTrash();
+        GFile Touch(std::string id);
 };
 
 }

@@ -138,4 +138,23 @@ bool FileService::EmptyTrash() {
 
 }
 
+GFile FileService::Touch(std::string id) {
+    VarString vs;
+    vs.append(FILE_URL).append('/').append(id).append("/touch");
+    Request request(vs.toString(), RM_POST);
+    Response resp = _cred.request(request);
+    if (resp.status() == 200) {
+        PError error;
+        JObject* obj = (JObject*)loads(resp.content(), error);
+        GFile file;
+        if (obj != NULL) {
+            file.from_json(obj);
+            delete obj;
+        }
+        return file;
+    } else {
+        CLOG_ERROR("Not sucessful, server returns %d: %s\n", resp.status(), resp.content().c_str());
+    }
+}
+
 }
