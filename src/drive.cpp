@@ -3,13 +3,18 @@
 using namespace JCONER;
 namespace GDRIVE {
 
-DriveService::DriveService(Credential cred)
+Drive::Drive(Credential cred)
     :_cred(cred)
 {
 }
 
-FileService::FileService(Credential cred)
-    :DriveService(cred)
+FileService& Drive::files() {
+    return FileService::get_instance(_cred);
+}
+
+FileService FileService::_single_instance;
+
+FileService::FileService()
 {
 #ifdef GDRIVE_DEBUG
     CLASS_INIT_LOGGER("FileService", L_DEBUG)

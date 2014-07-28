@@ -42,15 +42,16 @@ int main() {
     } else {
         cred.from_store(&fs);
     }
-
-    FileService service(cred);
-    std::vector<GFile> files = service.List();
+    Request request("https://www.googleapis.com/discovery/v1/apis/drive/v2/rest", RM_GET);
+    Response resp = cred.request(request);
+    std::cout << resp.status() << " " << resp.content() << std::endl;
+    Drive service(cred);
+    std::vector<GFile> files = service.files().List();
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].title == "testforgdrive") {
             std::cout <<  "Find the file we need" << files[i].id << std::endl;
-            GFile file = service.Touch(files[i].id);
+            GFile file = service.files().Touch(files[i].id);
             break;
         }
     }
-    //service.EmptyTrash();
 }
