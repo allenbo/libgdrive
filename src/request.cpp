@@ -73,7 +73,7 @@ curl_slist* Request::_build_header() {
     return list;
 }
 
-std::string Request::_build_body() {
+std::string Request::_urlencode_body() {
     VarString vs;
     for(RequestBody::iterator iter = _body.begin(); iter != _body.end(); iter ++) {
         vs.append(iter->first).append('=').append(URLHelper::encode(iter->second)).append('&');
@@ -85,8 +85,22 @@ std::string Request::_build_body() {
     }
 }
 
-void Request::request() {
-    std::string encoded_body = _build_body();
+std::string Request::_jsonencode_body() {
+    return "";
+}
+
+void Request::request(EncodeMethod em_method) {
+    std::string encoded_body;
+    if (em_method == EM_URL) {
+        encoded_body = _urlencode_body();
+        _header["Content-Type"] = "application/x-www-form-urlencoded";
+    }  else if (em_method == EM_JSON) {
+        encoded_body = _jsonencode_body();
+        _header["Content-Type"] = "application/json";
+    } else {
+        CLOG_ERROR("Unknown encode method\n");
+    }
+
     VarString vs;
     if (_method == RM_POST) {
         curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
@@ -130,7 +144,6 @@ void Request::request() {
  
     _resp.set_status(status);
 }
-
 
 
 }

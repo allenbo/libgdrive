@@ -17,8 +17,14 @@ enum RequestMethod {
     RM_DELETE
 };
 
+enum EncodeMethod {
+    EM_URL,
+    EM_JSON,
+};
+
 typedef std::map<std::string, std::string> RequestHeader;
 typedef std::map<std::string, std::string> RequestBody;
+typedef std::map<std::string, std::string> RequestParameter;
 
 class Response;
 class Request;
@@ -52,7 +58,7 @@ class Request {
         void add_body(std::string key, std::string value);
         inline void clear_body() { _body.clear();}
         inline void clear_header() { _header.clear();}
-        void request();
+        void request(EncodeMethod em_method = EM_URL);
         inline Response& response() { return _resp;}
         ~Request();
     private:
@@ -64,7 +70,8 @@ class Request {
         CURL *_handle;
         
         void _init_curl_handle();
-        std::string _build_body();
+        std::string _urlencode_body();
+        std::string _jsonencode_body();
         curl_slist* _build_header();
 };
 

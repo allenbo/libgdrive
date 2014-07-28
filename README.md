@@ -1,4 +1,4 @@
 gdrive
 ======
 
-A interactive gdrive client in shell
+C++ implementation of google drive library.
