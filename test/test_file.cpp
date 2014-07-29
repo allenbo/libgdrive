@@ -49,7 +49,7 @@ int main() {
     std::vector<GFile> files = service.files().List();
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].title == "testforgdrive") {
-            std::cout <<  "Find the file we need" << files[i].id << std::endl;
+            std::cout <<  "Find the file we need " << files[i].id << std::endl;
             GFile file = service.files().Touch(files[i].id);
             break;
         }

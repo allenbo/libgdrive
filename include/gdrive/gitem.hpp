@@ -17,53 +17,58 @@ struct GFileLabel {
     bool restricted;
     bool viewed;
     void from_json(JObject* obj);
+    JObject* to_json();
 };
 
 struct GUser {
     GUser();
-    std::string display_name;
+    std::string displayName;
     std::string picture_url;
-    bool isAuthenticated;
-    std::string permission_id;
+    bool isAuthenticatedUser;
+    std::string permissionId;
     void from_json(JObject* obj);
+    JObject* to_json();
 };
 
 struct GParent {
     GParent();
     std::string id;
-    std::string self_link;
-    std::string parent_link;
-    bool is_root;
+    std::string selfLink;
+    std::string parentLink;
+    bool isRoot;
     void from_json(JObject* obj);
+    JObject* to_json();
 };
 
 
 struct GProperty {
     GProperty();
     std::string etag;
-    std::string self_link;
+    std::string selfLink;
     std::string key;
     std::string visibility;
     std::string value;
     void from_json(JObject* obj);
+    JObject* to_json();
 };
 
 struct GPermission {
     GPermission();
     std::string etag;
     std::string id;
-    std::string self_link;
+    std::string selfLink;
     std::string name;
-    std::string email_address;
+    std::string emailAddress;
     std::string domain;
     std::string role;
-    std::vector<std::string> additional_roles;
+    std::vector<std::string> additionalRoles;
     std::string type;
     std::string value;
-    std::string auth_key;
-    std::string with_link;
-    std::string photo_link;
+    std::string authKey;
+    std::string withLink;
+    std::string photoLink;
     void from_json(JObject* obj);
+    JObject* to_json();
 };
 
 struct GImageMediaMetaData {
@@ -76,25 +81,27 @@ struct GImageMediaMetaData {
         double longitude;
         double altitude;
         void from_json(JObject* obj);
+        JObject* to_json();
     } location;
     std::string date;
-    std::string camera_maker;
-    std::string camera_model;
-    double exposure_time;
+    std::string cameraMaker;
+    std::string cameraModel;
+    double exposureTime;
     double aperture;
-    bool flash_used;
-    double focal_length;
-    int iso_speed;
-    std::string metering_mode;
+    bool flashUsed;
+    double focalLength;
+    int isoSpeed;
+    std::string meteringMode;
     std::string sensor;
-    std::string exposure_mode;
-    std::string color_space;
-    std::string white_balance;
-    double exposure_bias;
-    double max_aperture_value;
-    int subject_distance;
+    std::string exposureMode;
+    std::string colorSpace;
+    std::string whiteBalance;
+    double exposureBias;
+    double maxApertureValue;
+    int subjectDistance;
     std::string lens;
     void from_json(JObject* obj);
+    JObject* to_json();
 };
 
 typedef std::map<std::string, std::string> GExportLink;
@@ -103,51 +110,52 @@ struct GFile {
     GFile();
     std::string id;
     std::string etag;
-    std::string self_link;
-    std::string web_content_link;
-    std::string alternate_link;
-    std::string embed_link;
-    std::map<std::string, std::string> open_with_links;
-    std::string default_open_with_link;
-    std::string icon_link;
-    std::string thumbnail_link;
+    std::string selfLink;
+    std::string webContentLink;
+    std::string alternateLink;
+    std::string embedLink;
+    std::map<std::string, std::string> openWithLinks;
+    std::string defaultOpenWithLink;
+    std::string iconLink;
+    std::string thumbnailLink;
     //thumbnail
     std::string title;
-    std::string mime_type;
+    std::string mimeType;
     std::string description;
     GFileLabel labels;
-    struct tm created_date;
-    struct tm modified_date;
-    struct tm modifiedbyme_date;
-    struct tm lastviewedbyme_date;
-    struct tm sharedwithme_date;
+    struct tm createdDate;
+    struct tm modifiedDate;
+    struct tm modifiedByMeDate;
+    struct tm lastViewedByMeDate;
+    struct tm sharedWithMeDate;
     std::string version;
-    GUser sharing_user;
+    GUser sharingUser;
     std::vector<GParent> parents;
-    GExportLink export_links;
-    std::string indexable_text;
-    GPermission user_permission;
+    GExportLink exportLinks;
+    std::string indexableText;
+    GPermission userPermission;
     std::vector<GPermission> permissions;
-    std::string original_filename;
-    std::string file_extension;
-    std::string md5_checksum;
-    long file_size;
-    int quota_bytes_used;
-    std::vector<std::string> owner_names;
+    std::string originalFilename;
+    std::string fileExtension;
+    std::string md5Checksum;
+    long fileSize;
+    int quotaBytesUsed;
+    std::vector<std::string> ownerNames;
     std::vector<GUser> owners;
-    std::string last_modifying_username;
-    GUser last_modifying_user;
+    std::string lastModifyingUserName;
+    GUser lastModifyingUser;
     bool editable;
     bool copyable;
-    bool writers_can_share;
+    bool writersCanShare;
     bool shared;
-    bool explicitly_trashed;
-    bool app_data_contents;
-    std::string head_revision_id;
+    bool explicitlyTrashed;
+    bool appDataContents;
+    std::string headRevisionId;
     std::vector<GProperty> properties;
-    GImageMediaMetaData image_media_meta_data;
+    GImageMediaMetaData imageMediaMetadata;
 
     void from_json(JObject* obj);
+    JObject* to_json();
 };
 
 }

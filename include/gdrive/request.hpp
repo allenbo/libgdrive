@@ -14,7 +14,8 @@ enum RequestMethod {
     RM_GET,
     RM_POST,
     RM_PUT,
-    RM_DELETE
+    RM_DELETE,
+    RM_PATCH
 };
 
 enum EncodeMethod {
@@ -56,12 +57,13 @@ class Request {
         void add_body(RequestBody &body);
         void add_header(std::string key, std::string value);
         void add_body(std::string key, std::string value);
+        void set_uri(std::string uri);
         inline void clear_body() { _body.clear();}
         inline void clear_header() { _header.clear();}
         void request(EncodeMethod em_method = EM_URL);
         inline Response& response() { return _resp;}
         ~Request();
-    private:
+    protected:
         std::string _uri;
         RequestMethod _method;
         RequestHeader _header;
@@ -70,8 +72,8 @@ class Request {
         CURL *_handle;
         
         void _init_curl_handle();
-        std::string _urlencode_body();
-        std::string _jsonencode_body();
+        virtual std::string _urlencode_body();
+        virtual std::string _jsonencode_body();
         curl_slist* _build_header();
 };
 

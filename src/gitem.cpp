@@ -2,7 +2,135 @@
 using namespace JCONER;
 namespace GDRIVE {
 
-struct tm time_convert(std::string time_repr ) {
+#define BOOL_FROM_JSON(name) do { \
+    if (obj->contain(#name)) {\
+        JValue* rst = obj->get(#name); \
+        if (rst->type() == VT_TRUE) name = true; \
+        else name = false;\
+    }\
+    }while(0)
+
+#define STRING_FROM_JSON(name) do {\
+    if (obj->contain(#name)) {\
+        name = ((JString*)obj->get(#name))->getValue(); \
+    }\
+    }while(0)
+
+#define REAL_FROM_JSON(name) do {\
+    if (obj->contain(#name)) {\
+        name = ((JReal*)obj->get(#name))->getValue(); \
+    }\
+    }while(0)
+
+#define INT_FROM_JSON(name) do {\
+    if (obj->contain(#name)) {\
+        name = ((JInt*)obj->get(#name))->getValue(); \
+    }\
+    }while(0)
+
+#define INSTANCE_FROM_JSON(name) do {\
+    if (obj->contain(#name)) {\
+        name.from_json((JObject*)obj->get(#name));\
+    }\
+    }while(0)
+
+#define INSTANCE_VECTOR_FROM_JSON(type, name) do {\
+    if (obj->contain(#name)) {\
+        JArray* _1 = (JArray*)obj->get(#name); \
+        for (int i = 0; i < _1->size(); i ++) {\
+            type _2; \
+            _2.from_json((JObject*)_1->get(i)); \
+            name.push_back(_2);\
+        }\
+    }\
+    }while(0)
+
+#define STRING_MAP_FROM_JSON(name) do {\
+    if (obj->contain(#name)) {\
+        JObject* _1 = (JObject*)obj->get(#name);\
+        std::vector<std::string> keys = _1->getKeys(); \
+        for(int i = 0; i < keys.size(); i ++ ) {\
+            std::string key = keys[i]; \
+            name[key] = ((JString*)_1->get(key))->getValue();\
+        }\
+    }\
+    }while(0)
+
+#define STRING_VECTOR_FROM_JSON(name) do {\
+    if (obj->contain(#name)) {\
+        JArray* _1 = (JArray*)obj->get(#name);\
+        for(int i = 0; i < _1->size(); i ++ ) {\
+            name.push_back(((JString*)_1->get(i))->getValue());\
+        }\
+    }\
+    }while(0)
+
+#define TIME_FROM_JSON(name) do { \
+    if (obj->contain(#name)) {\
+        std::string repr = ((JString*)obj->get(#name))->getValue();\
+        name = time_from_string(repr); \
+    }\
+    }while(0)
+
+#define BOOL_TO_JSON(name) do {\
+    if (name) obj->put(#name, new JTrue());\
+    else obj->put(#name, new JFalse());\
+    }while(0)
+
+#define STRING_TO_JSON(name) do {\
+    if (name != "") obj->put(#name, new JString(name));\
+    }while(0)
+
+#define INT_TO_JSON(name) do {\
+    if (name != -1) obj->put(#name, new JInt(name));\
+    } while(0)
+
+#define REAL_TO_JSON(name) do {\
+    if (name != 0.0) obj->put(#name, new JReal(name));\
+    } while(0)
+
+#define STRING_VECTOR_TO_JSON(name) do {\
+    if (name.size() != 0) { \
+        JArray* _1 = new JArray(); \
+        for(int i = 0; i < name.size(); i ++ ) { \
+            _1->append(name[i]); \
+        } \
+        obj->put(#name, _1); \
+    } \
+    }while(0)
+
+#define STRING_MAP_TO_JSON(name) do {\
+    if (name.size() != 0) {\
+        JObject* _1 = new JObject(); \
+        for (std::map<std::string, std::string>::iterator iter = name.begin(); \
+                iter != name.end(); iter ++ ) { \
+            _1->put(iter->first, iter->second);\
+        }\
+        obj->put(#name, _1);\
+    }\
+    }while(0)
+
+#define INSTANCE_TO_JSON(name) do {\
+    obj->put(#name, name.to_json()); \
+    }while(0)
+
+#define INSTANCE_VECTOR_TO_JSON(name) do {\
+    if (name.size() != 0) {\
+        JArray* _1 = new JArray(); \
+        for(int i = 0; i < name.size(); i ++ ) {\
+            _1->append(name[i].to_json()); \
+        }\
+        obj->put(#name, _1); \
+    }\
+    }while(0)
+
+#define TIME_TO_JSON(name) do { \
+    if (name.tm_year != 0 || name.tm_mon != 0) {\
+        obj->put(#name, time_to_string(name)); \
+    }\
+    }while(0)
+
+struct tm time_from_string(std::string time_repr ) {
     struct tm time;
     sscanf(time_repr.c_str(), "%4d-%2d-%2dT%2d:%2d:%2d", &time.tm_year, &time.tm_mon, &time.tm_mday, &time.tm_hour, &time.tm_min, &time.tm_sec);
     time.tm_year -= 1900;
@@ -10,11 +138,27 @@ struct tm time_convert(std::string time_repr ) {
     return time;
 }
 
+std::string time_to_string(struct tm time) {
+    char tmp[512];
+    struct tm another = time;
+    another.tm_year += 1900;
+    another.tm_mon  += 1;
+    sprintf(tmp, "%4d-%2d-%2dT%2d:%2d:%2d.000", another.tm_year, another.tm_mon, another.tm_mday, another.tm_hour,another.tm_min, another.tm_sec);
+    std::string rst(tmp);
+    return rst;
+}
+
 GFileLabel::GFileLabel() {
     starred = hidden = trashed = restricted = viewed = false;
 }
 
 void GFileLabel::from_json(JObject* obj) {
+    BOOL_FROM_JSON(starred);
+    BOOL_FROM_JSON(hidden);
+    BOOL_FROM_JSON(trashed);
+    BOOL_FROM_JSON(restricted);
+    BOOL_FROM_JSON(viewed);
+    /*
     if (obj->contain("starred")) {
         JValue* rst = obj->get("starred");
         if (rst->type() == VT_TRUE) starred = true;
@@ -40,14 +184,29 @@ void GFileLabel::from_json(JObject* obj) {
         if (rst->type() == VT_TRUE) viewed = true;
         else viewed = false;
     }
+    */
+}
+
+JObject* GFileLabel::to_json() {
+    JObject* obj = new JObject();
+    BOOL_TO_JSON(starred);
+    BOOL_TO_JSON(hidden);
+    BOOL_TO_JSON(trashed);
+    BOOL_TO_JSON(restricted);
+    BOOL_TO_JSON(viewed);
+    return obj;
 }
 
 GUser::GUser() {
-    display_name = picture_url = permission_id = "";
-    isAuthenticated = false;
+    displayName = picture_url = permissionId = "";
+    isAuthenticatedUser = false;
 }
 
 void GUser::from_json(JObject* obj) {
+    STRING_FROM_JSON(displayName);
+    BOOL_FROM_JSON(isAuthenticatedUser);
+    STRING_FROM_JSON(permissionId);
+    /*
     if (obj->contain("displayName")) {
         display_name = ((JString*)obj->get("displayName"))->getValue();
     }
@@ -59,18 +218,36 @@ void GUser::from_json(JObject* obj) {
         if (rst->type() == VT_TRUE) isAuthenticated = true;
         else isAuthenticated = false;
     }
+    */
     if (obj->contain("picture")) {
         JObject* item = (JObject*)obj->get("picture");
         picture_url = ((JString*)item->get("url"))->getValue();
     }
 }
 
+JObject* GUser::to_json(){
+    JObject* obj = new JObject();
+    STRING_TO_JSON(displayName);
+    BOOL_TO_JSON(isAuthenticatedUser);
+    STRING_TO_JSON(permissionId);
+    // exception for picture url
+    JObject* tmp = new JObject();
+    tmp->put("url", picture_url);
+    obj->put("picture", tmp);
+    return obj;
+}
+
 GParent::GParent() {
-    id = self_link = parent_link = "";
-    is_root = false;
+    id = selfLink = parentLink = "";
+    isRoot = false;
 }
 
 void GParent::from_json(JObject* obj) {
+    STRING_FROM_JSON(id);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(parentLink);
+    BOOL_FROM_JSON(isRoot);
+    /*
     if (obj->contain("id")) {
         id = ((JString*)obj->get("id"))->getValue();
     }
@@ -85,13 +262,29 @@ void GParent::from_json(JObject* obj) {
         if (rst->type() == VT_TRUE) is_root = true;
         else is_root = false;
     }
+    */
+}
+
+JObject* GParent::to_json() {
+    JObject* obj = new JObject();
+    STRING_TO_JSON(id);
+    STRING_TO_JSON(selfLink);
+    STRING_TO_JSON(parentLink);
+    BOOL_TO_JSON(isRoot);
+    return obj;
 }
 
 GProperty::GProperty() {
-    etag = self_link = key = visibility = value = "";
+    etag = selfLink = key = visibility = value = "";
 }
 
 void GProperty::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(key);
+    STRING_FROM_JSON(visibility);
+    STRING_FROM_JSON(value);
+    /*
     if (obj->contain("etag")) {
         etag = ((JString*)obj->get("etag"))->getValue();
     }
@@ -107,15 +300,40 @@ void GProperty::from_json(JObject* obj) {
     if (obj->contain("value")) {
         value = ((JString*)obj->get("value"))->getValue();
     }
+    */
+}
+
+JObject* GProperty::to_json(){
+    JObject* obj = new JObject();
+    STRING_TO_JSON(etag);
+    STRING_TO_JSON(selfLink);
+    STRING_TO_JSON(key);
+    STRING_TO_JSON(value);
+    STRING_TO_JSON(visibility);
+    return obj;
 }
 
 GPermission::GPermission() {
-    etag = id = self_link = name = email_address = domain = role = "";
-    type = value = auth_key = with_link = photo_link = "";
-    additional_roles.clear();
+    etag = id = selfLink = name = emailAddress = domain = role = "";
+    type = value = authKey = withLink = photoLink = "";
+    additionalRoles.clear();
 }
 
 void GPermission::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(id);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(name);
+    STRING_FROM_JSON(emailAddress);
+    STRING_FROM_JSON(domain);
+    STRING_FROM_JSON(role);
+    STRING_VECTOR_FROM_JSON(additionalRoles);
+    STRING_FROM_JSON(type);
+    STRING_FROM_JSON(value);
+    STRING_FROM_JSON(authKey);
+    STRING_FROM_JSON(withLink);
+    STRING_FROM_JSON(photoLink);
+    /*
     if (obj->contain("etag")) {
         etag = ((JString*)obj->get("etag"))->getValue();
     }
@@ -137,14 +355,12 @@ void GPermission::from_json(JObject* obj) {
     if (obj->contain("role")) {
         role = ((JString*)obj->get("role"))->getValue();
     }
-
     if (obj->contain("additionalRoles")) {
         JArray* role_array = (JArray*)obj->get("additionalRoles");
         for (int i = 0; i < role_array->size(); i ++ ) {
             additional_roles.push_back( ((JString*)role_array->get(i))->getValue() );
         }
     }
-
     if (obj->contain("type")) {
         type = ((JString*)obj->get("type"))->getValue();
     }
@@ -160,21 +376,43 @@ void GPermission::from_json(JObject* obj) {
     if (obj->contain("photoLink")) {
         photo_link = ((JString*)obj->get("photoLink"))->getValue();
     }
+    */
 }
 
+JObject* GPermission::to_json() {
+    JObject* obj = new JObject();
+    STRING_TO_JSON(etag);
+    STRING_TO_JSON(id);
+    STRING_TO_JSON(selfLink);
+    STRING_TO_JSON(name);
+    STRING_TO_JSON(emailAddress);
+    STRING_TO_JSON(domain);
+    STRING_TO_JSON(role);
+    STRING_VECTOR_TO_JSON(additionalRoles);
+    STRING_TO_JSON(type);
+    STRING_TO_JSON(value);
+    STRING_TO_JSON(authKey);
+    STRING_TO_JSON(withLink);
+    STRING_TO_JSON(photoLink);
+    return obj;
+}
 GImageMediaMetaData::GImageMediaMetaData() {
     width = height = rotation = -1; 
     location.latitude = location.longitude = location.altitude = 0.0;
-    date = camera_maker = camera_model = "";
-    exposure_time = aperture = focal_length = 0.0;
-    flash_used = false;
-    iso_speed = -1;
-    metering_mode = sensor = exposure_mode = color_space = white_balance = lens = "";
-    exposure_bias = max_aperture_value = 0.0;
-    subject_distance = -1;
+    date = cameraMaker = cameraModel = "";
+    exposureTime = aperture = focalLength = 0.0;
+    flashUsed = false;
+    isoSpeed = -1;
+    meteringMode = sensor = exposureMode = colorSpace = whiteBalance = lens = "";
+    exposureBias = maxApertureValue = 0.0;
+    subjectDistance = -1;
 }
 
 void GImageMediaMetaData::Location::from_json(JObject* obj) {
+    REAL_FROM_JSON(latitude);
+    REAL_FROM_JSON(longitude);
+    REAL_FROM_JSON(altitude);
+    /*
     if (obj->contain("latitude")) {
         latitude = ((JReal*)obj->get("latitude"))->getValue();
     }
@@ -184,9 +422,40 @@ void GImageMediaMetaData::Location::from_json(JObject* obj) {
     if (obj->contain("altitude")) {
         altitude = ((JReal*)obj->get("altitude"))->getValue();
     }
+    */
+}
+
+JObject* GImageMediaMetaData::Location::to_json() {
+    JObject* obj = new JObject();
+    REAL_TO_JSON(latitude);
+    REAL_TO_JSON(longitude);
+    REAL_TO_JSON(altitude);
+    return obj;
 }
 
 void GImageMediaMetaData::from_json(JObject* obj) {
+    INT_FROM_JSON(width);
+    INT_FROM_JSON(height);
+    INT_FROM_JSON(rotation);
+    INSTANCE_FROM_JSON(location);
+    STRING_FROM_JSON(date);
+    STRING_FROM_JSON(cameraMaker);
+    STRING_FROM_JSON(cameraModel);
+    REAL_FROM_JSON(exposureTime);
+    REAL_FROM_JSON(aperture);
+    BOOL_FROM_JSON(flashUsed);
+    REAL_FROM_JSON(focalLength);
+    BOOL_FROM_JSON(isoSpeed);
+    STRING_FROM_JSON(meteringMode);
+    STRING_FROM_JSON(sensor);
+    STRING_FROM_JSON(exposureMode);
+    STRING_FROM_JSON(colorSpace);
+    STRING_FROM_JSON(whiteBalance);
+    REAL_FROM_JSON(exposureBias);
+    REAL_FROM_JSON(maxApertureValue);
+    INT_FROM_JSON(subjectDistance);
+    STRING_FROM_JSON(lens);
+    /*
     if (obj->contain("width")) {
         width = ((JInt*)obj->get("width"))->getValue();
     }
@@ -253,26 +522,98 @@ void GImageMediaMetaData::from_json(JObject* obj) {
     if (obj->contain("lens")) {
         lens = ((JString*)obj->get("lens"))->getValue();
     }
+    */
+}
+
+JObject* GImageMediaMetaData::to_json() {
+    JObject* obj = new JObject();
+    INT_TO_JSON(width);
+    INT_TO_JSON(height);
+    INT_TO_JSON(rotation);
+    INSTANCE_TO_JSON(location);
+    STRING_TO_JSON(date);
+    STRING_TO_JSON(cameraMaker);
+    STRING_TO_JSON(cameraModel);
+    REAL_TO_JSON(exposureTime);
+    REAL_TO_JSON(aperture);
+    BOOL_TO_JSON(flashUsed);
+    REAL_TO_JSON(focalLength);
+    INT_TO_JSON(isoSpeed);
+    STRING_TO_JSON(meteringMode);
+    STRING_TO_JSON(sensor);
+    STRING_TO_JSON(exposureMode);
+    STRING_TO_JSON(colorSpace);
+    STRING_TO_JSON(whiteBalance);
+    REAL_TO_JSON(exposureBias);
+    REAL_TO_JSON(maxApertureValue);
+    INT_TO_JSON(subjectDistance);
+    STRING_TO_JSON(lens);
+    return obj;
 }
 
 GFile::GFile() {
-    id = etag = self_link = web_content_link = alternate_link = embed_link = "";
-    open_with_links.clear();
-    default_open_with_link = icon_link = thumbnail_link = title = mime_type = description = version = "";
+    id = etag = selfLink = webContentLink = alternateLink = embedLink = "";
+    openWithLinks.clear();
+    defaultOpenWithLink = iconLink = thumbnailLink = title = mimeType = description = version = "";
     parents.clear();
-    export_links.clear();
-    indexable_text = original_filename = file_extension = md5_checksum = "";
+    exportLinks.clear();
+    indexableText = originalFilename = fileExtension = md5Checksum = "";
     permissions.clear();
-    file_size = quota_bytes_used = 0;
-    owner_names.clear();
+    fileSize = quotaBytesUsed = -1;
+    ownerNames.clear();
     owners.clear();
-    last_modifying_username = "";
-    editable = copyable = writers_can_share = shared = explicitly_trashed = app_data_contents = false;
-    head_revision_id = "";
+    lastModifyingUserName = "";
+    editable = copyable = writersCanShare = shared = explicitlyTrashed = appDataContents = false;
+    headRevisionId = "";
     properties.clear();
 }
 
 void GFile::from_json(JObject* obj) {
+    STRING_FROM_JSON(id);
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(webContentLink);
+    STRING_FROM_JSON(alternateLink);
+    STRING_FROM_JSON(embedLink);
+    STRING_FROM_JSON(defaultOpenWithLink);
+    STRING_MAP_FROM_JSON(openWithLinks);
+    STRING_FROM_JSON(iconLink);
+    STRING_FROM_JSON(thumbnailLink);
+    STRING_FROM_JSON(title);
+    STRING_FROM_JSON(mimeType);
+    STRING_FROM_JSON(description);
+    INSTANCE_FROM_JSON(labels);
+    TIME_FROM_JSON(createdDate);
+    TIME_FROM_JSON(modifiedDate);
+    TIME_FROM_JSON(modifiedByMeDate);
+    TIME_FROM_JSON(lastViewedByMeDate);
+    TIME_FROM_JSON(sharedWithMeDate);
+    STRING_FROM_JSON(version);
+    INSTANCE_FROM_JSON(sharingUser);
+    INSTANCE_VECTOR_FROM_JSON(GParent, parents);
+    STRING_MAP_FROM_JSON(exportLinks);
+    STRING_FROM_JSON(indexableText);
+    INSTANCE_FROM_JSON(userPermission);
+    INSTANCE_VECTOR_FROM_JSON(GPermission, permissions);
+    STRING_FROM_JSON(originalFilename);
+    STRING_FROM_JSON(fileExtension);
+    STRING_FROM_JSON(md5Checksum);
+    INT_FROM_JSON(fileSize);
+    INT_FROM_JSON(quotaBytesUsed);
+    STRING_VECTOR_FROM_JSON(ownerNames);
+    INSTANCE_VECTOR_FROM_JSON(GUser, owners);
+    STRING_FROM_JSON(lastModifyingUserName);
+    INSTANCE_FROM_JSON(lastModifyingUser);
+    BOOL_FROM_JSON(editable);
+    BOOL_FROM_JSON(copyable);
+    BOOL_FROM_JSON(writersCanShare);
+    BOOL_FROM_JSON(shared);
+    BOOL_FROM_JSON(explicitlyTrashed);
+    BOOL_FROM_JSON(appDataContents);
+    STRING_FROM_JSON(headRevisionId);
+    INSTANCE_VECTOR_FROM_JSON(GProperty, properties);
+    INSTANCE_FROM_JSON(imageMediaMetadata);
+    /*
     if (obj->contain("id"))
         id = ((JString*)obj->get("id"))->getValue();
     if (obj->contain("etag"))
@@ -459,6 +800,56 @@ void GFile::from_json(JObject* obj) {
     if (obj->contain("imageMediaMetadata")) {
         image_media_meta_data.from_json((JObject*)obj->get("imageMediaMetadata"));
     }
+    */
+}
+
+JObject* GFile::to_json() {
+    JObject* obj = new JObject();
+    STRING_TO_JSON(id);
+    STRING_TO_JSON(etag);
+    STRING_TO_JSON(selfLink);
+    STRING_TO_JSON(webContentLink);
+    STRING_TO_JSON(alternateLink);
+    STRING_TO_JSON(embedLink);
+    STRING_MAP_TO_JSON(openWithLinks);
+    STRING_TO_JSON(defaultOpenWithLink);
+    STRING_TO_JSON(iconLink);
+    STRING_TO_JSON(thumbnailLink);
+    STRING_TO_JSON(title);
+    STRING_TO_JSON(mimeType);
+    STRING_TO_JSON(description);
+    INSTANCE_TO_JSON(labels);
+    TIME_TO_JSON(createdDate);
+    TIME_TO_JSON(modifiedDate);
+    TIME_TO_JSON(modifiedByMeDate);
+    TIME_TO_JSON(lastViewedByMeDate);
+    TIME_TO_JSON(sharedWithMeDate);
+    STRING_TO_JSON(version);
+    INSTANCE_TO_JSON(sharingUser);
+    INSTANCE_VECTOR_TO_JSON(parents);
+    STRING_MAP_TO_JSON(exportLinks);
+    STRING_TO_JSON(indexableText);
+    INSTANCE_TO_JSON(userPermission);
+    INSTANCE_VECTOR_TO_JSON(permissions);
+    STRING_TO_JSON(originalFilename);
+    STRING_TO_JSON(fileExtension);
+    STRING_TO_JSON(md5Checksum);
+    INT_TO_JSON(fileSize);
+    INT_TO_JSON(quotaBytesUsed);
+    STRING_VECTOR_TO_JSON(ownerNames);
+    INSTANCE_VECTOR_TO_JSON(owners);
+    STRING_TO_JSON(lastModifyingUserName);
+    INSTANCE_TO_JSON(lastModifyingUser);
+    BOOL_TO_JSON(editable);
+    BOOL_TO_JSON(copyable);
+    BOOL_TO_JSON(writersCanShare);
+    BOOL_TO_JSON(shared);
+    BOOL_TO_JSON(explicitlyTrashed);
+    BOOL_TO_JSON(appDataContents);
+    STRING_TO_JSON(headRevisionId);
+    INSTANCE_VECTOR_TO_JSON(properties);
+    INSTANCE_TO_JSON(imageMediaMetadata);
+    return obj;
 }
 
 }

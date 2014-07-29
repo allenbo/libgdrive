@@ -37,8 +37,13 @@ Request::~Request() {
     curl_easy_cleanup(_handle);
 }
 
+void Request::set_uri(std::string uri) {
+    _uri = uri;
+    curl_easy_setopt(_handle, CURLOPT_URL, _uri.c_str());
+}
+
 void Request::_init_curl_handle() {
-    curl_global_init(CURL_GLOBAL_ALL);
+    //curl_global_init(CURL_GLOBAL_ALL);
     _handle = curl_easy_init();
     curl_easy_setopt(_handle, CURLOPT_URL, _uri.c_str());
     curl_easy_setopt(_handle, CURLOPT_HEADERDATA, (void*)&_resp._header);
