@@ -24,19 +24,19 @@ enum EncodeMethod {
 };
 
 typedef std::map<std::string, std::string> RequestHeader;
-typedef std::map<std::string, std::string> RequestBody;
-typedef std::map<std::string, std::string> RequestParameter;
+typedef std::map<std::string, std::string> RequestQuery;
 
-class Response;
-class Request;
+class HttpResponse;
+class HttpRequest;
 
-class Response {
+class HttpResponse {
     CLASS_MAKE_LOGGER
     public:
-        Response() {}
+        HttpResponse() {}
         static size_t curl_write_callback(void* content, size_t size, size_t nmemb, void* userp);
         inline std::string content() const { return _content; };
         inline std::string header() const { return _header; };
+        inline void clear() { _content = ""; _header = ""; }
         inline int status() const { return _status; }
         inline void set_status(int status) { _status = status;}
     private:
@@ -44,36 +44,35 @@ class Response {
         std::string _header;
         int _status;
 
-        friend class Request;
+        friend class HttpRequest;
 };
 
 
-class Request {
+class HttpRequest {
     CLASS_MAKE_LOGGER
     public:
-        Request(std::string uri, RequestMethod method);
-        Request(std::string uri, RequestMethod method, RequestBody& body, RequestHeader& header);
+        HttpRequest(std::string uri, RequestMethod method);
+        HttpRequest(std::string uri, RequestMethod method, RequestHeader header, std::string body);
         void add_header(RequestHeader &header);
-        void add_body(RequestBody &body);
         void add_header(std::string key, std::string value);
-        void add_body(std::string key, std::string value);
-        void set_uri(std::string uri);
-        inline void clear_body() { _body.clear();}
+        void add_query(RequestQuery& query);
+        void add_query(std::string key, std::string value);
         inline void clear_header() { _header.clear();}
-        void request(EncodeMethod em_method = EM_URL);
-        inline Response& response() { return _resp;}
-        ~Request();
+        inline void clear_queyr() { _query.clear(); }
+        void set_uri(std::string uri);
+        HttpResponse& request();
+        inline HttpResponse& response() { return _resp;}
+        ~HttpRequest();
     protected:
         std::string _uri;
         RequestMethod _method;
         RequestHeader _header;
-        RequestBody _body;
-        Response _resp;
+        RequestQuery _query;
+        std::string _body;
+        HttpResponse _resp;
         CURL *_handle;
         
         void _init_curl_handle();
-        virtual std::string _urlencode_body();
-        virtual std::string _jsonencode_body();
         curl_slist* _build_header();
 };
 

@@ -192,7 +192,7 @@ std::string FileService::PatchRequest::_jsonencode_body() {
 }
 
 GFile FileService::PatchRequest::execute() {
-    request();
+    _cred.request(*this);
     GFile file = _file;
     if (_resp.status() == 200) {
         PError error;

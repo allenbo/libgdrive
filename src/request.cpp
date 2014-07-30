@@ -5,70 +5,69 @@
 
 namespace GDRIVE {
 
-size_t Response::curl_write_callback(void* content, size_t size, size_t nmemb, void* userp) {
+size_t HttpResponse::curl_write_callback(void* content, size_t size, size_t nmemb, void* userp) {
     std::string* self = (std::string*)userp;
     std::string curr_content((char*)content, size * nmemb);
     *self += curr_content;
     return size * nmemb;
 }
 
-Request::Request(std::string uri, RequestMethod method)
+HttpRequest::HttpRequest(std::string uri, RequestMethod method)
     :_uri(uri), _method(method) 
 {
     _init_curl_handle();    
 #ifdef GDIRVE_DEBUG
-    CLASS_INIT_LOGGER("Request", L_DEBUG);
-    CLOG_DEBUG("The method is %s\n", _method == RM_POST? "post" : "get");
+    CLASS_INIT_LOGGER("HttpRequest", L_DEBUG);
 #endif
 }
 
-Request::Request(std::string uri, RequestMethod method, RequestBody& body, RequestHeader& header)
-    :_uri(uri), _method(method)
+HttpRequest::HttpRequest(std::string uri, RequestMethod method, RequestHeader& header, std::string body)
+    :_uri(uri), _method(method), _body(body)
 {
     _init_curl_handle();
-    _body.insert(body.begin(), body.end());
     _header.insert(header.begin(), header.end());
 #ifdef GDRIVE_DEBUG
-    CLASS_INIT_LOGGER("Request", L_DEBUG);
+    CLASS_INIT_LOGGER("HttpRequest", L_DEBUG);
 #endif
 }
 
-Request::~Request() {
+HttpRequest::~HttpRequest() {
     curl_easy_cleanup(_handle);
 }
 
-void Request::set_uri(std::string uri) {
+void HttpRequest::set_uri(std::string uri) {
     _uri = uri;
     curl_easy_setopt(_handle, CURLOPT_URL, _uri.c_str());
 }
 
-void Request::_init_curl_handle() {
+void HttpRequest::_init_curl_handle() {
     //curl_global_init(CURL_GLOBAL_ALL);
     _handle = curl_easy_init();
     curl_easy_setopt(_handle, CURLOPT_URL, _uri.c_str());
     curl_easy_setopt(_handle, CURLOPT_HEADERDATA, (void*)&_resp._header);
     curl_easy_setopt(_handle, CURLOPT_WRITEDATA, (void*)&_resp._content);
     curl_easy_setopt(_handle, CURLOPT_WRITEFUNCTION, Response::curl_write_callback);
+    _header.clear();
+    _query.clear();
 }
 
-void Request::add_header(RequestHeader& header) {
+void HttpRequest::add_header(RequestHeader& header) {
     _header.insert(header.begin(), header.end());
 }
 
-void Request::add_header(std::string key, std::string value) {
+void HttpRequest::add_header(std::string key, std::string value) {
     _header[key] = value;
 }
 
-void Request::add_body(RequestBody& body) {
-    _body.insert(body.begin(), body.end());
-    CLOG_DEBUG("After add, body size: %d\n", _body.size());
+void HttpRequest::add_query(RequestQuery& query) {
+    _query.insert(query.begin(), query.end());
 }
 
-void Request::add_body(std::string key, std::string value) {
-    _body[key] = value;
+void HttpRequest::add_query(std::string key, std::string value) {
+    _query[key] = value;
 }
 
-curl_slist* Request::_build_header() {
+curl_slist* HttpRequest::_build_header() {
     curl_slist* list = NULL;
     VarString vs;
     for(RequestHeader::iterator iter = _header.begin(); iter != _header.end(); iter ++) {
@@ -78,52 +77,27 @@ curl_slist* Request::_build_header() {
     return list;
 }
 
-std::string Request::_urlencode_body() {
+HttpResponse HttpRequest::request() {
     VarString vs;
-    for(RequestBody::iterator iter = _body.begin(); iter != _body.end(); iter ++) {
-        vs.append(iter->first).append('=').append(URLHelper::encode(iter->second)).append('&');
+    // if there is query paremeter, append to url
+    if (_query.size() != 0) {
+        vs.append(_uri).append('?').append(URLHelper::encode(_query));
+        curl_easy_setopt(_handle, CURLOPT_URL, vs.toString().c_str());
     }
-    if (_body.size() > 0) {
-        return vs.drop().toString();
+    
+    if (_method == RM_GET) {
+        // do nothing
     } else {
-        return "";
-    }
-}
-
-std::string Request::_jsonencode_body() {
-    return "";
-}
-
-void Request::request(EncodeMethod em_method) {
-    std::string encoded_body;
-    if (em_method == EM_URL) {
-        encoded_body = _urlencode_body();
-        _header["Content-Type"] = "application/x-www-form-urlencoded";
-    }  else if (em_method == EM_JSON) {
-        encoded_body = _jsonencode_body();
-        _header["Content-Type"] = "application/json";
-    } else {
-        CLOG_ERROR("Unknown encode method\n");
-    }
-
-    VarString vs;
-    if (_method == RM_POST) {
-        curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
-        if (_body.size() == 0) {
-            _header["Content-Type"] = "";
+        curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body);
+        if (_method == RM_POST) {
+            if (_body == "") {
+                _header["Content-Type"] = "";
+            }
+        } else if (_method == RM_DELETE) {
+            curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
+        } else {
+            CLOG_FATAL("Unknown  method\n");
         }
-    } else if (_method == RM_GET) {
-        if (_body.size() > 0) {
-            vs.append(_uri).append('?').append(encoded_body);
-            curl_easy_setopt(_handle, CURLOPT_URL, vs.toString().c_str());
-        }
-    } else if (_method == RM_DELETE) {
-        curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
-        if(_body.size() > 0)  {
-            curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, encoded_body.c_str());
-        }
-    } else {
-        CLOG_FATAL("Unknown  method\n");
     }
 #ifdef GDRIVE_DEBUG
     curl_easy_setopt(_handle, CURLOPT_VERBOSE, 1);
@@ -148,7 +122,7 @@ void Request::request(EncodeMethod em_method) {
     curl_easy_getinfo(_handle, CURLINFO_RESPONSE_CODE, &status);
  
     _resp.set_status(status);
+    return _resp;
 }
-
 
 }

@@ -1,6 +1,7 @@
 #ifndef __GDRIVE_UTIL_HPP__
 #define __GDRIVE_UTIL_HPP__
 #include <string>
+#include <map>
 #include <string.h>
 #include <stdlib.h>
 
@@ -149,6 +150,18 @@ class URLHelper {
                 p ++;
             }
             return vs.toString();
+        }
+
+        static std::string encode(std::map<std::string, std::string> & body) {
+            VarString vs;
+            for(std::map<std::string, std::string>::iterator iter = body.begin(); iter != body.end(); iter ++) {
+                vs.append(iter->first).append('=').append(encode(iter->second)).append('&');
+            }
+            if (body.size() > 0) {
+                return vs.drop().toString();
+            } else {
+                return "";
+            }
         }
 };
 

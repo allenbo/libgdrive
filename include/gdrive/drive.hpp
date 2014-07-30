@@ -28,10 +28,10 @@ class Drive {
 class FileService {
     CLASS_MAKE_LOGGER
     public:
-        class PatchRequest : public Request {
+        class PatchRequest: public Request {
             CLASS_MAKE_LOGGER
             public:
-                PatchRequest(std::string uri, std::string file_id, GFile file);
+                PatchRequest(Credential* cred, std::string uri, std::string file_id, GFile file);
                 void add_field(std::string field) {
                     _fields.push_back(field);
                 }
@@ -39,6 +39,7 @@ class FileService {
             private:
                 std::string _file_id;
                 GFile _file;
+                Credential* _cred;
                 std::string _jsonencode_body();
                 std::vector<std::string> _fields;
         };

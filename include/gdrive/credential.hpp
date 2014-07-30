@@ -11,37 +11,44 @@
 
 namespace GDRIVE {
 
+class CredentialHttpRequest;
+
 class Credential {
     CLASS_MAKE_LOGGER
     public:
-        Credential(std::string access_token, std::string client_id,
-                   std::string client_secret, std::string refresh_token,
-                   long token_expiry, std::string id_token);
-        Credential(const Credential& other);
-        Credential();
-
-        void set_store(Store* store) { _store = store; _fresh();}
-        void from_store(Store* store);
-        Response request(Request&);
+        Credential(Store* store);
+        inline bool invalid() const { return _invalid; }
+        void dump();
     private:
         std::string _access_token;
         std::string _client_id;
         std::string _client_secret;
         std::string _refresh_token;
         long _token_expiry;
-        std::string _token_uri;
-        std::string _user_agent;
-        std::string _revoke_uri;
         std::string _id_token;
         bool _invalid;
 
         Store *_store;
 
-        void _apply_header(Request& req);
-        void _refresh();
-        void _fresh();
+        Credential(const Credential& other);
+        Credential& operator=(const Credential& other);
 
-        RequestBody _generate_request_body();
+    friend class CredentialHttpRequest;
+};
+
+
+class CredentialHttpRequest : public HttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        CredentialHttpRequest(Credential *cred, std::string uri, RequestMethod method);
+        HttpResponse request();
+    protected:
+        Credential *_cred;
+
+        void _apply_header();
+        void _refresh();
+
+        std::string _generate_request_body();
         RequestHeader _generate_request_header();
 
         void _parse_response(std::string content);
