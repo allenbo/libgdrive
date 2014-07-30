@@ -50,9 +50,9 @@ void OAuth::_parse_response(std::string content) {
     }
 }
 
-Credential OAuth::build_credential(std::string code) {
+bool OAuth::build_credential(std::string code, Credential& cred) {
     _code = code;
-    RequestBody body;
+    std::map<std::string, std::string>  body;
     body["grant_type"] = "authorization_code";
     body["client_id"] = _client_id;
     body["client_secret"] = _client_secret;
@@ -64,10 +64,8 @@ Credential OAuth::build_credential(std::string code) {
     header["content-type"] = "application/x-www-form-urlencoded";
     header["user-agent"] = USER_AGENT;
 
-    Request request(TOKEN_URL, RM_POST, body, header);
-    request.request();
-    Response resp = request.response();
-
+    HttpRequest request(TOKEN_URL, RM_POST, header, URLHelper::encode(body));
+    HttpResponse resp = request.request();
    
     if (resp.status() == 200) {
         CLOG_DEBUG("Response:%s\n", resp.content().c_str());
@@ -75,14 +73,12 @@ Credential OAuth::build_credential(std::string code) {
         CLOG_DEBUG("access_token:%s\n", _resp.access_token.c_str());
         CLOG_DEBUG("refresh_token:%s\n", _resp.refresh_token.c_str());
         CLOG_DEBUG("token_expiry:%d\n", _resp.token_expiry); 
-        Credential rst(_resp.access_token, _client_id, _client_secret, _resp.refresh_token, _resp.token_expiry,
-                       _resp.id_token);
-        return rst;
+        cred.refresh(_resp.access_token, _resp.refresh_token, _resp.token_expiry, _resp.id_token);
+        return true;
     }
     else {
         CLOG_WARN("error_msg: %s\n", resp.content().c_str());
-        Credential rst;
-        return rst;
+        return false;
     }
 }
 

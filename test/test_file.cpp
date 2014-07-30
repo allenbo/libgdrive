@@ -25,7 +25,7 @@ int main() {
     FileStore fs(gdrive_dir);
     assert(fs.status() == SS_FULL);
 
-    Credential cred;
+    Credential cred(&fs);
 
     if (fs.get("refresh_token") == "") {
         std::string client_id = fs.get("client_id");
@@ -37,20 +37,15 @@ int main() {
         std::cout << "Please enter the code: ";
         std::string code;
         std::cin >> code;
-        cred = oauth.build_credential(code);
-        cred.set_store(&fs);
-    } else {
-        cred.from_store(&fs);
+        oauth.build_credential(code, cred);
     }
-    Request request("https://www.googleapis.com/discovery/v1/apis/drive/v2/rest", RM_GET);
-    Response resp = cred.request(request);
-    std::cout << resp.status() << " " << resp.content() << std::endl;
-    Drive service(cred);
-    std::vector<GFile> files = service.files().List();
+
+    Drive service(&cred);
+    std::vector<GFile> files = service.files().List().execute();
     for (int i = 0; i < files.size(); i ++ ) {
-        if (files[i].title == "testforgdrive") {
+        if (files[i].title == "anewtitle") {
             std::cout <<  "Find the file we need " << files[i].id << std::endl;
-            GFile file = service.files().Touch(files[i].id);
+            //GFile file = service.files().Touch(files[i].id);
             break;
         }
     }

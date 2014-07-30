@@ -27,7 +27,7 @@ int main() {
     FileStore fs(gdrive_dir);
     assert(fs.status() == SS_FULL);
 
-    Credential cred;
+    Credential cred(&fs);
 
     if (fs.get("refresh_token") == "") {
         std::string client_id = fs.get("client_id");
@@ -39,18 +39,12 @@ int main() {
         std::cout << "Please enter the code: ";
         std::string code;
         std::cin >> code;
-        cred = oauth.build_credential(code);
-        cred.set_store(&fs);
-    } else {
-        cred.from_store(&fs);
+        oauth.build_credential(code, cred);
     }
 
-    RequestBody body;
-    body["maxResults"] = "1000";
-    //body["key"] = client_secret;
+    CredentialHttpRequest req(&cred, "https://www.googleapis.com/drive/v2/files", RM_GET);
+    req.add_query("maxResults", "1000");
 
-    Request req("https://www.googleapis.com/drive/v2/files", RM_GET);
-    req.add_body(body);
-    Response resp = cred.request(req);
+    HttpResponse resp = req.request();
     assert(resp.status() == 200);
 }

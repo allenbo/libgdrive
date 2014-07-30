@@ -19,35 +19,42 @@ class FileService;
 class Drive {
     CLASS_MAKE_LOGGER
     public:
-        Drive(Credential cred);
+        Drive(Credential* cred);
         FileService& files();
     protected:
-        Credential _cred;
+        Credential* _cred;
 };
 
+class FileListRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileListRequest(Credential* cred, std::string uri, RequestMethod method);
+        std::vector<GFile> execute(); 
+};
+
+/*
+class FileRequest: public ServiceRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileRequest(GFile file, Credential* cred, std::string uri, RequestMethod method);
+        void add_field(std::string field) {
+            _fields.push_back(field);
+        }
+    protected:
+        GFile _file;
+        std::string _json_encode_body();
+        std::vector<std::string> _fields;
+};
+*/
 class FileService {
     CLASS_MAKE_LOGGER
     public:
-        class PatchRequest: public Request {
-            CLASS_MAKE_LOGGER
-            public:
-                PatchRequest(Credential* cred, std::string uri, std::string file_id, GFile file);
-                void add_field(std::string field) {
-                    _fields.push_back(field);
-                }
-                GFile execute();
-            private:
-                std::string _file_id;
-                GFile _file;
-                Credential* _cred;
-                std::string _jsonencode_body();
-                std::vector<std::string> _fields;
-        };
-        static FileService& get_instance(Credential &cred) {
+        static FileService& get_instance(Credential *cred) {
             _single_instance.set_cred(cred);
             return _single_instance;
         }
-        std::vector<GFile> List();
+        FileListRequest List();
+        /*
         GFile Get(std::string id);
         GFile Trash(std::string id);
         GFile Untrash(std::string id);
@@ -55,14 +62,15 @@ class FileService {
         bool EmptyTrash();
         GFile Touch(std::string id);
         PatchRequest Patch(std::string file_id, GFile file);
+        */
     private: 
         FileService();
         FileService(const FileService& other);
         FileService& operator=(const FileService& other);
         static FileService _single_instance;
 
-        Credential _cred;
-        inline void set_cred(Credential& cred) {
+        Credential *_cred;
+        inline void set_cred(Credential* cred) {
             _cred = cred;
         }
 };

@@ -3,9 +3,48 @@
 using namespace JCONER;
 namespace GDRIVE {
 
-Drive::Drive(Credential cred)
+Drive::Drive(Credential *cred)
     :_cred(cred)
 {
+}
+
+FileListRequest::FileListRequest(Credential* cred, std::string uri, RequestMethod method)
+    :CredentialHttpRequest(cred, uri, method)
+{
+}
+
+std::vector<GFile> FileListRequest::execute() {
+    std::vector<GFile> files;
+    std::string next_link = "";
+    _query["maxRequest"] = "1000";
+
+    while(true) {
+        CredentialHttpRequest::request();
+        PError error;
+        JObject* value = (JObject*)loads(_resp.content(), error);
+        if (value != NULL) {
+            if (value->contain("items")) {
+                JArray* items = (JArray*)value->get("items");
+                for(int i = 0; i < items->size(); i ++ ) {
+                    JObject* item = (JObject*)items->get(i);
+                    GFile file;
+                    file.from_json(item);
+                    files.push_back(file);
+                    CLOG_DEBUG("Get file %s\n", file.title.c_str());
+                }
+            }
+            if (value->contain("nextLink")) {
+                next_link = ((JString*)value->get("nextLink"))->getValue();
+                set_uri(next_link);
+                _query.clear();
+                delete value;
+            } else {
+                delete value;
+                break;
+            }
+        }
+    }
+    return files;
 }
 
 FileService& Drive::files() {
@@ -21,42 +60,11 @@ FileService::FileService()
 #endif
 }
 
-std::vector<GFile> FileService::List() {
-    std::vector<GFile> files;
-    std::string next_link = "";
-    RequestBody body;
-    body["maxRequest"] = "1000";
-    Request request(FILE_URL, RM_GET);
-    request.add_body(body);
-
-    while(true) {
-        Response resp = _cred.request(request);
-        PError error;
-        JObject* value = (JObject*)loads(resp.content(), error);
-        if (value != NULL) {
-            if (value->contain("items")) {
-                JArray* items = (JArray*)value->get("items");
-                for(int i = 0; i < items->size(); i ++ ) {
-                    JObject* item = (JObject*)items->get(i);
-                    GFile file;
-                    file.from_json(item);
-                    files.push_back(file);
-                    CLOG_DEBUG("Get file %s\n", file.title.c_str());
-                }
-            }
-            if (value->contain("nextLink")) {
-                next_link = ((JString*)value->get("nextLink"))->getValue();
-                request = Request(next_link, RM_GET);
-                delete value;
-            } else {
-                delete value;
-                break;
-            }
-        }
-    }
-    return files;
+FileListRequest FileService::List() {
+    FileListRequest flr(_cred, FILE_URL, RM_GET);
+    return flr;
 }
-
+/*
 GFile FileService::Get(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id);
@@ -206,5 +214,6 @@ GFile FileService::PatchRequest::execute() {
         CLOG_ERROR("Unknow response: %d %s\n", _resp.status(), _resp.content().c_str());
     }
 }
+*/
 
 }

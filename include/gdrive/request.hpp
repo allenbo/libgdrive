@@ -52,7 +52,7 @@ class HttpRequest {
     CLASS_MAKE_LOGGER
     public:
         HttpRequest(std::string uri, RequestMethod method);
-        HttpRequest(std::string uri, RequestMethod method, RequestHeader header, std::string body);
+        HttpRequest(std::string uri, RequestMethod method, RequestHeader& header, std::string body);
         void add_header(RequestHeader &header);
         void add_header(std::string key, std::string value);
         void add_query(RequestQuery& query);

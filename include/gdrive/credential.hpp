@@ -18,6 +18,7 @@ class Credential {
     public:
         Credential(Store* store);
         inline bool invalid() const { return _invalid; }
+        void refresh(std::string at, std::string rt, long te, std::string it = "");
         void dump();
     private:
         std::string _access_token;

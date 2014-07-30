@@ -29,6 +29,15 @@ Credential::Credential(Store* store)
     _token_expiry = 0;
 }
 
+void Credential::refresh(std::string at, std::string rt, long te, std::string it) {
+    _access_token = at;
+    _refresh_token = rt;
+    _token_expiry = te;
+    _id_token = it;
+    _invalid = false;
+    dump();
+}
+
 void Credential::dump() {
     if (_store == NULL) {
         CLOG_WARN("This is no store to save tokens\n");
@@ -104,6 +113,9 @@ void CredentialHttpRequest::_refresh() {
 }
 
 HttpResponse CredentialHttpRequest::request() {
+    if (_cred->_invalid == true) {
+        CLOG_FATAL("Credential is invalid\n");
+    }
     if (_cred->_access_token == ""){
         CLOG_INFO("Attempting refresh to obtain initial access_token\n");
         _refresh();

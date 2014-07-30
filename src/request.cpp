@@ -46,7 +46,7 @@ void HttpRequest::_init_curl_handle() {
     curl_easy_setopt(_handle, CURLOPT_URL, _uri.c_str());
     curl_easy_setopt(_handle, CURLOPT_HEADERDATA, (void*)&_resp._header);
     curl_easy_setopt(_handle, CURLOPT_WRITEDATA, (void*)&_resp._content);
-    curl_easy_setopt(_handle, CURLOPT_WRITEFUNCTION, Response::curl_write_callback);
+    curl_easy_setopt(_handle, CURLOPT_WRITEFUNCTION, HttpResponse::curl_write_callback);
     _header.clear();
     _query.clear();
 }
@@ -77,7 +77,7 @@ curl_slist* HttpRequest::_build_header() {
     return list;
 }
 
-HttpResponse HttpRequest::request() {
+HttpResponse& HttpRequest::request() {
     VarString vs;
     // if there is query paremeter, append to url
     if (_query.size() != 0) {
@@ -88,7 +88,7 @@ HttpResponse HttpRequest::request() {
     if (_method == RM_GET) {
         // do nothing
     } else {
-        curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body);
+        curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
         if (_method == RM_POST) {
             if (_body == "") {
                 _header["Content-Type"] = "";
