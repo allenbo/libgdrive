@@ -1,5 +1,7 @@
 #include "gdrive/drive.hpp"
 #include "jconer/json.hpp"
+
+#include <string.h>
 using namespace JCONER;
 namespace GDRIVE {
 
@@ -13,10 +15,33 @@ FileListRequest::FileListRequest(Credential* cred, std::string uri, RequestMetho
 {
 }
 
+void FileListRequest::set_corpus(std::string corpus) {
+    if (corpus == "DEFAULT" or corpus == "DOMAIN") {
+        _query["corpus"] = corpus;
+    } else {
+        CLOG_WARN("Wrong corpus parameter[%s], using DEFAULT\n", corpus.c_str());
+    }
+}
+
+void FileListRequest::set_max_results(int max_results) {
+    if (max_results >= 0) {
+        _query["maxResults"] = VarString::itos(max_results);
+    } else {
+        CLOG_WARN("Wrong maxResults parameter[%d], using 100\n", max_results);
+    }
+}
+
+void FileListRequest::set_page_token(std::string page_token) {
+    _query["pageToken"] = page_token;
+}
+
+void FileListRequest::set_q(std::string q) {
+    _query["q"] = q;
+}
+
 std::vector<GFile> FileListRequest::execute() {
     std::vector<GFile> files;
     std::string next_link = "";
-    _query["maxRequest"] = "1000";
 
     while(true) {
         CredentialHttpRequest::request();

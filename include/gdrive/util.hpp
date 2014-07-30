@@ -27,6 +27,12 @@ namespace GDRIVE {
 
 class VarString {
     public:
+        static std::string itos(int i) {
+            char tmp[20];
+            sprintf(tmp, "%d", i);
+            return std::string(tmp);
+        }
+
         VarString() {
             MALLOC(char, _p, BUFSIZE);
             _cur = _p;
@@ -164,6 +170,7 @@ class URLHelper {
             }
         }
 };
+
 
 }
 

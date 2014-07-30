@@ -11,7 +11,7 @@ CPP := g++
 CC := gcc
 
 CFLAG := -g
-LFLAG := -g -lcurl -L$(LIB_DIR) $(LIB)
+LFLAG := -g -lcurl -L$(LIB_DIR) $(LIB) -flto
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst %.cpp,%.o, $(subst $(SRC_DIR),$(BUILD_DIR), $(SRC)))

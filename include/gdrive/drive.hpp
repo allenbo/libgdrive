@@ -30,6 +30,10 @@ class FileListRequest: public CredentialHttpRequest {
     public:
         FileListRequest(Credential* cred, std::string uri, RequestMethod method);
         std::vector<GFile> execute(); 
+        void set_corpus(std::string corpus);
+        void set_max_results(int max_results);
+        void set_page_token(std::string page_token);
+        void set_q(std::string q);
 };
 
 /*
