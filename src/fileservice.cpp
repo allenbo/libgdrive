@@ -16,49 +16,49 @@ FileService::FileService()
 }
 
 FileListRequest FileService::List() {
-    FileListRequest flr(_cred, FILE_URL, RM_GET);
+    FileListRequest flr(_cred, FILE_URL);
     return flr;
 }
 
 FileGetRequest FileService::Get(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id);
-    FileGetRequest fgr(_cred, vs.toString(), RM_GET);
+    FileGetRequest fgr(_cred, vs.toString());
     return fgr;
 }
 
 FileTrashRequest FileService::Trash(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id).append("/trash");
-    FileTrashRequest request(_cred, vs.toString(), RM_POST);
+    FileTrashRequest request(_cred, vs.toString());
     return request;
 }
 
 FileUntrashRequest FileService::Untrash(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id).append("/untrash");
-    FileUntrashRequest request(_cred, vs.toString(), RM_POST);
+    FileUntrashRequest request(_cred, vs.toString());
     return request;
 }
 
 FileDeleteRequest FileService::Delete(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id);
-    FileDeleteRequest request(_cred, vs.toString(), RM_DELETE);
+    FileDeleteRequest request(_cred, vs.toString());
     return request;
 }
 
 FileEmptyTrashRequest FileService::EmptyTrash() {
     VarString vs;
     vs.append(FILE_URL).append("/trash");
-    FileEmptyTrashRequest request(_cred, vs.toString(), RM_DELETE);
+    FileEmptyTrashRequest request(_cred, vs.toString());
     return request;
 }
 
 FileTouchRequest FileService::Touch(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id).append("/touch");
-    FileTouchRequest request(_cred, vs.toString(), RM_POST);
+    FileTouchRequest request(_cred, vs.toString());
     return request;
 }
 
@@ -67,6 +67,13 @@ FilePatchRequest FileService::Patch(std::string file_id, GFile& file) {
     vs.append(FILE_URL).append('/').append(file_id);
     FilePatchRequest pr(file, _cred, vs.toString());
     return pr;
+}
+
+FileCopyRequest FileService::Copy(std::string file_id, GFile& file) {
+    VarString vs;
+    vs.append(FILE_URL).append('/').append(file_id).append("/copy");
+    FileCopyRequest fcr(file, _cred, vs.toString());
+    return fcr;
 }
 
 }

@@ -127,4 +127,12 @@ GFile FilePatchRequest::execute() {
     return get_file();
 }
 
+GFile FileCopyRequest::execute() {
+    if (_query.find("fields") != _query.end()) {
+        _query.erase("fields");
+    }
+    _json_encode_body();
+    return get_file();
+}
+
 }

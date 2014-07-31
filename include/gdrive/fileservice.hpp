@@ -29,6 +29,7 @@ class FileService {
         FileEmptyTrashRequest EmptyTrash();
         FileTouchRequest Touch(std::string id);
         FilePatchRequest Patch(std::string file_id, GFile& file);
+        FileCopyRequest Copy(std::string file_id, GFile& file);
     private: 
         FileService();
         FileService(const FileService& other);

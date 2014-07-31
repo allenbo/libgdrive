@@ -44,13 +44,13 @@ int main() {
     Drive service(&cred);
     std::vector<GFile> files = service.files().List().execute();
     for (int i = 0; i < files.size(); i ++ ) {
-        if (files[i].title == "testforgdrive") {
+        if (files[i].title == "A new tile") {
             std::cout <<  "Find the file we need " << files[i].id << std::endl;
             GFile file;
-            file.title = "A new tile";
-            FilePatchRequest patch = service.files().Patch(files[i].id, file);
-            patch.add_field("title");
-            file = patch.execute();
+            file.title = "COPYFROMNEWTILE";
+            FileCopyRequest copy = service.files().Copy(files[i].id, file);
+            copy.add_field("title");
+            file = copy.execute();
             break;
         }
     }

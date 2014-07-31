@@ -49,8 +49,8 @@ class FieldRequest: public CredentialHttpRequest {
 class FileListRequest: public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileListRequest(Credential* cred, std::string uri, RequestMethod method)
-            :CredentialHttpRequest(cred, uri, method) {}
+        FileListRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
         std::vector<GFile> execute(); 
         STRING_SET_ATTR(pageToken)
         STRING_SET_ATTR(q)
@@ -61,8 +61,8 @@ class FileListRequest: public CredentialHttpRequest {
 class FileGetRequest: public FieldRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileGetRequest(Credential* cred, std::string uri, RequestMethod method)
-            :FieldRequest(cred, uri, method) {}
+        FileGetRequest(Credential* cred, std::string uri)
+            :FieldRequest(cred, uri, RM_GET) {}
         GFile execute();
         BOOL_SET_ATTR(updateViewedDate)
 };
@@ -70,8 +70,8 @@ class FileGetRequest: public FieldRequest {
 class FileTrashRequest: public FieldRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileTrashRequest(Credential* cred, std::string uri, RequestMethod method)
-            :FieldRequest(cred, uri, method) {}
+        FileTrashRequest(Credential* cred, std::string uri)
+            :FieldRequest(cred, uri, RM_POST) {}
         GFile execute();
 };
 
@@ -80,8 +80,8 @@ typedef FileTrashRequest FileUntrashRequest;
 class FileDeleteRequest: public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileDeleteRequest(Credential* cred, std::string uri, RequestMethod method)
-            :CredentialHttpRequest(cred, uri, method) {}
+        FileDeleteRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
         bool execute();
 };
 
@@ -91,8 +91,8 @@ typedef FileDeleteRequest FileEmptyTrashRequest;
 class FileTouchRequest: public FieldRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileTouchRequest(Credential* cred, std::string uri, RequestMethod method)
-            :FieldRequest(cred, uri, method) {}
+        FileTouchRequest(Credential* cred, std::string uri)
+            :FieldRequest(cred, uri, RM_POST) {}
         GFile execute() { return get_file(); }
 };
 
@@ -128,6 +128,25 @@ class FilePatchRequest : public FileAttachedRequest {
         BOOL_SET_ATTR(useContentAsIndexableText)
     private:
         std::vector<std::string> _parents;
+};
+
+class FileCopyRequest : public FileAttachedRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileCopyRequest(GFile file, Credential* cred, std::string uri)
+            :FileAttachedRequest(file, cred, uri, RM_POST) {}
+
+        GFile execute();
+        BOOL_SET_ATTR(convert)
+        BOOL_SET_ATTR(ocr)
+        STRING_SET_ATTR(ocrLanguage)
+        BOOL_SET_ATTR(pinned)
+        STRING_SET_ATTR(timedTextLanguage)
+        STRING_SET_ATTR(timedTextTrackName)
+        void set_visibilty(std::string v) {
+            if (v == "DEFAULT" || v == "PRIVATE")
+                _query["visibility"] = v;
+        }
 };
 
 }
