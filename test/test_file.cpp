@@ -42,15 +42,17 @@ int main() {
     }
 
     Drive service(&cred);
-    /*
     std::vector<GFile> files = service.files().List().execute();
     for (int i = 0; i < files.size(); i ++ ) {
-        if (files[i].title == "anewtitle") {
+        if (files[i].title == "testforgdrive") {
             std::cout <<  "Find the file we need " << files[i].id << std::endl;
-            service.files().Delete(files[i].id).execute();
+            GFile file;
+            file.title = "A new tile";
+            FilePatchRequest patch = service.files().Patch(files[i].id, file);
+            patch.add_field("title");
+            file = patch.execute();
             break;
         }
     }
-    */
-    service.files().EmptyTrash().execute();
+    //service.files().EmptyTrash().execute();
 }

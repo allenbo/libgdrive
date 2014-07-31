@@ -11,6 +11,15 @@
 
 #define FILE_URL SERVICE_URI "/files"
 
+#define STRING_SET_ATTR(name) void set_##name(std::string name) { \
+    _query[#name] = name;\
+}
+
+#define BOOL_SET_ATTR(name) void set_##name(bool flag) { \
+    if (flag) _query[#name] = "true";\
+    else _query[#name] = "false"; \
+}
+
 namespace GDRIVE {
 
 class FieldRequest: public CredentialHttpRequest {
@@ -21,6 +30,7 @@ class FieldRequest: public CredentialHttpRequest {
         inline void clear_fields() {
             if (_query.find("fields") == _query.end()) return;
             _query.erase("fields");
+            _fields.clear();
         }
 
         inline void add_field(std::string field) {
@@ -29,9 +39,11 @@ class FieldRequest: public CredentialHttpRequest {
             } else {
                 _query["fields"] += "," + field;
             }
+            _fields.push_back(field);
         };
     protected: 
         GFile get_file();
+        std::vector<std::string> _fields;
 };
 
 class FileListRequest: public CredentialHttpRequest {
@@ -40,10 +52,10 @@ class FileListRequest: public CredentialHttpRequest {
         FileListRequest(Credential* cred, std::string uri, RequestMethod method)
             :CredentialHttpRequest(cred, uri, method) {}
         std::vector<GFile> execute(); 
+        STRING_SET_ATTR(pageToken)
+        STRING_SET_ATTR(q)
         void set_corpus(std::string corpus);
         void set_max_results(int max_results);
-        void set_page_token(std::string page_token);
-        void set_q(std::string q);
 };
 
 class FileGetRequest: public FieldRequest {
@@ -52,7 +64,7 @@ class FileGetRequest: public FieldRequest {
         FileGetRequest(Credential* cred, std::string uri, RequestMethod method)
             :FieldRequest(cred, uri, method) {}
         GFile execute();
-        void set_update_viewed_date(bool);
+        BOOL_SET_ATTR(updateViewedDate)
 };
 
 class FileTrashRequest: public FieldRequest {
@@ -74,6 +86,49 @@ class FileDeleteRequest: public CredentialHttpRequest {
 };
 
 typedef FileDeleteRequest FileEmptyTrashRequest;
+
+
+class FileTouchRequest: public FieldRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileTouchRequest(Credential* cred, std::string uri, RequestMethod method)
+            :FieldRequest(cred, uri, method) {}
+        GFile execute() { return get_file(); }
+};
+
+class FileAttachedRequest : public FieldRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileAttachedRequest(GFile file, Credential* cred, std::string uri, RequestMethod method)
+            :FieldRequest(cred, uri, method), _file(file) {}
+    protected:
+        void _json_encode_body();
+        GFile _file;
+};
+
+class FilePatchRequest : public FileAttachedRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FilePatchRequest(GFile file, Credential* cred, std::string uri)
+            :FileAttachedRequest(file, cred, uri, RM_PATCH) {}
+
+        GFile execute();
+        void add_parent(std::string parent);
+        void remove_parent(std::string parent);
+
+        BOOL_SET_ATTR(convert)
+        BOOL_SET_ATTR(newRevision)
+        BOOL_SET_ATTR(ocr)
+        STRING_SET_ATTR(orcLanguag)
+        BOOL_SET_ATTR(pinned) 
+        BOOL_SET_ATTR(setModifiedDate)
+        STRING_SET_ATTR(timedTextLanguge)
+        STRING_SET_ATTR(timedTextTrackName)
+        BOOL_SET_ATTR(updateViewedDate)
+        BOOL_SET_ATTR(useContentAsIndexableText)
+    private:
+        std::vector<std::string> _parents;
+};
 
 }
 

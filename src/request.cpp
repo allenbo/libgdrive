@@ -95,6 +95,8 @@ HttpResponse& HttpRequest::request() {
             }
         } else if (_method == RM_DELETE) {
             curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
+        } else if (_method == RM_PATCH) {
+            curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "PATCH");
         } else {
             CLOG_FATAL("Unknown  method\n");
         }

@@ -27,10 +27,8 @@ class FileService {
         FileUntrashRequest Untrash(std::string id);
         FileDeleteRequest Delete(std::string id);
         FileEmptyTrashRequest EmptyTrash();
-        /*
-        GFile Touch(std::string id);
-        PatchRequest Patch(std::string file_id, GFile file);
-        */
+        FileTouchRequest Touch(std::string id);
+        FilePatchRequest Patch(std::string file_id, GFile& file);
     private: 
         FileService();
         FileService(const FileService& other);

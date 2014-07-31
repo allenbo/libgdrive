@@ -37,14 +37,6 @@ void FileListRequest::set_max_results(int max_results) {
     }
 }
 
-void FileListRequest::set_page_token(std::string page_token) {
-    _query["pageToken"] = page_token;
-}
-
-void FileListRequest::set_q(std::string q) {
-    _query["q"] = q;
-}
-
 std::vector<GFile> FileListRequest::execute() {
     std::vector<GFile> files;
     std::string next_link = "";
@@ -78,14 +70,6 @@ std::vector<GFile> FileListRequest::execute() {
     return files;
 }
 
-
-void FileGetRequest::set_update_viewed_date(bool flag) {
-    if(flag)
-        _query["updateViewedDate"] = "true";
-    else
-        _query["updateViewedDate"] = "false";
-}
-
 GFile FileGetRequest::execute() {
     return FieldRequest::get_file();
 }
@@ -102,6 +86,45 @@ bool FileDeleteRequest::execute() {
         CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
         return false;
     }
+}
+
+void FileAttachedRequest::_json_encode_body() {
+    JObject* tmp = _file.to_json();
+    JObject* rst_obj = new JObject();
+    for(int i = 0; i < _fields.size(); i ++ ) {
+        std::string field = _fields[i];
+        if (tmp->contain(field)) {
+            JValue* v = tmp->pop(field);
+            rst_obj->put(field, v);
+        }
+    }
+    char* buf;
+    dumps(rst_obj, &buf);
+    delete tmp;
+    delete rst_obj;
+    _body = std::string(buf);
+    free(buf);
+
+    _header["Content-Type"] = "application/json";
+}
+
+
+void FilePatchRequest::add_parent(std::string parent) {
+    _parents.push_back(parent);
+    _query["addParents"] = VarString::join(_parents,",");
+}
+
+void FilePatchRequest::remove_parent(std::string parent) {
+    std::vector<std::string>::iterator iter = find(_parents.begin(), _parents.end(), parent);
+    if (iter != _parents.end()) {
+        _parents.erase(iter);
+        _query["addParents"] = VarString::join(_parents,",");
+    }
+}
+
+GFile FilePatchRequest::execute() {
+    _json_encode_body();
+    return get_file();
 }
 
 }

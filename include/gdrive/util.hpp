@@ -2,6 +2,7 @@
 #define __GDRIVE_UTIL_HPP__
 #include <string>
 #include <map>
+#include <vector>
 #include <string.h>
 #include <stdlib.h>
 
@@ -33,6 +34,17 @@ class VarString {
             return std::string(tmp);
         }
 
+        static std::string join(std::vector<std::string> vec, std::string sep) {
+            if (vec.size() == 0) return "";
+            VarString vs;
+            int len = sep.size();
+            for(int i = 0; i < vec.size(); i ++ ) {
+                vs.append(vec[i]).append(sep);
+            }
+            vs.drop(len);
+            return vs.toString();
+        }
+
         VarString() {
             MALLOC(char, _p, BUFSIZE);
             _cur = _p;
@@ -54,6 +66,14 @@ class VarString {
             if (_cur != _p) {
                 _cur --;
             }
+            return *this;
+        }
+
+        inline VarString& drop(unsigned int len) {
+            if (_cur - len < _p) {
+                len = _p - _cur;
+            }
+            _cur -= len;
             return *this;
         }
 
