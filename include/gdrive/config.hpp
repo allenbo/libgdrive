@@ -11,5 +11,5 @@
 #define ACCESS_TYPE "offline"
 #define USER_AGENT "allenbo-gdrive/1.0"
 
-
+#define SERVICE_URI "https://www.googleapis.com/drive/v2"
 #endif
