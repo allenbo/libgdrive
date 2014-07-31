@@ -93,4 +93,15 @@ GFile FileGetRequest::execute() {
 GFile FileTrashRequest::execute() {
     return FieldRequest::get_file();
 }
+
+bool FileDeleteRequest::execute() {
+    CredentialHttpRequest::request();
+    if (_resp.status() == 204) {
+        return true;
+    } else {
+        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
+        return false;
+    }
+}
+
 }

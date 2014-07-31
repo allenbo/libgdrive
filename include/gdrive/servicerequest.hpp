@@ -65,6 +65,14 @@ class FileTrashRequest: public FieldRequest {
 
 typedef FileTrashRequest FileUntrashRequest;
 
+class FileDeleteRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileDeleteRequest(Credential* cred, std::string uri, RequestMethod method)
+            :CredentialHttpRequest(cred, uri, method) {}
+        bool execute();
+};
+
 }
 
 #endif

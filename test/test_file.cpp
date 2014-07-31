@@ -46,7 +46,7 @@ int main() {
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].title == "anewtitle") {
             std::cout <<  "Find the file we need " << files[i].id << std::endl;
-            service.files().Untrash(files[i].id).execute();
+            service.files().Delete(files[i].id).execute();
             break;
         }
     }
