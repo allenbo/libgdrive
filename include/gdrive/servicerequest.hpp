@@ -16,9 +16,20 @@ namespace GDRIVE {
 class FieldRequest: public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
     public:
-        FieldRequest(Credential* cred, std::string uir, RequestMethod method);
-        inline void clear_fields();
-        inline void add_field(std::string field);
+        FieldRequest(Credential* cred, std::string uri, RequestMethod method)
+            :CredentialHttpRequest(cred, uri, method) {}
+        inline void clear_fields() {
+            if (_query.find("fields") == _query.end()) return;
+            _query.erase("fields");
+        }
+
+        inline void add_field(std::string field) {
+            if (_query.find("fields") == _query.end()) {
+                _query["fields"] = field;
+            } else {
+                _query["fields"] += "," + field;
+            }
+        };
 };
 
 class FileListRequest: public CredentialHttpRequest {
@@ -32,21 +43,13 @@ class FileListRequest: public CredentialHttpRequest {
         void set_q(std::string q);
 };
 
-
-/*
-class FileRequest: public ServiceRequest {
+class FileGetRequest: public FieldRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileRequest(GFile file, Credential* cred, std::string uri, RequestMethod method);
-        void add_field(std::string field) {
-            _fields.push_back(field);
-        }
-    protected:
-        GFile _file;
-        std::string _json_encode_body();
-        std::vector<std::string> _fields;
+        FileGetRequest(Credential* cred, std::string uri, RequestMethod method);
+        GFile execute();
+        void set_update_viewed_date(bool);
 };
-*/
 
 }
 

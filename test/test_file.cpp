@@ -1,6 +1,7 @@
 #include "gdrive/oauth.hpp"
 #include "gdrive/credential.hpp"
 #include "gdrive/drive.hpp"
+#include "gdrive/servicerequest.hpp"
 #include <iostream>
 #include <assert.h>
 
@@ -45,7 +46,11 @@ int main() {
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].title == "anewtitle") {
             std::cout <<  "Find the file we need " << files[i].id << std::endl;
-            //GFile file = service.files().Touch(files[i].id);
+            FileGetRequest get = service.files().Get(files[i].id);
+            get.set_update_viewed_date(true);
+            get.add_field("appDataContents");
+            get.add_field("webContentLink");
+            get.execute();
             break;
         }
     }
