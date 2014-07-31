@@ -63,6 +63,7 @@ class FileTrashRequest: public FieldRequest {
         GFile execute();
 };
 
+typedef FileTrashRequest FileUntrashRequest;
 
 }
 

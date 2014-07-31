@@ -34,26 +34,14 @@ FileTrashRequest FileService::Trash(std::string id) {
     return request;
 }
 
-/*
-GFile FileService::Untrash(std::string id) {
+FileUntrashRequest FileService::Untrash(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id).append("/untrash");
-    Request request(vs.toString(), RM_POST);
-    Response resp = _cred.request(request);
-    if (resp.status() == 200) {
-        PError error;
-        JObject* obj = (JObject*)loads(resp.content(), error);
-        GFile file;
-        if (obj != NULL) {
-            file.from_json(obj);
-            delete obj;
-        }
-        return file;
-    } else {
-        CLOG_ERROR("Not sucessful, server returns %d: %s\n", resp.status(), resp.content().c_str());
-    }
+    FileUntrashRequest request(_cred, vs.toString(), RM_POST);
+    return request;
 }
 
+/*
 bool FileService::Delete(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id);
