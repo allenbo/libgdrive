@@ -42,6 +42,7 @@ int main() {
     }
 
     Drive service(&cred);
+    /*
     std::vector<GFile> files = service.files().List().execute();
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].title == "anewtitle") {
@@ -50,4 +51,6 @@ int main() {
             break;
         }
     }
+    */
+    service.files().EmptyTrash().execute();
 }

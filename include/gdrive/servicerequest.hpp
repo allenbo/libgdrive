@@ -73,6 +73,8 @@ class FileDeleteRequest: public CredentialHttpRequest {
         bool execute();
 };
 
+typedef FileDeleteRequest FileEmptyTrashRequest;
+
 }
 
 #endif

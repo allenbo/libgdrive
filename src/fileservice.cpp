@@ -48,21 +48,14 @@ FileDeleteRequest FileService::Delete(std::string id) {
     return request;
 }
 
-/*
-bool FileService::EmptyTrash() {
+FileEmptyTrashRequest FileService::EmptyTrash() {
     VarString vs;
     vs.append(FILE_URL).append("/trash");
-    Request request(vs.toString(), RM_DELETE);
-    Response resp = _cred.request(request);
-    if ( resp.status() == 204) {
-        return true;
-    } else {
-        CLOG_WARN("%d: %s\n", resp.status(), resp.content().c_str());
-        return false;
-    }
-
+    FileEmptyTrashRequest request(_cred, vs.toString(), RM_DELETE);
+    return request;
 }
 
+/*
 GFile FileService::Touch(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id).append("/touch");
