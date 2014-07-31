@@ -6,9 +6,19 @@ using namespace JCONER;
 
 namespace GDRIVE {
 
-FileListRequest::FileListRequest(Credential* cred, std::string uri, RequestMethod method)
-    :CredentialHttpRequest(cred, uri, method)
-{
+GFile FieldRequest::get_file() {
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+    PError error;
+    JObject* obj = (JObject*)loads(_resp.content(), error);
+    GFile file;
+    if (obj != NULL) {
+        file.from_json(obj);
+        delete obj;
+    }
+    return file;
 }
 
 void FileListRequest::set_corpus(std::string corpus) {
@@ -69,11 +79,6 @@ std::vector<GFile> FileListRequest::execute() {
 }
 
 
-FileGetRequest::FileGetRequest(Credential* cred, std::string uri, RequestMethod method)
-    :FieldRequest(cred, uri, method)
-{
-}
-
 void FileGetRequest::set_update_viewed_date(bool flag) {
     if(flag)
         _query["updateViewedDate"] = "true";
@@ -82,18 +87,10 @@ void FileGetRequest::set_update_viewed_date(bool flag) {
 }
 
 GFile FileGetRequest::execute() {
-    FieldRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* obj = (JObject*)loads(_resp.content(), error);
-    GFile file;
-    if (obj != NULL) {
-        file.from_json(obj);
-        delete obj;
-    }
-    return file;
+    return FieldRequest::get_file();
 }
 
+GFile FileTrashRequest::execute() {
+    return FieldRequest::get_file();
+}
 }

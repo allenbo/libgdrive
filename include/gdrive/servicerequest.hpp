@@ -30,12 +30,15 @@ class FieldRequest: public CredentialHttpRequest {
                 _query["fields"] += "," + field;
             }
         };
+    protected: 
+        GFile get_file();
 };
 
 class FileListRequest: public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileListRequest(Credential* cred, std::string uri, RequestMethod method);
+        FileListRequest(Credential* cred, std::string uri, RequestMethod method)
+            :CredentialHttpRequest(cred, uri, method) {}
         std::vector<GFile> execute(); 
         void set_corpus(std::string corpus);
         void set_max_results(int max_results);
@@ -46,10 +49,20 @@ class FileListRequest: public CredentialHttpRequest {
 class FileGetRequest: public FieldRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileGetRequest(Credential* cred, std::string uri, RequestMethod method);
+        FileGetRequest(Credential* cred, std::string uri, RequestMethod method)
+            :FieldRequest(cred, uri, method) {}
         GFile execute();
         void set_update_viewed_date(bool);
 };
+
+class FileTrashRequest: public FieldRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileTrashRequest(Credential* cred, std::string uri, RequestMethod method)
+            :FieldRequest(cred, uri, method) {}
+        GFile execute();
+};
+
 
 }
 

@@ -23,8 +23,8 @@ class FileService {
         }
         FileListRequest List();
         FileGetRequest Get(std::string id);
+        FileTrashRequest Trash(std::string id);
         /*
-        GFile Trash(std::string id);
         GFile Untrash(std::string id);
         bool Delete(std::string id);
         bool EmptyTrash();
