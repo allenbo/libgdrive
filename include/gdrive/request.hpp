@@ -25,6 +25,7 @@ enum EncodeMethod {
 
 typedef std::map<std::string, std::string> RequestHeader;
 typedef std::map<std::string, std::string> RequestQuery;
+typedef size_t (*ReadFunction) (void*, size_t, size_t, void*);
 
 class HttpResponse;
 class HttpRequest;
@@ -71,7 +72,8 @@ class HttpRequest {
         std::string _body;
         HttpResponse _resp;
         CURL *_handle;
-        
+        ReadFunction _read_hook;
+        void* _read_context;
         void _init_curl_handle();
         curl_slist* _build_header();
 };

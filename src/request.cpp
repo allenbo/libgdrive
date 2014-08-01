@@ -16,6 +16,8 @@ HttpRequest::HttpRequest(std::string uri, RequestMethod method)
     :_uri(uri), _method(method) 
 {
     _init_curl_handle();    
+    _read_hook = NULL;
+    _read_context = NULL;
 #ifdef GDIRVE_DEBUG
     CLASS_INIT_LOGGER("HttpRequest", L_DEBUG);
 #endif
@@ -25,6 +27,8 @@ HttpRequest::HttpRequest(std::string uri, RequestMethod method, RequestHeader& h
     :_uri(uri), _method(method), _body(body)
 {
     _init_curl_handle();
+    _read_hook = NULL;
+    _read_context = NULL;
     _header.insert(header.begin(), header.end());
 #ifdef GDRIVE_DEBUG
     CLASS_INIT_LOGGER("HttpRequest", L_DEBUG);
@@ -88,11 +92,19 @@ HttpResponse& HttpRequest::request() {
     if (_method == RM_GET) {
         // do nothing
     } else {
-        curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
-        if (_method == RM_POST) {
-            if (_body == "") {
-                _header["Content-Type"] = "";
+        if (_read_hook && _read_context) {
+            curl_easy_setopt(_handle, CURLOPT_POST, 1);
+            curl_easy_setopt(_handle, CURLOPT_READFUNCTION, _read_hook);
+            curl_easy_setopt(_handle, CURLOPT_READDATA, _read_context);
+            int size = 0;
+            if (_header.find("Content-Length") != _header.end()) {
+                curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, atoi(_header["Content-Length"].c_str()));
             }
+        } else {
+            curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
+        }
+        if (_method == RM_POST) {
+            // do nothing
         } else if (_method == RM_DELETE) {
             curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
         } else if (_method == RM_PATCH) {

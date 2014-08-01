@@ -6,6 +6,7 @@
 #include "gdrive/logging.hpp"
 #include "gdrive/util.hpp"
 #include "gdrive/gitem.hpp"
+#include "gdrive/filecontent.hpp"
 
 #include <vector>
 #include <set>
@@ -148,6 +149,30 @@ class FileCopyRequest : public FileAttachedRequest {
             if (v == "DEFAULT" || v == "PRIVATE")
                 _query["visibility"] = v;
         }
+};
+
+class FileInsertRequest: public FileAttachedRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileInsertRequest(FileContent content, GFile file, Credential* cred, std::string uri, bool resumable = false)
+            :FileAttachedRequest(file, cred, uri, RM_POST), _content(content), _resumable(resumable) {}
+
+        GFile execute();
+        BOOL_SET_ATTR(convert)
+        BOOL_SET_ATTR(ocr)
+        STRING_SET_ATTR(orcLanguag)
+        BOOL_SET_ATTR(pinned) 
+        STRING_SET_ATTR(timedTextLanguge)
+        STRING_SET_ATTR(timedTextTrackName)
+        BOOL_SET_ATTR(useContentAsIndexableText)
+        void set_visibilty(std::string v) {
+            if (v == "DEFAULT" || v == "PRIVATE")
+                _query["visibility"] = v;
+        }
+
+    private:
+        FileContent _content;
+        bool _resumable;
 };
 
 }

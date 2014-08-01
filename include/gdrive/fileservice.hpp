@@ -6,7 +6,8 @@
 #include "gdrive/logging.hpp"
 #include "gdrive/util.hpp"
 #include "gdrive/gitem.hpp"
-#include "servicerequest.hpp"
+#include "gdrive/servicerequest.hpp"
+#include "gdrive/filecontent.hpp"
 
 #include <vector>
 
@@ -30,6 +31,7 @@ class FileService {
         FileTouchRequest Touch(std::string id);
         FilePatchRequest Patch(std::string file_id, GFile& file);
         FileCopyRequest Copy(std::string file_id, GFile& file);
+        FileInsertRequest Insert(GFile& file, FileContent& content, bool resumable = false);
     private: 
         FileService();
         FileService(const FileService& other);

@@ -42,6 +42,7 @@ int main() {
     }
 
     Drive service(&cred);
+    /*
     std::vector<GFile> files = service.files().List().execute();
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].get_title() == "A new tile") {
@@ -52,5 +53,13 @@ int main() {
             break;
         }
     }
+    */
     //service.files().EmptyTrash().execute();
+    //
+    // insert
+    std::ifstream fin("document.txt");
+    assert(fin.is_open());
+    FileContent fc(fin, "text/plain");
+    GFile file; 
+    service.files().Insert(file, fc).execute();
 }

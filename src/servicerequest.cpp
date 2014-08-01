@@ -4,6 +4,8 @@
 #include <string.h>
 using namespace JCONER;
 
+#define RESUMABLE_THRESHOLD 5 * 1024 * 1024
+
 namespace GDRIVE {
 
 GFile FieldRequest::get_file() {
@@ -136,6 +138,49 @@ GFile FileCopyRequest::execute() {
     _fields = _file.get_modified_fields();
     _json_encode_body();
     return get_file();
+}
+
+GFile FileInsertRequest::execute() {
+    int upload_type = -1;
+    _fields = _file.get_modified_fields();
+    if (_fields.size() == 0 ) {
+        if ( _resumable == true || _content.get_length() >= RESUMABLE_THRESHOLD) {
+            upload_type = 2;
+            _query["uploadType"] = "resumable";
+        } else {
+            upload_type = 0;
+            _query["uploadType"] = "media";
+        }
+    } else {
+        if ( _resumable == true || _content.get_length() >= RESUMABLE_THRESHOLD) {
+            upload_type = 2;
+            _query["uploadType"] = "resumable";
+        } else {
+            upload_type = 1;
+            _query["uploadType"] = "multipart";
+        }
+    }
+
+    if (upload_type == 0) { // simple upload
+        _read_hook = FileContent::read;
+        _read_context = (void*)&_content;
+        _header["Content-Type"] = _content.mimetype();
+        _header["Content-Length"] = VarString::itos(_content.get_length());
+        FileAttachedRequest::request();
+        if (_resp.status() != 200)
+            CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+    } else if (upload_type == 1) { // multipart upload
+    } else {
+    }
+
+    PError error;
+    JObject* obj = (JObject*)loads(_resp.content(), error);
+    GFile file;
+    if (obj != NULL) {
+        file.from_json(obj);
+        delete obj;
+    }
+    return file;
 }
 
 }

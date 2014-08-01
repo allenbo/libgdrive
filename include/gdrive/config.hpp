@@ -12,4 +12,5 @@
 #define USER_AGENT "allenbo-gdrive/1.0"
 
 #define SERVICE_URI "https://www.googleapis.com/drive/v2"
+#define FILE_UPLOAD_URL "https://www.googleapis.com/upload/drive/v2/files"
 #endif
