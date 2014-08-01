@@ -170,6 +170,18 @@ GFile FileInsertRequest::execute() {
         if (_resp.status() != 200)
             CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
     } else if (upload_type == 1) { // multipart upload
+        _json_encode_body();
+        std::string boundary = _generate_boundary();
+        _header["Content-Type"] = "multipart/related; boundary=\"" + boundary + "\"";
+
+        _body = "--" + boundary + "\r\n"
+              + "Content-Type: application/json; charset=UTF-8" + "\r\n"
+              + _body + "\r\n"
+              + "--" + boundary + "\r\n"
+              + "Content-Type: " + _content.mimetype() + "\r\n"
+              + _content.get_content() + "\r\n"
+              + "--" + boundary + "--";
+        _header["Content-Length"] = _body.size();
     } else {
     }
 

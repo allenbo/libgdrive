@@ -83,4 +83,12 @@ FileInsertRequest FileService::Insert(GFile& file, FileContent& content, bool re
     return fir;
 }
 
+FileInsertRequest FileService::Insert(FileContent& content, bool resumable) {
+    VarString vs;
+    vs.append(FILE_UPLOAD_URL);
+    GFile file;
+    FileInsertRequest fir(content, file, _cred, vs.toString(), resumable);
+    return fir;
+}
+
 }

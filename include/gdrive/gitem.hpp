@@ -157,7 +157,7 @@ public:
     READONLY(std::string, thumbnailLink)
     //thumbnail
     WRITABLE(std::string, title)
-    READONLY(std::string, mimeType)
+    WRITABLE(std::string, mimeType)
     WRITABLE(std::string, description)
     WRITABLE(GFileLabel, labels)
     READONLY(struct tm, createdDate)

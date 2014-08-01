@@ -32,6 +32,7 @@ class FileService {
         FilePatchRequest Patch(std::string file_id, GFile& file);
         FileCopyRequest Copy(std::string file_id, GFile& file);
         FileInsertRequest Insert(GFile& file, FileContent& content, bool resumable = false);
+        FileInsertRequest Insert(FileContent& content, bool resumable = false);
     private: 
         FileService();
         FileService(const FileService& other);

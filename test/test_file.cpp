@@ -62,4 +62,15 @@ int main() {
     FileContent fc(fin, "text/plain");
     GFile file; 
     service.files().Insert(file, fc).execute();
+    /*
+    std::ifstream fin("document.txt");
+    assert(fin.is_open());
+    FileContent fc(fin, "text/plain");
+    GFile file;
+    file.set_title("document");
+    file.set_description("This is a test document");
+    file.set_mimeType("text/plain");
+    service.files().Insert(file, fc).execute();
+    */
+
 }

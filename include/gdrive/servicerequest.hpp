@@ -171,6 +171,7 @@ class FileInsertRequest: public FileAttachedRequest {
         }
 
     private:
+        std::string _generate_boundary() { return "======xxxxx=="; }
         FileContent _content;
         bool _resumable;
 };

@@ -92,14 +92,14 @@ HttpResponse& HttpRequest::request() {
     if (_method == RM_GET) {
         // do nothing
     } else {
+        curl_easy_setopt(_handle, CURLOPT_POST, 1);
+        if (_header.find("Content-Length") != _header.end()) {
+            curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, atoi(_header["Content-Length"].c_str()));
+        }
         if (_read_hook && _read_context) {
-            curl_easy_setopt(_handle, CURLOPT_POST, 1);
             curl_easy_setopt(_handle, CURLOPT_READFUNCTION, _read_hook);
             curl_easy_setopt(_handle, CURLOPT_READDATA, _read_context);
             int size = 0;
-            if (_header.find("Content-Length") != _header.end()) {
-                curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, atoi(_header["Content-Length"].c_str()));
-            }
         } else {
             curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
         }
