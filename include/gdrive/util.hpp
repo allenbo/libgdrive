@@ -2,6 +2,7 @@
 #define __GDRIVE_UTIL_HPP__
 #include <string>
 #include <map>
+#include <set>
 #include <vector>
 #include <string.h>
 #include <stdlib.h>
@@ -34,12 +35,14 @@ class VarString {
             return std::string(tmp);
         }
 
-        static std::string join(std::vector<std::string> vec, std::string sep) {
+        static std::string join(std::set<std::string> vec, std::string sep) {
             if (vec.size() == 0) return "";
             VarString vs;
             int len = sep.size();
-            for(int i = 0; i < vec.size(); i ++ ) {
-                vs.append(vec[i]).append(sep);
+            //for(int i = 0; i < vec.size(); i ++ ) {
+            for(std::set<std::string>::iterator iter = vec.begin();
+                    iter != vec.end(); iter ++) {
+                vs.append(*iter).append(sep);
             }
             vs.drop(len);
             return vs.toString();

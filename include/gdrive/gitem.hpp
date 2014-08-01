@@ -3,13 +3,37 @@
 
 #include <string>
 #include <time.h>
+#include <set>
+#include <map>
 #include "jconer/json.hpp"
+
+#define GETTER(type, name) type get_##name() { return name;}
+
+#define SETTER(type, name) void set_##name(type v) {\
+    name = v; \
+    _fields.insert(#name); \
+}
+
+#define READONLY(type, name) \
+    private: \
+        type name;\
+    public: \
+        GETTER(type, name)
+
+#define WRITABLE(type, name) \
+    private: \
+        type name; \
+    public: \
+        SETTER(type, name) \
+        GETTER(type, name)
+
 
 using namespace JCONER;
 
 namespace GDRIVE {
 
-struct GFileLabel {
+class GFileLabel {
+public:
     GFileLabel();
     bool starred;
     bool hidden;
@@ -20,7 +44,8 @@ struct GFileLabel {
     JObject* to_json();
 };
 
-struct GUser {
+class GUser {
+public:
     GUser();
     std::string displayName;
     std::string picture_url;
@@ -30,7 +55,8 @@ struct GUser {
     JObject* to_json();
 };
 
-struct GParent {
+class GParent {
+public:
     GParent();
     std::string id;
     std::string selfLink;
@@ -41,7 +67,8 @@ struct GParent {
 };
 
 
-struct GProperty {
+class GProperty {
+public:
     GProperty();
     std::string etag;
     std::string selfLink;
@@ -52,7 +79,8 @@ struct GProperty {
     JObject* to_json();
 };
 
-struct GPermission {
+class GPermission {
+public:
     GPermission();
     std::string etag;
     std::string id;
@@ -71,12 +99,14 @@ struct GPermission {
     JObject* to_json();
 };
 
-struct GImageMediaMetaData {
+class GImageMediaMetaData {
+public:
     GImageMediaMetaData();
     int width;
     int height;
     int rotation;
-    struct Location {
+    class Location {
+    public:
         double latitude;
         double longitude;
         double altitude;
@@ -105,57 +135,63 @@ struct GImageMediaMetaData {
 };
 
 typedef std::map<std::string, std::string> GExportLink;
+typedef std::map<std::string, std::string> Links;
 
-struct GFile {
+class GFile {
+public:
     GFile();
-    std::string id;
-    std::string etag;
-    std::string selfLink;
-    std::string webContentLink;
-    std::string alternateLink;
-    std::string embedLink;
-    std::map<std::string, std::string> openWithLinks;
-    std::string defaultOpenWithLink;
-    std::string iconLink;
-    std::string thumbnailLink;
-    //thumbnail
-    std::string title;
-    std::string mimeType;
-    std::string description;
-    GFileLabel labels;
-    struct tm createdDate;
-    struct tm modifiedDate;
-    struct tm modifiedByMeDate;
-    struct tm lastViewedByMeDate;
-    struct tm sharedWithMeDate;
-    std::string version;
-    GUser sharingUser;
-    std::vector<GParent> parents;
-    GExportLink exportLinks;
-    std::string indexableText;
-    GPermission userPermission;
-    std::vector<GPermission> permissions;
-    std::string originalFilename;
-    std::string fileExtension;
-    std::string md5Checksum;
-    long fileSize;
-    int quotaBytesUsed;
-    std::vector<std::string> ownerNames;
-    std::vector<GUser> owners;
-    std::string lastModifyingUserName;
-    GUser lastModifyingUser;
-    bool editable;
-    bool copyable;
-    bool writersCanShare;
-    bool shared;
-    bool explicitlyTrashed;
-    bool appDataContents;
-    std::string headRevisionId;
-    std::vector<GProperty> properties;
-    GImageMediaMetaData imageMediaMetadata;
-
     void from_json(JObject* obj);
     JObject* to_json();
+    std::set<std::string> get_modified_fields() { return _fields;}
+    
+
+    READONLY(std::string, id)
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, webContentLink)
+    READONLY(std::string, alternateLink)
+    READONLY(std::string, embedLink)
+    READONLY(Links, openWithLinks)
+    READONLY(std::string, defaultOpenWithLink)
+    READONLY(std::string, iconLink)
+    READONLY(std::string, thumbnailLink)
+    //thumbnail
+    WRITABLE(std::string, title)
+    READONLY(std::string, mimeType)
+    WRITABLE(std::string, description)
+    WRITABLE(GFileLabel, labels)
+    READONLY(struct tm, createdDate)
+    WRITABLE(struct tm, modifiedDate)
+    READONLY(struct tm, modifiedByMeDate)
+    READONLY(struct tm, lastViewedByMeDate)
+    READONLY(struct tm, sharedWithMeDate)
+    READONLY(std::string, version)
+    READONLY(GUser, sharingUser)
+    WRITABLE(std::vector<GParent>, parents)
+    READONLY(GExportLink, exportLinks)
+    WRITABLE(std::string, indexableText)
+    READONLY(GPermission, userPermission)
+    READONLY(std::vector<GPermission>, permissions)
+    READONLY(std::string, originalFilename)
+    READONLY(std::string, fileExtension)
+    READONLY(std::string, md5Checksum)
+    READONLY(long, fileSize)
+    READONLY(int, quotaBytesUsed)
+    READONLY(std::vector<std::string>, ownerNames)
+    READONLY(std::vector<GUser>, owners)
+    READONLY(std::string, lastModifyingUserName)
+    READONLY(GUser, lastModifyingUser)
+    READONLY(bool, editable)
+    READONLY(bool, copyable)
+    READONLY(bool, shared)
+    READONLY(bool, explicitlyTrashed)
+    READONLY(bool, appDataContents)
+    READONLY(std::string, headRevisionId)
+    READONLY(std::vector<GProperty>, properties)
+    READONLY(GImageMediaMetaData, imageMediaMetadata)
+    WRITABLE(bool, writersCanShare)
+private:
+    std::set<std::string> _fields;
 };
 
 }

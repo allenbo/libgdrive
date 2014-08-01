@@ -53,7 +53,7 @@ std::vector<GFile> FileListRequest::execute() {
                     GFile file;
                     file.from_json(item);
                     files.push_back(file);
-                    CLOG_DEBUG("Get file %s\n", file.title.c_str());
+                    CLOG_DEBUG("Get file %s\n", file.get_title().c_str());
                 }
             }
             if (value->contain("nextLink")) {
@@ -91,8 +91,10 @@ bool FileDeleteRequest::execute() {
 void FileAttachedRequest::_json_encode_body() {
     JObject* tmp = _file.to_json();
     JObject* rst_obj = new JObject();
-    for(int i = 0; i < _fields.size(); i ++ ) {
-        std::string field = _fields[i];
+    //for(int i = 0; i < _fields.size(); i ++ ) {
+    for(std::set<std::string>::iterator iter = _fields.begin();
+            iter != _fields.end(); iter ++) {
+        std::string field = *iter;
         if (tmp->contain(field)) {
             JValue* v = tmp->pop(field);
             rst_obj->put(field, v);
@@ -110,12 +112,12 @@ void FileAttachedRequest::_json_encode_body() {
 
 
 void FilePatchRequest::add_parent(std::string parent) {
-    _parents.push_back(parent);
+    _parents.insert(parent);
     _query["addParents"] = VarString::join(_parents,",");
 }
 
 void FilePatchRequest::remove_parent(std::string parent) {
-    std::vector<std::string>::iterator iter = find(_parents.begin(), _parents.end(), parent);
+    std::set<std::string>::iterator iter = find(_parents.begin(), _parents.end(), parent);
     if (iter != _parents.end()) {
         _parents.erase(iter);
         _query["addParents"] = VarString::join(_parents,",");
@@ -131,6 +133,7 @@ GFile FileCopyRequest::execute() {
     if (_query.find("fields") != _query.end()) {
         _query.erase("fields");
     }
+    _fields = _file.get_modified_fields();
     _json_encode_body();
     return get_file();
 }

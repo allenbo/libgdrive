@@ -8,6 +8,7 @@
 #include "gdrive/gitem.hpp"
 
 #include <vector>
+#include <set>
 
 #define FILE_URL SERVICE_URI "/files"
 
@@ -39,11 +40,11 @@ class FieldRequest: public CredentialHttpRequest {
             } else {
                 _query["fields"] += "," + field;
             }
-            _fields.push_back(field);
+            _fields.insert(field);
         };
     protected: 
         GFile get_file();
-        std::vector<std::string> _fields;
+        std::set<std::string> _fields;
 };
 
 class FileListRequest: public CredentialHttpRequest {
@@ -127,7 +128,7 @@ class FilePatchRequest : public FileAttachedRequest {
         BOOL_SET_ATTR(updateViewedDate)
         BOOL_SET_ATTR(useContentAsIndexableText)
     private:
-        std::vector<std::string> _parents;
+        std::set<std::string> _parents;
 };
 
 class FileCopyRequest : public FileAttachedRequest {
