@@ -99,8 +99,8 @@ HttpResponse& HttpRequest::request() {
         if (_read_hook && _read_context) {
             curl_easy_setopt(_handle, CURLOPT_READFUNCTION, _read_hook);
             curl_easy_setopt(_handle, CURLOPT_READDATA, _read_context);
-            int size = 0;
         } else {
+            CLOG_DEBUG("==>Send data %s\n", _body.c_str());
             curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
         }
         if (_method == RM_POST) {

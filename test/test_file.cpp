@@ -57,11 +57,17 @@ int main() {
     //service.files().EmptyTrash().execute();
     //
     // insert
+    /*
     std::ifstream fin("document.txt");
     assert(fin.is_open());
+    fin.seekg(0, std::ios::end);
+    long file_size = fin.tellg();
+    std::cout << "The size of this file is " << file_size << std::endl;
+    fin.seekg(0, std::ios::beg);
     FileContent fc(fin, "text/plain");
     GFile file; 
     service.files().Insert(file, fc).execute();
+    */
     /*
     std::ifstream fin("document.txt");
     assert(fin.is_open());
@@ -71,6 +77,16 @@ int main() {
     file.set_description("This is a test document");
     file.set_mimeType("text/plain");
     service.files().Insert(file, fc).execute();
+    fin.close();
     */
+    std::ifstream fin("puppy.jpg", std::ios::binary);
+    assert(fin.is_open());
+    FileContent fc(fin, "image/jpeg");
+    GFile file;
+    file.set_title("puppy");
+    file.set_description("This is a test image");
+    file.set_mimeType("image/jpeg");
+    service.files().Insert(file, fc).execute();
+    fin.close();
 
 }

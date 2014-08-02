@@ -174,14 +174,18 @@ GFile FileInsertRequest::execute() {
         std::string boundary = _generate_boundary();
         _header["Content-Type"] = "multipart/related; boundary=\"" + boundary + "\"";
 
-        _body = "--" + boundary + "\r\n"
-              + "Content-Type: application/json; charset=UTF-8" + "\r\n"
-              + _body + "\r\n"
-              + "--" + boundary + "\r\n"
-              + "Content-Type: " + _content.mimetype() + "\r\n"
-              + _content.get_content() + "\r\n"
+        _body = "--" + boundary + "\n"
+              + "Content-Type: application/json" + "\n\n"
+              + _body + "\n"
+              + "--" + boundary + "\n"
+              + "Content-Type: " + _content.mimetype() + "\n\n"
+              + _content.get_content() + "\n"
               + "--" + boundary + "--";
-        _header["Content-Length"] = _body.size();
+        _header["Content-Length"] = VarString::itos(_body.size());
+        FileAttachedRequest::request();
+        if (_resp.status() != 200)
+            CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
     } else {
     }
 
