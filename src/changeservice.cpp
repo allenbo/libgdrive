@@ -14,4 +14,11 @@ ChangeService::ChangeService() {
 #endif
 }
 
+ChangeGetRequest ChangeService::Get(std::string id) {
+    VarString vs;
+    vs.append(CHANGE_URL).append('/').append(id);
+    ChangeGetRequest cgr(_cred, vs.toString());
+    return cgr;
+}
+
 }

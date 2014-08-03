@@ -20,6 +20,7 @@ class ChangeService {
             return _single_instance;
         }
 
+        ChangeGetRequest Get(std::string id);
     private:
         ChangeService();
         ChangeService(const ChangeService& other);

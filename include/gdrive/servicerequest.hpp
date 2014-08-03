@@ -13,6 +13,7 @@
 
 #define FILE_URL SERVICE_URI "/files"
 #define ABOUT_URL SERVICE_URI "/about"
+#define CHANGE_URL SERVICE_URI "/changes"
 
 #define STRING_SET_ATTR(name) void set_##name(std::string name) { \
     _query[#name] = name;\
@@ -218,6 +219,15 @@ class AboutGetRequest: public CredentialHttpRequest {
         BOOL_SET_ATTR(includeSubscribed)
         LONG_SET_ATTR(maxChangeIdCount)
         LONG_SET_ATTR(startChangeId)
+};
+
+class ChangeGetRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ChangeGetRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        
+        GChange execute();
 };
 
 }
