@@ -14,4 +14,8 @@ FileService& Drive::files() {
     return FileService::get_instance(_cred);
 }
 
+AboutService& Drive::about() {
+    return AboutService::get_instance(_cred);
+}
+
 }

@@ -305,5 +305,19 @@ void FileUpdateRequest::remove_parent(std::string parent) {
 }
 
 
+GAbout AboutGetRequest::execute() {
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+    PError error;
+    JObject* obj = (JObject*)loads(_resp.content(), error);
+    GAbout about;
+    if (obj != NULL) {
+        about.from_json(obj);
+        delete obj;
+    }
+    return about;
+}
 
 }

@@ -7,6 +7,7 @@
 #include "gdrive/gitem.hpp"
 #include "gdrive/config.hpp"
 #include "gdrive/fileservice.hpp"
+#include "gdrive/aboutservice.hpp"
 
 #include <vector>
 
@@ -18,6 +19,7 @@ class Drive {
     public:
         Drive(Credential* cred);
         FileService& files();
+        AboutService& about();
     protected:
         Credential* _cred;
 };

@@ -31,6 +31,7 @@
 using namespace JCONER;
 
 namespace GDRIVE {
+// File representation
 
 class GFileLabel {
 public:
@@ -192,6 +193,90 @@ public:
     WRITABLE(bool, writersCanShare)
 private:
     std::set<std::string> _fields;
+};
+
+
+// About representation
+
+class GServiceQuota {
+public:
+    GServiceQuota();
+    std::string serviceName;
+    long bytesUsed;
+    void from_json(JObject* obj);
+};
+
+class GFormat {
+public:
+    GFormat();
+    std::string source;
+    std::vector<std::string> targets;
+    void from_json(JObject* obj);
+};
+
+class GRole {
+public:
+    GRole();
+    std::string primaryRole;
+    std::vector<std::string> additionalRoles;
+    void from_json(JObject* obj);
+};
+
+class GRoleInfo {
+public:
+    GRoleInfo();
+    std::string type;
+    std::vector<GRole> roleSets;
+
+    void from_json(JObject* obj);
+};
+
+class GFeature {
+public:
+    GFeature();
+    std::string featureName;
+    double featureRate;
+
+    void from_json(JObject* obj);
+};
+
+
+class GUploadSize {
+public:
+    GUploadSize();
+    std::string type;
+    long size;
+
+    void from_json(JObject* obj);
+};
+
+class GAbout {
+public:
+    GAbout();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, name)
+    READONLY(GUser, user)
+    READONLY(long, quotaBytesTotal)
+    READONLY(long, quotaBytesUsed)
+    READONLY(long, quotaBytesUsedAggregate)
+    READONLY(long, quotaBytesUsedInTrash)
+    READONLY(std::string, quotaType)
+    READONLY(std::vector<GServiceQuota>, quotaBytesByService)
+    READONLY(long, largestChangedId)
+    READONLY(long, remainingChangeIds)
+    READONLY(std::string, rootFolderId)
+    READONLY(std::string, domainSharingPolicy)
+    READONLY(std::string, permissionId)
+    READONLY(std::vector<GFormat>, importFormats)
+    READONLY(std::vector<GFormat>, exportFormats)
+    READONLY(std::vector<GRoleInfo>, additionalRoleInfo)
+    READONLY(std::vector<GFeature>, features)
+    READONLY(std::vector<GUploadSize>, maxUploadSizes)
+    READONLY(bool, isCurrentAppInstalled)
+    READONLY(std::string, languageCode)
 };
 
 }

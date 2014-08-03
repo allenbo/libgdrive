@@ -468,4 +468,106 @@ JObject* GFile::to_json() {
     return obj;
 }
 
+
+GServiceQuota::GServiceQuota(){
+    serviceName = "";
+    bytesUsed = -1;
+}
+
+void GServiceQuota::from_json(JObject* obj) {
+    STRING_FROM_JSON(serviceName);
+    INT_FROM_JSON(bytesUsed);
+}
+
+GFormat::GFormat() {
+    source = "";
+    targets.clear();
+}
+
+void GFormat::from_json(JObject* obj) {
+    STRING_FROM_JSON(source);
+    STRING_VECTOR_FROM_JSON(targets);
+}
+
+GRole::GRole() {
+    primaryRole = "";
+    additionalRoles.clear();
+}
+
+void GRole::from_json(JObject* obj) {
+    STRING_FROM_JSON(primaryRole);
+    STRING_VECTOR_FROM_JSON(additionalRoles);
+}
+
+GRoleInfo::GRoleInfo() {
+    type = "";
+    roleSets.clear();
+}
+
+void GRoleInfo::from_json(JObject* obj) {
+    STRING_FROM_JSON(type);
+    INSTANCE_VECTOR_FROM_JSON(GRole, roleSets);
+}
+
+GFeature::GFeature() {
+    featureName = "";
+    featureRate = 0.0;
+}
+
+void GFeature::from_json(JObject* obj) {
+    STRING_FROM_JSON(featureName);
+    REAL_FROM_JSON(featureRate);
+}
+
+GUploadSize::GUploadSize () {
+    type = "";
+    size = -1;
+}
+
+void GUploadSize::from_json(JObject* obj) {
+    STRING_FROM_JSON(type);
+    INT_FROM_JSON(size);
+}
+
+GAbout::GAbout() {
+    etag = selfLink = name = "";
+    quotaBytesTotal = quotaBytesUsed = quotaBytesUsedAggregate = quotaBytesUsedInTrash = -1;
+    quotaType = "";
+    quotaBytesByService.clear();
+    largestChangedId = remainingChangeIds = -1;
+    rootFolderId = domainSharingPolicy = permissionId = "";
+    importFormats.clear();
+    exportFormats.clear();
+    additionalRoleInfo.clear();
+    features.clear();
+    maxUploadSizes.clear();
+    isCurrentAppInstalled = false;
+    languageCode = "";
+}
+
+void GAbout::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(name);
+    INSTANCE_FROM_JSON(user);
+    INT_FROM_JSON(quotaBytesTotal);
+    INT_FROM_JSON(quotaBytesUsed);
+    INT_FROM_JSON(quotaBytesUsedAggregate);
+    INT_FROM_JSON(quotaBytesUsedInTrash);
+    STRING_FROM_JSON(quotaType);
+    INSTANCE_VECTOR_FROM_JSON(GServiceQuota,quotaBytesByService);
+    INT_FROM_JSON(largestChangedId);
+    INT_FROM_JSON(remainingChangeIds);
+    STRING_FROM_JSON(rootFolderId);
+    STRING_FROM_JSON(domainSharingPolicy);
+    STRING_FROM_JSON(permissionId);
+    INSTANCE_VECTOR_FROM_JSON(GFormat, importFormats);
+    INSTANCE_VECTOR_FROM_JSON(GFormat, exportFormats);
+    INSTANCE_VECTOR_FROM_JSON(GRoleInfo, additionalRoleInfo);
+    INSTANCE_VECTOR_FROM_JSON(GFeature, features);
+    INSTANCE_VECTOR_FROM_JSON(GUploadSize, maxUploadSizes);
+    BOOL_FROM_JSON(isCurrentAppInstalled);
+    STRING_FROM_JSON(languageCode);
+}
+
 }

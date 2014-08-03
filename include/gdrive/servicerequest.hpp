@@ -12,8 +12,13 @@
 #include <set>
 
 #define FILE_URL SERVICE_URI "/files"
+#define ABOUT_URL SERVICE_URI "/about"
 
 #define STRING_SET_ATTR(name) void set_##name(std::string name) { \
+    _query[#name] = name;\
+}
+
+#define LONG_SET_ATTR(name) void set_##name(long name) { \
     _query[#name] = name;\
 }
 
@@ -201,6 +206,18 @@ class FileUpdateRequest: public FileUploadRequest {
 
     private:
         std::set<std::string> _parents;
+};
+
+class AboutGetRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        AboutGetRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        
+        GAbout execute();
+        BOOL_SET_ATTR(includeSubscribed)
+        LONG_SET_ATTR(maxChangeIdCount)
+        LONG_SET_ATTR(startChangeId)
 };
 
 }
