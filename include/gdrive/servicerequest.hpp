@@ -151,11 +151,17 @@ class FileCopyRequest : public FileAttachedRequest {
         }
 };
 
-class FileInsertRequest: public FileAttachedRequest {
+
+enum UploadType {
+    UT_CREATE,
+    UT_UPDATE
+};
+
+class FileUploadRequest: public FileAttachedRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileInsertRequest(FileContent* content, GFile* file, Credential* cred, std::string uri, bool resumable = false)
-            :FileAttachedRequest(file, cred, uri, RM_POST), _content(content), _resumable(resumable) {}
+        FileUploadRequest(FileContent* content, GFile* file, Credential* cred, std::string uri, bool resumable = false)
+            :FileAttachedRequest(file, cred, uri, RM_POST), _content(content), _resumable(resumable), _type(UT_CREATE) {}
 
         GFile execute();
         BOOL_SET_ATTR(convert)
@@ -170,11 +176,31 @@ class FileInsertRequest: public FileAttachedRequest {
                 _query["visibility"] = v;
         }
 
-    private:
+    protected:
         std::string _generate_boundary() { return "======xxxxx=="; }
         int _resume();
         FileContent* _content;
         bool _resumable;
+        UploadType _type;
+};
+
+typedef FileUploadRequest FileInsertRequest;
+
+class FileUpdateRequest: public FileUploadRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        FileUpdateRequest(FileContent* content, GFile* file, Credential* cred, std::string uri, bool resumable = false)
+            :FileUploadRequest(content, file, cred, uri, resumable)
+        { 
+            _type = UT_UPDATE;
+            _method = RM_PUT;
+        }
+
+        void add_parent(std::string parent);
+        void remove_parent(std::string parent);
+
+    private:
+        std::set<std::string> _parents;
 };
 
 }

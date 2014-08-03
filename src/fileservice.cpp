@@ -83,4 +83,11 @@ FileInsertRequest FileService::Insert(GFile* file, FileContent* content, bool re
     return fir;
 }
 
+FileUpdateRequest FileService::Update(std::string id, GFile* file, FileContent* content, bool resumable) {
+    VarString vs;
+    vs.append(FILE_UPLOAD_URL).append("/").append(id);
+    FileUpdateRequest fur(content, file, _cred, vs.toString(), resumable);
+    return fur;
+}
+
 }

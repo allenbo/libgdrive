@@ -142,7 +142,7 @@ GFile FileCopyRequest::execute() {
     return get_file();
 }
 
-int FileInsertRequest::_resume() {
+int FileUploadRequest::_resume() {
     clear();
     int cur_pos = 0;
     _read_hook = NULL;
@@ -161,7 +161,7 @@ int FileInsertRequest::_resume() {
     return cur_pos;
 }
 
-GFile FileInsertRequest::execute() {
+GFile FileUploadRequest::execute() {
     int upload_type = -1;
     _fields = _file->get_modified_fields();
     if (_fields.size() == 0 ) {
@@ -188,7 +188,7 @@ GFile FileInsertRequest::execute() {
         _header["Content-Type"] = _content->mimetype();
         _header["Content-Length"] = VarString::itos(_content->get_length());
         FileAttachedRequest::request();
-        if (_resp.status() != 200)
+        if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201))
             CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
     } else if (upload_type == 1) { // multipart upload
         _json_encode_body();
@@ -204,7 +204,7 @@ GFile FileInsertRequest::execute() {
               + "--" + boundary + "--";
         _header["Content-Length"] = VarString::itos(_body.size());
         FileAttachedRequest::request();
-        if (_resp.status() != 200)
+        if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201))
             CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
 
     } else {
@@ -290,5 +290,20 @@ GFile FileInsertRequest::execute() {
     }
     return file;
 }
+
+void FileUpdateRequest::add_parent(std::string parent) {
+    _parents.insert(parent);
+    _query["addParents"] = VarString::join(_parents,",");
+}
+
+void FileUpdateRequest::remove_parent(std::string parent) {
+    std::set<std::string>::iterator iter = find(_parents.begin(), _parents.end(), parent);
+    if (iter != _parents.end()) {
+        _parents.erase(iter);
+        _query["addParents"] = VarString::join(_parents,",");
+    }
+}
+
+
 
 }

@@ -30,6 +30,24 @@ typedef size_t (*ReadFunction) (void*, size_t, size_t, void*);
 class HttpResponse;
 class HttpRequest;
 
+class MemoryString {
+    public:
+        MemoryString(const char* str, int size)
+            :_str(str), _size(size), _pos(0) {}
+        static size_t read(void* ptr, size_t size, size_t nmemb, void* userp) {
+            MemoryString* self = (MemoryString*)userp;
+            if (self->_size - self->_pos == 0) return 0;
+            int length = self->_size - self->_pos > size * nmemb ? size * nmemb : self->_size - self->_pos;
+            memcpy(ptr, self->_str + self->_pos, length);
+            self->_pos += length;
+            return length;
+        }
+    private:
+        const char*  _str;
+        int _size;
+        int _pos;
+};
+
 class HttpResponse {
     CLASS_MAKE_LOGGER
     public:

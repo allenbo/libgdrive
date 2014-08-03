@@ -101,6 +101,7 @@ int main() {
     service.files().Insert(&file, &fc).execute();
     fin.close();
     */
+    /*
     std::ifstream fin("storageArrangement.pptx", std::ios::binary);
     assert(fin.is_open());
 
@@ -111,4 +112,24 @@ int main() {
     file.set_mimeType(mime);
     service.files().Insert(&file, &fc, true).execute();
     fin.close();
+    */
+    std::vector<GFile> files = service.files().List().execute();
+    std::string file_id = "";
+    for (int i = 0; i < files.size(); i ++ ) {
+        if (files[i].get_title() == "storage arrangement") {
+            std::cout <<  "Find the file we need " << files[i].get_id() << std::endl;
+            file_id = files[i].get_id();
+            break;
+        }
+    }
+    
+    std::ifstream fin("Silverlight.dmg", std::ios::binary);
+    assert(fin.is_open());
+    std::string mime = "applicaton/x-apple-diskimage";
+    FileContent fc(fin, mime);
+
+    GFile file = service.files().Get(file_id).execute();
+    file.set_mimeType(mime);
+    file.set_title("Another Silverlight");
+    service.files().Update(file_id, &file, &fc).execute();
 }

@@ -128,6 +128,7 @@ curl_slist* HttpRequest::_build_header() {
 
 HttpResponse& HttpRequest::request() {
     VarString vs;
+    MemoryString ms(_body.c_str(), _body.size());
     // if there is query paremeter, append to url
     if (_query.size() != 0) {
         vs.append(_uri).append('?').append(URLHelper::encode(_query));
@@ -137,30 +138,39 @@ HttpResponse& HttpRequest::request() {
     if (_method == RM_GET) {
         // do nothing
     } else {
-        if (_method == RM_PUT) {
-            curl_easy_setopt(_handle, CURLOPT_PUT, 1);
-            curl_easy_setopt(_handle, CURLOPT_UPLOAD, 1);
-        } else {
-            curl_easy_setopt(_handle, CURLOPT_POST, 1);
-        }
         if (_header.find("Content-Length") != _header.end()) {
             curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, atoi(_header["Content-Length"].c_str()));
         }
-        if (_read_hook && _read_context) {
-            curl_easy_setopt(_handle, CURLOPT_READFUNCTION, _read_hook);
-            curl_easy_setopt(_handle, CURLOPT_READDATA, _read_context);
+
+    
+        if (_method == RM_PUT) {
+            curl_easy_setopt(_handle, CURLOPT_PUT, 1);
+            curl_easy_setopt(_handle, CURLOPT_UPLOAD, 1);
+            if (_read_hook == NULL) {
+                curl_easy_setopt(_handle, CURLOPT_READFUNCTION, MemoryString::read);
+                curl_easy_setopt(_handle, CURLOPT_READDATA, (void*)&ms);
+            } else {
+                curl_easy_setopt(_handle, CURLOPT_READFUNCTION, _read_hook);
+                curl_easy_setopt(_handle, CURLOPT_READDATA, _read_context);
+            }
         } else {
-            CLOG_DEBUG("==>Send data %s\n", _body.c_str());
-            curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
-        }
-        if (_method == RM_POST || _method == RM_PUT) {
-            // do nothing
-        } else if (_method == RM_DELETE) {
-            curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
-        } else if (_method == RM_PATCH) {
-            curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "PATCH");
-        } else {
-            CLOG_FATAL("Unknown  method\n");
+            curl_easy_setopt(_handle, CURLOPT_POST, 1);
+            if (_read_hook && _read_context) {
+                curl_easy_setopt(_handle, CURLOPT_READFUNCTION, _read_hook);
+                curl_easy_setopt(_handle, CURLOPT_READDATA, _read_context);
+            } else {
+                CLOG_DEBUG("==>Send data %s\n", _body.c_str());
+                curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
+            }
+            if (_method == RM_POST) {
+                // do nothing
+            } else if (_method == RM_DELETE) {
+                curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");
+            } else if (_method == RM_PATCH) {
+                curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "PATCH");
+            } else {
+                CLOG_FATAL("Unknown  method\n");
+            }
         }
     }
 #ifdef GDRIVE_DEBUG
