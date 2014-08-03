@@ -18,4 +18,8 @@ AboutService& Drive::about() {
     return AboutService::get_instance(_cred);
 }
 
+ChangeService& Drive::changes() {
+    return ChangeService::get_instance(_cred);
+}
+
 }

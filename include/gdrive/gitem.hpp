@@ -279,6 +279,20 @@ public:
     READONLY(std::string, languageCode)
 };
 
+// Change representation
+class GChange {
+public:
+    GChange();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, id)
+    READONLY(std::string, fileId)
+    READONLY(std::string, selfLink)
+    READONLY(bool, deleted)
+    READONLY(struct tm, modificationDate)
+    READONLY(GFile, file)
+};
+
 }
 
 #endif

@@ -570,4 +570,18 @@ void GAbout::from_json(JObject* obj) {
     STRING_FROM_JSON(languageCode);
 }
 
+GChange::GChange() {
+    id = fileId = selfLink = "";
+    deleted = false;
+}
+
+void GChange::from_json(JObject* obj) {
+    STRING_FROM_JSON(id);
+    STRING_FROM_JSON(fileId);
+    STRING_FROM_JSON(selfLink);
+    BOOL_FROM_JSON(deleted);
+    TIME_FROM_JSON(modificationDate);
+    INSTANCE_FROM_JSON(file);
+}
+
 }
