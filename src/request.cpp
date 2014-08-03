@@ -3,6 +3,8 @@
 #include "gdrive/config.hpp"
 #include <curl/curl.h>
 
+#include <sstream>
+
 namespace GDRIVE {
 
 size_t HttpResponse::curl_write_callback(void* content, size_t size, size_t nmemb, void* userp) {
@@ -10,6 +12,41 @@ size_t HttpResponse::curl_write_callback(void* content, size_t size, size_t nmem
     std::string curr_content((char*)content, size * nmemb);
     *self += curr_content;
     return size * nmemb;
+}
+
+std::string HttpResponse::get_header(std::string field) {
+    if (_header_map.size() == 0) {
+        _parse_header();
+    }
+    if (_header_map.find(field) != _header_map.end()) {
+        return _header_map[field];
+    }
+    return "";
+}
+
+void HttpResponse::_parse_header() {
+    std::stringstream ssin(_header);
+
+    std::string line;
+    while(std::getline(ssin, line)) {
+        if (VarString::starts_with(line, "HTTP")) {
+            CLOG_DEBUG("First line in header %s\n", line.c_str());
+            continue;
+        } else if (line == "" or line == "\n") {
+            continue;
+        } else {
+            size_t pos = line.find(":");
+            if(pos != std::string::npos) {
+                std::string field = VarString::strip(line.substr(0, pos));
+                std::string content = VarString::strip(line.substr(pos + 1));
+                _header_map[field] = content;
+                CLOG_DEBUG("Get[%s|%s] from header\n", field.c_str(), content.c_str());
+            } else {
+                CLOG_DEBUG("Wrong line:%s\n", line.c_str());
+                continue;
+            }
+        }
+    }
 }
 
 HttpRequest::HttpRequest(std::string uri, RequestMethod method)
@@ -71,6 +108,14 @@ void HttpRequest::add_query(std::string key, std::string value) {
     _query[key] = value;
 }
 
+
+void HttpRequest::clear() {
+    _query.clear();
+    _resp.clear();
+    _header.clear();
+    _body = "";
+}
+
 curl_slist* HttpRequest::_build_header() {
     curl_slist* list = NULL;
     VarString vs;
@@ -92,7 +137,12 @@ HttpResponse& HttpRequest::request() {
     if (_method == RM_GET) {
         // do nothing
     } else {
-        curl_easy_setopt(_handle, CURLOPT_POST, 1);
+        if (_method == RM_PUT) {
+            curl_easy_setopt(_handle, CURLOPT_PUT, 1);
+            curl_easy_setopt(_handle, CURLOPT_UPLOAD, 1);
+        } else {
+            curl_easy_setopt(_handle, CURLOPT_POST, 1);
+        }
         if (_header.find("Content-Length") != _header.end()) {
             curl_easy_setopt(_handle, CURLOPT_POSTFIELDSIZE, atoi(_header["Content-Length"].c_str()));
         }
@@ -103,7 +153,7 @@ HttpResponse& HttpRequest::request() {
             CLOG_DEBUG("==>Send data %s\n", _body.c_str());
             curl_easy_setopt(_handle, CURLOPT_POSTFIELDS, _body.c_str());
         }
-        if (_method == RM_POST) {
+        if (_method == RM_POST || _method == RM_PUT) {
             // do nothing
         } else if (_method == RM_DELETE) {
             curl_easy_setopt(_handle, CURLOPT_CUSTOMREQUEST, "DELETE");

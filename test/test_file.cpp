@@ -66,7 +66,7 @@ int main() {
     fin.seekg(0, std::ios::beg);
     FileContent fc(fin, "text/plain");
     GFile file; 
-    service.files().Insert(file, fc).execute();
+    service.files().Insert(&file, &fc).execute();
     */
     /*
     std::ifstream fin("document.txt");
@@ -76,9 +76,10 @@ int main() {
     file.set_title("document");
     file.set_description("This is a test document");
     file.set_mimeType("text/plain");
-    service.files().Insert(file, fc).execute();
+    service.files().Insert(&file, &fc).execute();
     fin.close();
     */
+    /*
     std::ifstream fin("puppy.jpg", std::ios::binary);
     assert(fin.is_open());
     FileContent fc(fin, "image/jpeg");
@@ -86,7 +87,28 @@ int main() {
     file.set_title("puppy");
     file.set_description("This is a test image");
     file.set_mimeType("image/jpeg");
-    service.files().Insert(file, fc).execute();
+    service.files().Insert(&file, &fc).execute();
     fin.close();
+    */
+    /*
+    std::ifstream fin("Silverlight.dmg", std::ios::binary);
+    assert(fin.is_open());
+    std::string mime = "application/x-apple-diskimage";
+    FileContent fc(fin, mime);
+    GFile file;
+    file.set_title("SilverLight");
+    file.set_mimeType(mime);
+    service.files().Insert(&file, &fc).execute();
+    fin.close();
+    */
+    std::ifstream fin("storageArrangement.pptx", std::ios::binary);
+    assert(fin.is_open());
 
+    std::string mime = "application/vnd.ms-powerpoint";
+    FileContent fc(fin, mime);
+    GFile file;
+    file.set_title("storage arrangement");
+    file.set_mimeType(mime);
+    service.files().Insert(&file, &fc, true).execute();
+    fin.close();
 }

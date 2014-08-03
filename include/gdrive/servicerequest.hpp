@@ -101,17 +101,17 @@ class FileTouchRequest: public FieldRequest {
 class FileAttachedRequest : public FieldRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileAttachedRequest(GFile file, Credential* cred, std::string uri, RequestMethod method)
+        FileAttachedRequest(GFile* file, Credential* cred, std::string uri, RequestMethod method)
             :FieldRequest(cred, uri, method), _file(file) {}
     protected:
         void _json_encode_body();
-        GFile _file;
+        GFile* _file;
 };
 
 class FilePatchRequest : public FileAttachedRequest {
     CLASS_MAKE_LOGGER
     public:
-        FilePatchRequest(GFile file, Credential* cred, std::string uri)
+        FilePatchRequest(GFile* file, Credential* cred, std::string uri)
             :FileAttachedRequest(file, cred, uri, RM_PATCH) {}
 
         GFile execute();
@@ -135,7 +135,7 @@ class FilePatchRequest : public FileAttachedRequest {
 class FileCopyRequest : public FileAttachedRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileCopyRequest(GFile file, Credential* cred, std::string uri)
+        FileCopyRequest(GFile* file, Credential* cred, std::string uri)
             :FileAttachedRequest(file, cred, uri, RM_POST) {}
 
         GFile execute();
@@ -154,7 +154,7 @@ class FileCopyRequest : public FileAttachedRequest {
 class FileInsertRequest: public FileAttachedRequest {
     CLASS_MAKE_LOGGER
     public:
-        FileInsertRequest(FileContent content, GFile file, Credential* cred, std::string uri, bool resumable = false)
+        FileInsertRequest(FileContent* content, GFile* file, Credential* cred, std::string uri, bool resumable = false)
             :FileAttachedRequest(file, cred, uri, RM_POST), _content(content), _resumable(resumable) {}
 
         GFile execute();
@@ -172,7 +172,8 @@ class FileInsertRequest: public FileAttachedRequest {
 
     private:
         std::string _generate_boundary() { return "======xxxxx=="; }
-        FileContent _content;
+        int _resume();
+        FileContent* _content;
         bool _resumable;
 };
 

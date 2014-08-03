@@ -62,31 +62,23 @@ FileTouchRequest FileService::Touch(std::string id) {
     return request;
 }
 
-FilePatchRequest FileService::Patch(std::string file_id, GFile& file) {
+FilePatchRequest FileService::Patch(std::string file_id, GFile* file) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(file_id);
     FilePatchRequest pr(file, _cred, vs.toString());
     return pr;
 }
 
-FileCopyRequest FileService::Copy(std::string file_id, GFile& file) {
+FileCopyRequest FileService::Copy(std::string file_id, GFile* file) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(file_id).append("/copy");
     FileCopyRequest fcr(file, _cred, vs.toString());
     return fcr;
 }
 
-FileInsertRequest FileService::Insert(GFile& file, FileContent& content, bool resumable) {
+FileInsertRequest FileService::Insert(GFile* file, FileContent* content, bool resumable) {
     VarString vs;
     vs.append(FILE_UPLOAD_URL);
-    FileInsertRequest fir(content, file, _cred, vs.toString(), resumable);
-    return fir;
-}
-
-FileInsertRequest FileService::Insert(FileContent& content, bool resumable) {
-    VarString vs;
-    vs.append(FILE_UPLOAD_URL);
-    GFile file;
     FileInsertRequest fir(content, file, _cred, vs.toString(), resumable);
     return fir;
 }

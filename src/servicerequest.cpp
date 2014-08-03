@@ -5,6 +5,7 @@
 using namespace JCONER;
 
 #define RESUMABLE_THRESHOLD 5 * 1024 * 1024
+#define RESUMABLE_CHUNK_SIZE 256 * 1024
 
 namespace GDRIVE {
 
@@ -91,7 +92,7 @@ bool FileDeleteRequest::execute() {
 }
 
 void FileAttachedRequest::_json_encode_body() {
-    JObject* tmp = _file.to_json();
+    JObject* tmp = _file->to_json();
     JObject* rst_obj = new JObject();
     //for(int i = 0; i < _fields.size(); i ++ ) {
     for(std::set<std::string>::iterator iter = _fields.begin();
@@ -110,6 +111,7 @@ void FileAttachedRequest::_json_encode_body() {
     free(buf);
 
     _header["Content-Type"] = "application/json";
+    _header["Content-Length"] = VarString::itos(_body.size());
 }
 
 
@@ -135,16 +137,35 @@ GFile FileCopyRequest::execute() {
     if (_query.find("fields") != _query.end()) {
         _query.erase("fields");
     }
-    _fields = _file.get_modified_fields();
+    _fields = _file->get_modified_fields();
     _json_encode_body();
     return get_file();
 }
 
+int FileInsertRequest::_resume() {
+    clear();
+    int cur_pos = 0;
+    _read_hook = NULL;
+    _read_context = NULL;
+    _header["Content-Length"] = "0";
+    _header["Content-Range"] = "bytes */" + VarString::itos(_content->get_length());
+    FileAttachedRequest::request();
+    if ( _resp.status() == 308) {
+        std::string range = _resp.get_header("Range");
+        cur_pos = atoi(VarString::split(range, "-")[1].c_str());
+    } else {
+        CLOG_ERROR("Unknown status from server %d while resuming, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+    }
+    _read_hook = FileContent::resumable_read;
+    _read_context = (void*)_content;
+    return cur_pos;
+}
+
 GFile FileInsertRequest::execute() {
     int upload_type = -1;
-    _fields = _file.get_modified_fields();
+    _fields = _file->get_modified_fields();
     if (_fields.size() == 0 ) {
-        if ( _resumable == true || _content.get_length() >= RESUMABLE_THRESHOLD) {
+        if ( _resumable == true || _content->get_length() >= RESUMABLE_THRESHOLD) {
             upload_type = 2;
             _query["uploadType"] = "resumable";
         } else {
@@ -152,7 +173,7 @@ GFile FileInsertRequest::execute() {
             _query["uploadType"] = "media";
         }
     } else {
-        if ( _resumable == true || _content.get_length() >= RESUMABLE_THRESHOLD) {
+        if ( _resumable == true || _content->get_length() >= RESUMABLE_THRESHOLD) {
             upload_type = 2;
             _query["uploadType"] = "resumable";
         } else {
@@ -163,9 +184,9 @@ GFile FileInsertRequest::execute() {
 
     if (upload_type == 0) { // simple upload
         _read_hook = FileContent::read;
-        _read_context = (void*)&_content;
-        _header["Content-Type"] = _content.mimetype();
-        _header["Content-Length"] = VarString::itos(_content.get_length());
+        _read_context = (void*)_content;
+        _header["Content-Type"] = _content->mimetype();
+        _header["Content-Length"] = VarString::itos(_content->get_length());
         FileAttachedRequest::request();
         if (_resp.status() != 200)
             CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
@@ -178,8 +199,8 @@ GFile FileInsertRequest::execute() {
               + "Content-Type: application/json" + "\n\n"
               + _body + "\n"
               + "--" + boundary + "\n"
-              + "Content-Type: " + _content.mimetype() + "\n\n"
-              + _content.get_content() + "\n"
+              + "Content-Type: " + _content->mimetype() + "\n\n"
+              + _content->get_content() + "\n"
               + "--" + boundary + "--";
         _header["Content-Length"] = VarString::itos(_body.size());
         FileAttachedRequest::request();
@@ -187,6 +208,77 @@ GFile FileInsertRequest::execute() {
             CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
 
     } else {
+        // Step 1 - Start a resumable session
+        _header["X-Upload-Content-Type"] = _content->mimetype();
+        _header["X-Upload-Content-Length"] = VarString::itos(_content->get_length());
+        if (_fields.size() != 0) {
+            _json_encode_body();
+        }
+        FileAttachedRequest::request();
+        
+        // Step 2 - Save the resumable session URI
+        if (_resp.status() != 200) 
+            CLOG_ERROR("Unknown status from server %d after step 1, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+        std::string location = _resp.get_header("Location");
+
+        // Prepare for step 3
+        set_uri(location);
+        _method = RM_PUT;
+
+        // Step 3 - Upload the file
+        int file_length = _content->get_length();
+        if (_content->get_length() > RESUMABLE_CHUNK_SIZE) { // Uploading the file in chunks
+            int cur_pos = 0;
+            while (true) {
+                clear();
+                int cur_length = file_length - cur_pos > RESUMABLE_CHUNK_SIZE ? RESUMABLE_CHUNK_SIZE : file_length - cur_pos;
+                _header["Content-Length"] = VarString::itos(cur_length);
+                _header["Content-Type"] = _content->mimetype();
+                _header["Content-Range"] = "bytes " + VarString::itos(cur_pos) + "-" + VarString::itos(cur_pos + cur_length -1 ) + "/" + VarString::itos(file_length);
+                _content->set_resumable_start_pos(cur_pos);
+                _content->set_resumable_length(cur_length);
+                _read_hook = FileContent::resumable_read;
+                _read_context = (void*)_content;
+                CLOG_DEBUG("Sending out from %d - %d/%d\n", cur_pos, cur_pos + cur_length - 1, file_length);
+                FileAttachedRequest::request();
+                
+                if (_resp.status() == 308) {
+                    CLOG_DEBUG("Resumabled\n");
+                    std::string range = _resp.get_header("Range");
+                    cur_pos = atoi(VarString::split(range, "-")[1].c_str()) + 1;
+                } else if (_resp.status() == 200 || _resp.status() == 201) {
+                    break;
+                } else if (_resp.status() >= 500) {
+                    // resume an interrupted upload
+                    cur_pos = _resume();
+                } else {
+                    CLOG_ERROR("Unknown status from server %d after step 3, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+                }
+            }
+        } else { // Uploading the file completely in one request
+            int cur_pos;
+            while(true) {
+                clear();
+                _header["Content-Length"] = VarString::itos(_content->get_length());
+                _header["Content-Type"] = _content->mimetype();
+                _content->set_resumable_start_pos(cur_pos);
+                _content->set_resumable_length(file_length - cur_pos);
+                _read_hook = FileContent::resumable_read;
+                _read_context = (void*)_content;
+                FileAttachedRequest::request();
+                _read_hook = NULL;
+                _read_context = NULL;
+                if (_resp.status() == 200 || _resp.status() == 201) {
+                    break;
+                } else if (_resp.status() >= 500 ){
+                    // resume an interrupted upload
+                    cur_pos = _resume();
+                } else {
+                    CLOG_ERROR("Unknown status from server %d after step 3, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+                }
+            }
+        }
     }
 
     PError error;

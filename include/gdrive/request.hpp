@@ -33,17 +33,21 @@ class HttpRequest;
 class HttpResponse {
     CLASS_MAKE_LOGGER
     public:
-        HttpResponse() {}
+        HttpResponse() { _header_map.clear(); }
         static size_t curl_write_callback(void* content, size_t size, size_t nmemb, void* userp);
         inline std::string content() const { return _content; };
         inline std::string header() const { return _header; };
-        inline void clear() { _content = ""; _header = ""; }
+        inline void clear() { _content = ""; _header = ""; _header_map.clear(); }
         inline int status() const { return _status; }
         inline void set_status(int status) { _status = status;}
+
+        std::string get_header(std::string field);
+        void _parse_header();
     private:
         std::string _content;
         std::string _header;
         int _status;
+        std::map<std::string, std::string> _header_map;
 
         friend class HttpRequest;
 };
@@ -59,7 +63,8 @@ class HttpRequest {
         void add_query(RequestQuery& query);
         void add_query(std::string key, std::string value);
         inline void clear_header() { _header.clear();}
-        inline void clear_queyr() { _query.clear(); }
+        inline void clear_query() { _query.clear(); }
+        void clear();
         void set_uri(std::string uri);
         HttpResponse& request();
         inline HttpResponse& response() { return _resp;}

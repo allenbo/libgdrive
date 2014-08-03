@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <cctype>
 #include <string.h>
 #include <stdlib.h>
 
@@ -46,6 +47,43 @@ class VarString {
             }
             vs.drop(len);
             return vs.toString();
+        }
+
+        static std::vector<std::string> split(const std::string str, const std::string delim) {
+            std::vector<std::string> rst;
+            int pos = 0;
+            while(true) {
+                size_t next = str.find(delim, pos);
+                if (next != std::string::npos) {
+                    rst.push_back(str.substr(pos, next - pos));
+                    pos = next + delim.size();
+                } else {
+                    rst.push_back(str.substr(pos));
+                    break;
+                }
+            }
+            return rst;
+        }
+
+        static bool starts_with(const std::string str, const std::string prefix) {
+            return str.compare(0, prefix.size(), prefix) == 0;
+        }
+
+
+        static std::string lstrip(const std::string str) {
+            int pos = 0; 
+            while(pos < str.size() && std::isspace(str[pos])) pos ++;
+            return std::string(str, pos, str.size() - pos);
+        }
+
+        static std::string rstrip(const std::string str) {
+            int pos = str.size() - 1;
+            while(pos >= 0 && std::isspace(str[pos])) pos --;
+            return std::string(str, 0, pos + 1);
+        }
+
+        static std::string strip(const std::string str) {
+            return rstrip(lstrip(str));
         }
 
         VarString() {
