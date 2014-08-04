@@ -30,7 +30,7 @@ Please notice you can't put any space besides equal sign.
 Since Google has already provided a Java SDK for drive, the interface Gdrive providing here is somehow like the Java version.
 (Yes, I am trying to make everything just like the offical one.) Here is some examples how gdrive interact with Google drive.
 
-** Get Credential **
+**Get Credential**
 
 ```
 #include "gdrive/gdrive.hpp"
@@ -60,7 +60,7 @@ int main() {
 Credential needs a file store to save the authorization code that gdrive fetched from google for sequal usage. With file store, authorization would
 be one time operation. Otherwise, user has to authorize every time that he/she uses gdrive.
 
-** File Operation **
+**File Operation**
 Please check out Google drive [offical API documentation](https://developers.google.com/drive/v2/reference/) for details.
 
 * **List files**
@@ -87,7 +87,7 @@ file.set_mimeType("image/jpeg");
 
 service.files().Insert(&file, &fc).execute();
 ```
-* ** Patch file **
+* **Patch file**
 Patch operation would update the metadata of files in drive.
 ```
 GFile file;
