@@ -2,7 +2,7 @@
 #define __GDRIVE_STORE_HPP__
 
 #include "gdrive/util.hpp"
-#include "gdrive/logging.hpp"
+#include "common/all.hpp"
 
 #include <map>
 #include <fstream>

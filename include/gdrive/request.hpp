@@ -1,8 +1,8 @@
 #ifndef __GDRIVE_REQUEST_HPP__
 #define __GDRIVE_REQUEST_HPP__
 
-#include "gdrive/logging.hpp"
 #include "gdrive/config.hpp"
+#include "common/all.hpp"
 #include <string>
 #include <map>
 #include <vector>

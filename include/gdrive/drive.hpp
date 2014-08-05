@@ -1,7 +1,6 @@
 #ifndef __GDRIVE_DRIVE_HPP__
 #define __GDRIVE_DRIVE_HPP__
 
-#include "gdrive/logging.hpp"
 #include "gdrive/util.hpp"
 #include "gdrive/credential.hpp"
 #include "gdrive/gitem.hpp"
@@ -9,6 +8,7 @@
 #include "gdrive/fileservice.hpp"
 #include "gdrive/aboutservice.hpp"
 #include "gdrive/changeservice.hpp"
+#include "common/all.hpp"
 
 #include <vector>
 

@@ -3,11 +3,11 @@
 
 #include "gdrive/config.hpp"
 #include "gdrive/credential.hpp"
-#include "gdrive/logging.hpp"
 #include "gdrive/util.hpp"
 #include "gdrive/gitem.hpp"
 #include "gdrive/servicerequest.hpp"
 #include "gdrive/filecontent.hpp"
+#include "common/all.hpp"
 
 #include <vector>
 

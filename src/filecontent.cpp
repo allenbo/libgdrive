@@ -34,7 +34,7 @@ std::string FileContent::get_content() {
 
 size_t FileContent::read(void* ptr, size_t size, size_t nmemb, void* userp) {
     FUNC_MAKE_LOGGER
-    FUNC_LOGGER_SET_LEVEL(L_DEBUG);
+    FUNC_LOGGER_SET_LEVEL(COMMON::L_DEBUG);
 
     FileContent* fc = (FileContent*)userp;
 
@@ -52,7 +52,7 @@ size_t FileContent::read(void* ptr, size_t size, size_t nmemb, void* userp) {
 
 size_t FileContent::resumable_read(void *ptr, size_t size, size_t nmemb, void* userp) {
     FUNC_MAKE_LOGGER
-    FUNC_LOGGER_SET_LEVEL(L_DEBUG);
+    FUNC_LOGGER_SET_LEVEL(COMMON::L_DEBUG);
 
     FileContent* fc = (FileContent*)userp;
 

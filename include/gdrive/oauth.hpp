@@ -4,8 +4,8 @@
 #include <string>
 #include "gdrive/config.hpp"
 #include "gdrive/util.hpp"
-#include "gdrive/logging.hpp"
 #include "gdrive/credential.hpp"
+#include "common/all.hpp"
 
 namespace GDRIVE {
 

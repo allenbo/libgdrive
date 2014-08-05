@@ -3,7 +3,7 @@
 
 #include "gdrive/util.hpp"
 #include "gdrive/config.hpp"
-#include "gdrive/logging.hpp"
+#include "common/all.hpp"
 
 #include <fstream>
 
@@ -18,7 +18,7 @@ class FileContent {
             _length = -1;
             _resumable_cur_pos = _resumable_start_pos = _resumable_length = 0;
 #ifdef GDRIVE_DEBUG
-            CLASS_INIT_LOGGER("FileContent", L_DEBUG)
+            CLASS_INIT_LOGGER("FileContent", COMMON::L_DEBUG)
 #endif
         }
 
@@ -30,7 +30,7 @@ class FileContent {
             _resumable_start_pos = other._resumable_start_pos;
             _resumable_cur_pos = other._resumable_cur_pos;
 #ifdef GDRIVE_DEBUG
-            CLASS_INIT_LOGGER("FileContent", L_DEBUG)
+            CLASS_INIT_LOGGER("FileContent", COMMON::L_DEBUG)
 #endif
         }
  

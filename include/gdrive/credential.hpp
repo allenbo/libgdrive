@@ -1,11 +1,11 @@
 #ifndef __GDRIVE_CREDENTIAL_HPP__
 #define __GDRIVE_CREDENTIAL_HPP__
 
-#include "gdrive/logging.hpp"
 #include "gdrive/config.hpp"
 #include "gdrive/util.hpp"
 #include "gdrive/request.hpp"
 #include "gdrive/store.hpp"
+#include "common/all.hpp"
 
 #include <string>
 

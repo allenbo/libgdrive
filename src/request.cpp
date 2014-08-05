@@ -4,7 +4,7 @@
 #include <curl/curl.h>
 
 #include <sstream>
-
+using namespace COMMON;
 namespace GDRIVE {
 
 size_t HttpResponse::curl_write_callback(void* content, size_t size, size_t nmemb, void* userp) {
