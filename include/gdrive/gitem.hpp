@@ -196,6 +196,18 @@ private:
 };
 
 
+class GFileList {
+public:
+    GFileList();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, nextPageToken)
+    READONLY(std::string, nextLink)
+    READONLY(std::vector<GFile>, items)
+};
+
 // About representation
 
 class GServiceQuota {
@@ -291,6 +303,17 @@ public:
     READONLY(bool, deleted)
     READONLY(struct tm, modificationDate)
     READONLY(GFile, file)
+};
+
+// Children representation
+class GChildren {
+public:
+    GChildren();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, id)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, childLink)
 };
 
 }

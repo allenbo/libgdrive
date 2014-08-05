@@ -59,11 +59,11 @@ class FileListRequest: public CredentialHttpRequest {
     public:
         FileListRequest(Credential* cred, std::string uri)
             :CredentialHttpRequest(cred, uri, RM_GET) {}
-        std::vector<GFile> execute(); 
+        GFileList execute(); 
         STRING_SET_ATTR(pageToken)
         STRING_SET_ATTR(q)
         void set_corpus(std::string corpus);
-        void set_max_results(int max_results);
+        void set_maxResults(int max_results);
 };
 
 class FileGetRequest: public FieldRequest {

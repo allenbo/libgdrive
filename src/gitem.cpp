@@ -469,6 +469,20 @@ JObject* GFile::to_json() {
 }
 
 
+GFileList::GFileList() {
+    etag = selfLink = nextPageToken = nextLink = "";
+    items.clear();
+}
+
+void GFileList::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(nextPageToken);
+    STRING_FROM_JSON(nextLink);
+    INSTANCE_VECTOR_FROM_JSON(GFile, items);
+}
+
+
 GServiceQuota::GServiceQuota(){
     serviceName = "";
     bytesUsed = -1;
@@ -582,6 +596,16 @@ void GChange::from_json(JObject* obj) {
     BOOL_FROM_JSON(deleted);
     TIME_FROM_JSON(modificationDate);
     INSTANCE_FROM_JSON(file);
+}
+
+GChildren::GChildren() {
+    id = selfLink = childLink = "";
+}
+
+void GChildren::from_json(JObject* obj) {
+    STRING_FROM_JSON(id);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(childLink);
 }
 
 }

@@ -11,8 +11,8 @@ CPP := g++
 CC := gcc
 AR := ar
 
-CFLAG := -O2
-LFLAG := -O2 -lcurl -L$(LIB_DIR) $(LIB) -flto
+CFLAG := -g
+LFLAG := -g -lcurl -L$(LIB_DIR) $(LIB) -flto
 ARFLAG := -rcs
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)

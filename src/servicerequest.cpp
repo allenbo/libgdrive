@@ -32,7 +32,7 @@ void FileListRequest::set_corpus(std::string corpus) {
     }
 }
 
-void FileListRequest::set_max_results(int max_results) {
+void FileListRequest::set_maxResults(int max_results) {
     if (max_results >= 0) {
         _query["maxResults"] = VarString::itos(max_results);
     } else {
@@ -40,37 +40,13 @@ void FileListRequest::set_max_results(int max_results) {
     }
 }
 
-std::vector<GFile> FileListRequest::execute() {
-    std::vector<GFile> files;
-    std::string next_link = "";
-
-    while(true) {
-        CredentialHttpRequest::request();
-        PError error;
-        JObject* value = (JObject*)loads(_resp.content(), error);
-        if (value != NULL) {
-            if (value->contain("items")) {
-                JArray* items = (JArray*)value->get("items");
-                for(int i = 0; i < items->size(); i ++ ) {
-                    JObject* item = (JObject*)items->get(i);
-                    GFile file;
-                    file.from_json(item);
-                    files.push_back(file);
-                    CLOG_DEBUG("Get file %s\n", file.get_title().c_str());
-                }
-            }
-            if (value->contain("nextLink")) {
-                next_link = ((JString*)value->get("nextLink"))->getValue();
-                set_uri(next_link);
-                clear();
-                delete value;
-            } else {
-                delete value;
-                break;
-            }
-        }
-    }
-    return files;
+GFileList FileListRequest::execute() {
+    GFileList filelist;
+    CredentialHttpRequest::request();
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    filelist.from_json(value);
+    return filelist;
 }
 
 GFile FileGetRequest::execute() {

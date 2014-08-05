@@ -113,7 +113,18 @@ int main() {
     service.files().Insert(&file, &fc, true).execute();
     fin.close();
     */
-    std::vector<GFile> files = service.files().List().execute();
+    FileListRequest list = service.files().List();
+    while (true) {
+        list.set_maxResults(88);
+        GFileList filelist = list.execute();
+        list.clear();
+        if (filelist.get_nextPageToken() != "") {
+            list.set_pageToken(filelist.get_nextPageToken());
+        } else {
+            break;
+        }
+    }
+    /*
     std::string file_id = "";
     for (int i = 0; i < files.size(); i ++ ) {
         if (files[i].get_title() == "storage arrangement") {
@@ -132,4 +143,5 @@ int main() {
     file.set_mimeType(mime);
     file.set_title("Another Silverlight");
     service.files().Update(file_id, &file, &fc).execute();
+    */
 }
