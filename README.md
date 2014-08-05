@@ -4,14 +4,17 @@ gdrive
 A C++ implementation of Google drive API.
 
 ## Build
-Gdrive is using my JSON implementation [JConer](https://github.com/allenbo/JConer). You should also download and install it.
+Gdrive is using my JSON implementation [JConer](https://github.com/allenbo/JConer) and utility classes in [common](https://github.com/allenbo/common). You should also download and install them.
 
 ```
+git clone https://github.com/allenbo/common.git
 git clone https://github.com/allenbo/JConer.git
-cd JConer && make
+cd JConer && cp -R ../common/include/common include/ && make
 cd ../
 git clone https://github.com/allenbo/gdrive.git
-cd gdrive && cp -R ../JConer/include/jconer include/ && cp ../JConer/libjconer.a lib/
+cd gdrive 
+cp -R ../JConer/include/jconer include/ && cp ../JConer/libjconer.a lib/
+cp -R ../common/include/common include/
 make
 ```
 
