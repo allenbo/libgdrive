@@ -21,6 +21,7 @@ class ChangeService {
         }
 
         ChangeGetRequest Get(std::string id);
+        ChangeListRequest List();
     private:
         ChangeService();
         ChangeService(const ChangeService& other);

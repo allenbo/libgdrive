@@ -21,4 +21,11 @@ ChangeGetRequest ChangeService::Get(std::string id) {
     return cgr;
 }
 
+ChangeListRequest ChangeService::List() {
+    VarString vs;
+    vs.append(CHANGE_URL);
+    ChangeListRequest clr(_cred, vs.toString());
+    return clr;
+}
+
 }

@@ -20,7 +20,7 @@
 }
 
 #define LONG_SET_ATTR(name) void set_##name(long name) { \
-    _query[#name] = name;\
+    _query[#name] = COMMON::VarString::itos(name);\
 }
 
 #define BOOL_SET_ATTR(name) void set_##name(bool flag) { \
@@ -228,6 +228,19 @@ class ChangeGetRequest: public CredentialHttpRequest {
             :CredentialHttpRequest(cred, uri, RM_GET) {}
         
         GChange execute();
+};
+
+class ChangeListRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ChangeListRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        std::vector<GChange> execute();
+        BOOL_SET_ATTR(includeDeleted)
+        BOOL_SET_ATTR(includeSubscribed)
+        STRING_SET_ATTR(pageToken)
+        LONG_SET_ATTR(maxResults)
+        LONG_SET_ATTR(startChangeId)
 };
 
 }
