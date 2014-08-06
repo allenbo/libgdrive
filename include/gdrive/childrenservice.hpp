@@ -22,6 +22,9 @@ class ChildrenService {
 
         ChildrenListRequest List(std::string folder_id);
         std::vector<GChildren> Listall(std::string folder_id);
+
+        ChildrenGetRequest Get(std::string folder_id, std::string child_id);
+        ChildrenInsertRequest Insert(std::string folder_id, GChildren* child);
     private:
         ChildrenService();
         ChildrenService(const ChildrenService& other);
@@ -34,5 +37,6 @@ class ChildrenService {
             _cred = cred;
         }
 };
+
 }
 #endif

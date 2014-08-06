@@ -257,6 +257,26 @@ class ChildrenListRequest: public CredentialHttpRequest {
         STRING_SET_ATTR(q)
 };
 
+class ChildrenGetRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ChildrenGetRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        GChildren execute();
+};
+
+class ChildrenInsertRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ChildrenInsertRequest(GChildren* child, Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_POST), _child(child) {}
+        GChildren execute();
+
+    private:
+        void _json_encode_body();
+        GChildren * _child;
+};
+
 }
 
 #endif

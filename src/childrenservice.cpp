@@ -39,4 +39,19 @@ std::vector<GChildren> ChildrenService::Listall(std::string folder_id){
     }
     return children;
 }
+
+ChildrenGetRequest ChildrenService::Get(std::string folder_id, std::string child_id) {
+    VarString vs;
+    vs.append(FILES_URL).append('/').append(folder_id).append("/children/").append(child_id);
+    ChildrenGetRequest cgr(_cred, vs.toString());
+    return cgr;
+}
+
+ChildrenInsertRequest ChildrenService::Insert(std::string folder_id, GChildren* child) {
+    VarString vs;
+    vs.append(FILES_URL).append('/').append(folder_id).append("/children");
+    ChildrenInsertRequest cir(child, _cred, vs.toString());
+    return cir;
+}
+
 }

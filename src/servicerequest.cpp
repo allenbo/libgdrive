@@ -43,9 +43,15 @@ void FileListRequest::set_maxResults(int max_results) {
 GFileList FileListRequest::execute() {
     GFileList filelist;
     CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
     PError error;
     JObject* value = (JObject*)loads(_resp.content(), error);
-    filelist.from_json(value);
+    if (NULL != value) {
+        filelist.from_json(value);
+        delete value;
+    }
     return filelist;
 }
 
@@ -70,7 +76,6 @@ bool FileDeleteRequest::execute() {
 void FileAttachedRequest::_json_encode_body() {
     JObject* tmp = _file->to_json();
     JObject* rst_obj = new JObject();
-    //for(int i = 0; i < _fields.size(); i ++ ) {
     for(std::set<std::string>::iterator iter = _fields.begin();
             iter != _fields.end(); iter ++) {
         std::string field = *iter;
@@ -314,19 +319,73 @@ GChange ChangeGetRequest::execute() {
 GChangeList ChangeListRequest::execute() {
     GChangeList changelist; 
     CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
     PError error;
     JObject* value = (JObject*)loads(_resp.content(), error);
-    changelist.from_json(value);
+    if (NULL != value) {
+        changelist.from_json(value);
+        delete value;
+    }
     return changelist;
 }
 
 GChildrenList ChildrenListRequest::execute() {
     GChildrenList childrenlist;
     CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
     PError error;
     JObject* value = (JObject*)loads(_resp.content(), error);
-    childrenlist.from_json(value);
+    if (NULL != value) {
+        childrenlist.from_json(value);
+        delete value;
+    }
     return childrenlist;
+}
+
+GChildren ChildrenGetRequest::execute() {
+    GChildren child;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        child.from_json(value);
+        delete value;
+    }
+    return child;
+}
+
+
+void ChildrenInsertRequest::_json_encode_body() {
+    JObject* rst_obj = new JObject();
+    rst_obj->put("id", _child->get_id());
+    char* buf;
+    dumps(rst_obj, &buf);
+    delete rst_obj;
+    _body = std::string(buf);
+    free(buf);
+
+    _header["Content-Type"] = "application/json";
+    _header["Content-Length"] = VarString::itos(_body.size());
+}
+
+GChildren ChildrenInsertRequest::execute() {
+    _json_encode_body();
+    GChildren child;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        child.from_json(value);
+        delete value;
+    }
+    return child;
 }
 
 }

@@ -324,9 +324,11 @@ public:
     GChildren();
     void from_json(JObject* obj);
 
-    READONLY(std::string, id)
+    WRITABLE(std::string, id)
     READONLY(std::string, selfLink)
     READONLY(std::string, childLink)
+private:
+    std::set<std::string> _fields;
 };
 
 class GChildrenList {
