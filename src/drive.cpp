@@ -26,4 +26,8 @@ ChildrenService& Drive::children() {
     return ChildrenService::get_instance(_cred);
 }
 
+ParentService& Drive::parents() {
+    return ParentService::get_instance(_cred);
+}
+
 }

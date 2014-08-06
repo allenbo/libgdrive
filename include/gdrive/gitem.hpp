@@ -59,10 +59,10 @@ public:
 class GParent {
 public:
     GParent();
-    std::string id;
-    std::string selfLink;
-    std::string parentLink;
-    bool isRoot;
+    READONLY(std::string, id)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, parentLink)
+    READONLY(bool, isRoot)
     void from_json(JObject* obj);
     JObject* to_json();
 };
