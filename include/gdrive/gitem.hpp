@@ -305,6 +305,19 @@ public:
     READONLY(GFile, file)
 };
 
+class GChangeList {
+public:
+    GChangeList();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, nextPageToken)
+    READONLY(std::string, nextLink)
+    READONLY(long, largestChangeId)
+    READONLY(std::vector<GChange>, items)
+};
+
 // Children representation
 class GChildren {
 public:

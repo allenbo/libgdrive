@@ -311,37 +311,13 @@ GChange ChangeGetRequest::execute() {
     return change;
 }
 
-std::vector<GChange> ChangeListRequest::execute() {
-    std::vector<GChange> changes;
-    std::string next_link = "";
-
-    while(true) {
-        CredentialHttpRequest::request();
-        PError error;
-        JObject* value = (JObject*)loads(_resp.content(), error);
-        if (value != NULL) {
-            if (value->contain("items")) {
-                JArray* items = (JArray*)value->get("items");
-                for(int i = 0; i < items->size(); i ++ ) {
-                    JObject* item = (JObject*)items->get(i);
-                    GChange change;
-                    change.from_json(item);
-                    changes.push_back(change);
-                    CLOG_DEBUG("GET change: id = %s\n", change.get_id().c_str());
-                }
-            }
-            if (value->contain("nextLink")) {
-                next_link = ((JString*)value->get("nextLink"))->getValue();
-                set_uri(next_link);
-                clear();
-                delete value;
-            } else {
-                delete value;
-                break;
-            }
-        }
-    }
-    return changes;
+GChangeList ChangeListRequest::execute() {
+    GChangeList changelist; 
+    CredentialHttpRequest::request();
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    changelist.from_json(value);
+    return changelist;
 }
 
 }

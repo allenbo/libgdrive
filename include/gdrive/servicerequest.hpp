@@ -235,7 +235,8 @@ class ChangeListRequest: public CredentialHttpRequest {
     public:
         ChangeListRequest(Credential* cred, std::string uri)
             :CredentialHttpRequest(cred, uri, RM_GET) {}
-        std::vector<GChange> execute();
+        GChangeList execute();
+
         BOOL_SET_ATTR(includeDeleted)
         BOOL_SET_ATTR(includeSubscribed)
         STRING_SET_ATTR(pageToken)

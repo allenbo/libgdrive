@@ -20,6 +20,25 @@ FileListRequest FileService::List() {
     return flr;
 }
 
+std::vector<GFile> FileService::Listall() {
+    FileListRequest list = List();
+    std::vector<GFile> files;
+    while(true) {
+        GFileList filelist = list.execute();
+        const std::vector<GFile>& tmp = filelist.get_items();
+        files.insert(files.end(), tmp.begin(), tmp.end());
+        list.clear();
+
+        std::string pageToken = filelist.get_nextPageToken();
+        if (pageToken == "") {
+            break;
+        } else {
+            list.set_pageToken(pageToken);
+        }
+    }
+    return files;
+}
+
 FileGetRequest FileService::Get(std::string id) {
     VarString vs;
     vs.append(FILE_URL).append('/').append(id);

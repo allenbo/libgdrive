@@ -22,6 +22,7 @@ class ChangeService {
 
         ChangeGetRequest Get(std::string id);
         ChangeListRequest List();
+        std::vector<GChange> Listall();
     private:
         ChangeService();
         ChangeService(const ChangeService& other);

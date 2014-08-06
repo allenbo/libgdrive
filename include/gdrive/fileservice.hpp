@@ -23,6 +23,7 @@ class FileService {
             return _single_instance;
         }
         FileListRequest List();
+        std::vector<GFile> Listall();
         FileGetRequest Get(std::string id);
         FileTrashRequest Trash(std::string id);
         FileUntrashRequest Untrash(std::string id);

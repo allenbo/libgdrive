@@ -598,6 +598,21 @@ void GChange::from_json(JObject* obj) {
     INSTANCE_FROM_JSON(file);
 }
 
+GChangeList::GChangeList() {
+    etag = selfLink = nextPageToken = nextLink = "";
+    largestChangeId = -1;
+    items.clear();
+}
+
+void GChangeList::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(nextPageToken);
+    STRING_FROM_JSON(nextLink);
+    INT_FROM_JSON(largestChangeId);
+    INSTANCE_VECTOR_FROM_JSON(GChange, items);
+}
+
 GChildren::GChildren() {
     id = selfLink = childLink = "";
 }

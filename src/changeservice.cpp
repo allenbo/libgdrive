@@ -2,6 +2,7 @@
 #include "jconer/json.hpp"
 
 #include <string.h>
+#include <vector>
 using namespace JCONER;
 
 namespace GDRIVE {
@@ -26,6 +27,24 @@ ChangeListRequest ChangeService::List() {
     vs.append(CHANGE_URL);
     ChangeListRequest clr(_cred, vs.toString());
     return clr;
+}
+
+std::vector<GChange> ChangeService::Listall() {
+    ChangeListRequest list = List();
+    std::vector<GChange> changes;
+    while(true) {
+        GChangeList changelist = list.execute();
+        list.clear();
+        const std::vector<GChange>& tmp = changelist.get_items();
+        changes.insert(changes.end(), tmp.begin(), tmp.end());
+        std::string pageToken = changelist.get_nextPageToken();
+        if (pageToken == "") {
+            break;
+        } else {
+            list.set_pageToken(pageToken);
+        }
+    }
+    return changes;
 }
 
 }

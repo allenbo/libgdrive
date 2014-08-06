@@ -113,6 +113,7 @@ int main() {
     service.files().Insert(&file, &fc, true).execute();
     fin.close();
     */
+    /*
     FileListRequest list = service.files().List();
     while (true) {
         list.set_maxResults(88);
@@ -124,6 +125,9 @@ int main() {
             break;
         }
     }
+    */
+    std::vector<GFile> files = service.files().Listall();
+
     /*
     std::string file_id = "";
     for (int i = 0; i < files.size(); i ++ ) {
