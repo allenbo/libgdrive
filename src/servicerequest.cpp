@@ -388,4 +388,15 @@ GChildren ChildrenInsertRequest::execute() {
     return child;
 }
 
+bool ChildrenDeleteRequest::execute() {
+    CredentialHttpRequest::request();
+    if (_resp.status() == 204) {
+        return true;
+    } else {
+        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
+        return false;
+    }
+}
+
+
 }

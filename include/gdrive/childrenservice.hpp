@@ -25,6 +25,7 @@ class ChildrenService {
 
         ChildrenGetRequest Get(std::string folder_id, std::string child_id);
         ChildrenInsertRequest Insert(std::string folder_id, GChildren* child);
+        ChildrenDeleteRequest Delete(std::string folder_id, std::string child_id);
     private:
         ChildrenService();
         ChildrenService(const ChildrenService& other);

@@ -277,6 +277,14 @@ class ChildrenInsertRequest: public CredentialHttpRequest {
         GChildren * _child;
 };
 
+class ChildrenDeleteRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ChildrenDeleteRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        bool execute();
+};
+
 }
 
 #endif

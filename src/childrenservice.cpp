@@ -54,4 +54,11 @@ ChildrenInsertRequest ChildrenService::Insert(std::string folder_id, GChildren* 
     return cir;
 }
 
+ChildrenDeleteRequest ChildrenService::Delete(std::string folder_id, std::string child_id) {
+    VarString vs;
+    vs.append(FILES_URL).append('/').append(folder_id).append("/children/").append(child_id);
+    ChildrenDeleteRequest cdr(_cred, vs.toString());
+    return cdr;
+}
+
 }
