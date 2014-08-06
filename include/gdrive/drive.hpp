@@ -8,6 +8,7 @@
 #include "gdrive/fileservice.hpp"
 #include "gdrive/aboutservice.hpp"
 #include "gdrive/changeservice.hpp"
+#include "gdrive/childrenservice.hpp"
 #include "common/all.hpp"
 
 #include <vector>
@@ -22,6 +23,7 @@ class Drive {
         FileService& files();
         AboutService& about();
         ChangeService& changes();
+        ChildrenService& children();
     protected:
         Credential* _cred;
 };

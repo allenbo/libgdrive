@@ -17,14 +17,14 @@ ChangeService::ChangeService() {
 
 ChangeGetRequest ChangeService::Get(std::string id) {
     VarString vs;
-    vs.append(CHANGE_URL).append('/').append(id);
+    vs.append(CHANGES_URL).append('/').append(id);
     ChangeGetRequest cgr(_cred, vs.toString());
     return cgr;
 }
 
 ChangeListRequest ChangeService::List() {
     VarString vs;
-    vs.append(CHANGE_URL);
+    vs.append(CHANGES_URL);
     ChangeListRequest clr(_cred, vs.toString());
     return clr;
 }

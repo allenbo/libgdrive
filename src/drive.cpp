@@ -22,4 +22,8 @@ ChangeService& Drive::changes() {
     return ChangeService::get_instance(_cred);
 }
 
+ChildrenService& Drive::children() {
+    return ChildrenService::get_instance(_cred);
+}
+
 }

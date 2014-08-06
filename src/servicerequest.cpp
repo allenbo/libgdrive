@@ -320,4 +320,13 @@ GChangeList ChangeListRequest::execute() {
     return changelist;
 }
 
+GChildrenList ChildrenListRequest::execute() {
+    GChildrenList childrenlist;
+    CredentialHttpRequest::request();
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    childrenlist.from_json(value);
+    return childrenlist;
+}
+
 }

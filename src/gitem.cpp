@@ -623,4 +623,17 @@ void GChildren::from_json(JObject* obj) {
     STRING_FROM_JSON(childLink);
 }
 
+GChildrenList::GChildrenList() {
+    etag = selfLink = nextPageToken = nextLink = "";
+    items.clear();
+}
+
+void GChildrenList::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(nextPageToken);
+    STRING_FROM_JSON(nextLink);
+    INSTANCE_VECTOR_FROM_JSON(GChildren, items);
+}
+
 }

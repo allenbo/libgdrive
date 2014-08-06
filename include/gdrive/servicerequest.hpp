@@ -11,9 +11,9 @@
 #include <vector>
 #include <set>
 
-#define FILE_URL SERVICE_URI "/files"
+#define FILES_URL SERVICE_URI "/files"
 #define ABOUT_URL SERVICE_URI "/about"
-#define CHANGE_URL SERVICE_URI "/changes"
+#define CHANGES_URL SERVICE_URI "/changes"
 
 #define STRING_SET_ATTR(name) void set_##name(std::string name) { \
     _query[#name] = name;\
@@ -242,6 +242,19 @@ class ChangeListRequest: public CredentialHttpRequest {
         STRING_SET_ATTR(pageToken)
         LONG_SET_ATTR(maxResults)
         LONG_SET_ATTR(startChangeId)
+};
+
+
+class ChildrenListRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ChildrenListRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        GChildrenList execute();
+
+        LONG_SET_ATTR(maxResults)
+        STRING_SET_ATTR(pageToken)
+        STRING_SET_ATTR(q)
 };
 
 }
