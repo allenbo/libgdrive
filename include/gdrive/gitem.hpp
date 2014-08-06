@@ -59,14 +59,25 @@ public:
 class GParent {
 public:
     GParent();
-    READONLY(std::string, id)
+    WRITABLE(std::string, id)
     READONLY(std::string, selfLink)
     READONLY(std::string, parentLink)
     READONLY(bool, isRoot)
     void from_json(JObject* obj);
     JObject* to_json();
+private:
+    std::set<std::string> _fields;
 };
 
+
+class GParentList {
+public:
+    GParentList();
+    void from_json(JObject* obj);
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::vector<GParent>, items)
+};
 
 class GProperty {
 public:

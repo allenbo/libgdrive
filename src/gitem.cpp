@@ -218,6 +218,17 @@ JObject* GParent::to_json() {
     return obj;
 }
 
+GParentList::GParentList() {
+    etag = selfLink = "";
+    items.clear();
+}
+
+void GParentList::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    INSTANCE_VECTOR_FROM_JSON(GParent, items);
+}
+
 GProperty::GProperty() {
     etag = selfLink = key = visibility = value = "";
 }

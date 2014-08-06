@@ -19,7 +19,11 @@ class ParentService {
             _single_instance.set_cred(cred);
             return _single_instance;
         }
-
+        
+        ParentListRequest List(std::string file_id);
+        ParentGetRequest Get(std::string file_id, std::string parent_id);
+        ParentInsertRequest Insert(std::string file_id, GParent* parent);
+        ParentDeleteRequest Delete(std::string file_id, std::string parent_id);
     private:
         ParentService();
         ParentService(const ParentService& other);

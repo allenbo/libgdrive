@@ -398,5 +398,72 @@ bool ChildrenDeleteRequest::execute() {
     }
 }
 
+GParentList ParentListRequest::execute() {
+    GParentList parentlist;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        parentlist.from_json(value);
+        delete value;
+    }
+    return parentlist;
+}
+
+GParent ParentGetRequest::execute() {
+    GParent parent;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        parent.from_json(value);
+        delete value;
+    }
+    return parent;
+}
+
+void ParentInsertRequest::_json_encode_body() {
+    JObject* rst_obj = new JObject();
+    rst_obj->put("id", _parent->get_id());
+    char* buf;
+    dumps(rst_obj, &buf);
+    delete rst_obj;
+    _body = std::string(buf);
+    free(buf);
+
+    _header["Content-Type"] = "application/json";
+    _header["Content-Length"] = VarString::itos(_body.size());
+}
+
+GParent ParentInsertRequest::execute() {
+    _json_encode_body();
+    GParent parent;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        parent.from_json(value);
+        delete value;
+    }
+    return parent;
+}
+
+bool ParentDeleteRequest::execute() {
+    CredentialHttpRequest::request();
+    if (_resp.status() == 204) {
+        return true;
+    } else {
+        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
+        return false;
+    }
+}
 
 }

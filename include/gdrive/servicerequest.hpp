@@ -281,9 +281,47 @@ class ChildrenDeleteRequest: public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
     public:
         ChildrenDeleteRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
+            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
         bool execute();
 };
+
+class ParentListRequest: public CredentialHttpRequest  {
+    CLASS_MAKE_LOGGER
+    public:
+        ParentListRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        GParentList execute();
+
+};
+
+class ParentGetRequest: public CredentialHttpRequest  {
+    CLASS_MAKE_LOGGER
+    public:
+        ParentGetRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        GParent execute();
+};
+
+class ParentInsertRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ParentInsertRequest(GParent* parent, Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_POST), _parent(parent) {}
+        GParent execute();
+
+    private:
+        void _json_encode_body();
+        GParent * _parent;
+};
+
+class ParentDeleteRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ParentDeleteRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
+        bool execute();
+};
+
 
 }
 
