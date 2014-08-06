@@ -72,7 +72,24 @@ Please check out Google drive [offical API documentation](https://developers.goo
    Get Credential
    */
 Drive service(&cred);
-std::vector<GFile> files = service.files().List().execute();
+std::vector<GFile> files = service.files().Listall();
+
+// or
+FileListRequest list = service.files().List();
+std::vector<GFile> files;
+
+while(true) {
+    GFileList filelist = list.exeute();
+    list.clear(); // you have to clear the response of previous request;
+    std::string pageToken = filelist.get_nextPageToken();
+    const std::vector<GFile>& tmp = filelist.get_items();
+    files.insert(files.end(), tmp.begin(), tmp.end());
+    if(pageToken == "") {
+        break;
+    } else {
+        list.set_pageToken(pagToken);
+    }
+}
 ```
 
 * **Get file**
