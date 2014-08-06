@@ -5,11 +5,11 @@
 #include "gdrive/credential.hpp"
 #include "gdrive/gitem.hpp"
 #include "gdrive/config.hpp"
-#include "gdrive/fileservice.hpp"
-#include "gdrive/aboutservice.hpp"
-#include "gdrive/changeservice.hpp"
-#include "gdrive/childrenservice.hpp"
-#include "gdrive/parentservice.hpp"
+#include "gdrive/service/files.hpp"
+#include "gdrive/service/about.hpp"
+#include "gdrive/service/changes.hpp"
+#include "gdrive/service/children.hpp"
+#include "gdrive/service/parents.hpp"
 #include "common/all.hpp"
 
 #include <vector>

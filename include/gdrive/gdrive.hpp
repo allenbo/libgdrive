@@ -2,8 +2,6 @@
 #define __GDRIVE_GDRIVE_HPP__
 
 
-#include "gdrive/aboutservice.hpp"
-#include "gdrive/changeservice.hpp"
 #include "gdrive/credential.hpp"
 #include "gdrive/drive.hpp"
 #include "gdrive/filecontent.hpp"

@@ -253,8 +253,10 @@ JObject* GProperty::to_json(){
 
 GPermission::GPermission() {
     etag = id = selfLink = name = emailAddress = domain = role = "";
-    type = value = authKey = withLink = photoLink = "";
+    type = value = authKey = photoLink = "";
+    withLink = false;
     additionalRoles.clear();
+    _fields.clear();
 }
 
 void GPermission::from_json(JObject* obj) {
@@ -269,7 +271,7 @@ void GPermission::from_json(JObject* obj) {
     STRING_FROM_JSON(type);
     STRING_FROM_JSON(value);
     STRING_FROM_JSON(authKey);
-    STRING_FROM_JSON(withLink);
+    BOOL_FROM_JSON(withLink);
     STRING_FROM_JSON(photoLink);
 }
 
@@ -286,7 +288,7 @@ JObject* GPermission::to_json() {
     STRING_TO_JSON(type);
     STRING_TO_JSON(value);
     STRING_TO_JSON(authKey);
-    STRING_TO_JSON(withLink);
+    BOOL_TO_JSON(withLink);
     STRING_TO_JSON(photoLink);
     return obj;
 }

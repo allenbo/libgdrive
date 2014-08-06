@@ -94,21 +94,24 @@ public:
 class GPermission {
 public:
     GPermission();
-    std::string etag;
-    std::string id;
-    std::string selfLink;
-    std::string name;
-    std::string emailAddress;
-    std::string domain;
-    std::string role;
-    std::vector<std::string> additionalRoles;
-    std::string type;
-    std::string value;
-    std::string authKey;
-    std::string withLink;
-    std::string photoLink;
+
+    READONLY(std::string, etag)
+    WRITABLE(std::string, id)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, name)
+    READONLY(std::string, emailAddress)
+    READONLY(std::string, domain)
+    WRITABLE(std::string, role)
+    WRITABLE(std::vector<std::string>, additionalRoles)
+    WRITABLE(std::string, type)
+    WRITABLE(std::string, value)
+    READONLY(std::string, authKey)
+    READONLY(bool, withLink)
+    READONLY(std::string, photoLink)
     void from_json(JObject* obj);
     JObject* to_json();
+private:
+    std::set<std::string> _fields;
 };
 
 class GImageMediaMetaData {
