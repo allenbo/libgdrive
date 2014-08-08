@@ -24,6 +24,9 @@ class PermissionService {
         PermissionGetRequest Get(std::string file_id, std::string permission_id);
         PermissionInsertRequest Insert(std::string file_id, GPermission* permission);
         PermissionDeleteRequest Delete(std::string file_id, std::string permission_id);
+        PermissionPatchRequest Patch(std::string file_id, std::string permission_id, GPermission* permission);
+        PermissionUpdateRequest Update(std::string file_id, std::string permission_id, GPermission* permission);
+        PermissionGetIdForEmailRequest GetIdForEmail(std::string email);
     private:
         PermissionService();
         PermissionService(const PermissionService& other);

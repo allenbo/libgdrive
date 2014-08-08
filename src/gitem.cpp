@@ -303,6 +303,11 @@ JObject* GPermission::to_json() {
     STRING_TO_JSON(photoLink);
     return obj;
 }
+
+void GPermissionId::from_json(JObject* obj) {
+    STRING_FROM_JSON(id);
+}
+
 GImageMediaMetaData::GImageMediaMetaData() {
     width = height = rotation = -1; 
     location.latitude = location.longitude = location.altitude = 0.0;

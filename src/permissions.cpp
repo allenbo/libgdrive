@@ -43,4 +43,26 @@ PermissionDeleteRequest PermissionService::Delete(std::string file_id, std::stri
     return pdr;
 }
 
+PermissionPatchRequest PermissionService::Patch(std::string file_id, std::string permission_id, GPermission* permission) {
+    VarString vs;
+    vs.append(FILES_URL).append('/').append(file_id).append("/permissions/").append(permission_id);
+    PermissionPatchRequest ppr(permission, _cred, vs.toString());
+    return ppr;
+}
+
+PermissionUpdateRequest PermissionService::Update(std::string file_id, std::string permission_id, GPermission* permission) {
+    VarString vs;
+    vs.append(FILES_URL).append('/').append(file_id).append("/permissions/").append(permission_id);
+    PermissionUpdateRequest pur(permission, _cred, vs.toString());
+    return pur;
+}
+
+PermissionGetIdForEmailRequest PermissionService::GetIdForEmail(std::string email) {
+    VarString vs;
+    vs.append(SERVICE_URI).append("/permissionIds/").append(email);
+    PermissionGetIdForEmailRequest pgr(_cred, vs.toString());
+    return pgr;
+}
+
+
 }

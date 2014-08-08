@@ -122,6 +122,16 @@ private:
     std::set<std::string> _fields;
 };
 
+class GPermissionId {
+public:
+    GPermissionId() {
+        id = "";
+    }
+    void from_json(JObject *);
+
+    READONLY(std::string, id);
+};
+
 class GPermissionList {
 public:
     GPermissionList();

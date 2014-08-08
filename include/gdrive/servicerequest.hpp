@@ -310,6 +310,26 @@ class PermissionInsertRequest: public ResourceAttachedRequest<GPermission, RM_PO
 
 typedef DeleteRequest PermissionDeleteRequest;
 
+class PermissionPatchRequest : public ResourceAttachedRequest<GPermission, RM_PATCH> {
+    CLASS_MAKE_LOGGER
+    public:
+        PermissionPatchRequest(GPermission* permission, Credential* cred, std::string uri)
+            :ResourceAttachedRequest<GPermission, RM_PATCH>(permission, cred, uri) {}
+
+        BOOL_SET_ATTR(transferOwnership)
+};
+
+class PermissionUpdateRequest : public ResourceAttachedRequest<GPermission, RM_PUT> {
+    CLASS_MAKE_LOGGER
+    public:
+        PermissionUpdateRequest(GPermission* permission, Credential* cred, std::string uri)
+            :ResourceAttachedRequest<GPermission, RM_PUT>(permission, cred, uri) {}
+
+        BOOL_SET_ATTR(transferOwnership)
+};
+
+typedef ResourceRequest<GPermissionId, RM_GET> PermissionGetIdForEmailRequest;
+
 }
 
 #endif
