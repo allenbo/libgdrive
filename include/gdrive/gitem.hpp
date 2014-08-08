@@ -65,6 +65,10 @@ public:
     READONLY(bool, isRoot)
     void from_json(JObject* obj);
     JObject* to_json();
+
+    std::set<std::string> get_modified_fields() { return _fields;}
+    void clear() { _fields.clear();}
+
 private:
     std::set<std::string> _fields;
 };
@@ -96,6 +100,7 @@ public:
     GPermission();
 
     std::set<std::string> get_modified_fields() { return _fields;}
+    void clear() { _fields.clear();}
 
     READONLY(std::string, etag)
     WRITABLE(std::string, id)
@@ -110,6 +115,7 @@ public:
     READONLY(std::string, authKey)
     READONLY(bool, withLink)
     READONLY(std::string, photoLink)
+
     void from_json(JObject* obj);
     JObject* to_json();
 private:
@@ -170,6 +176,7 @@ public:
     void from_json(JObject* obj);
     JObject* to_json();
     std::set<std::string> get_modified_fields() { return _fields;}
+    void clear() { _fields.clear();}
     
 
     READONLY(std::string, id)
@@ -349,6 +356,10 @@ class GChildren {
 public:
     GChildren();
     void from_json(JObject* obj);
+    JObject* to_json();
+
+    std::set<std::string> get_modified_fields() { return _fields;}
+    void clear() { _fields.clear();}
 
     WRITABLE(std::string, id)
     READONLY(std::string, selfLink)

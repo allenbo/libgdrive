@@ -36,24 +36,41 @@ class ResourceRequest : public CredentialHttpRequest {
     public:
         ResourceRequest(Credential* cred, std::string uri)
             :CredentialHttpRequest(cred, uri, method) {}
-        ResType execute();
+
+        ResType execute() {
+            ResType _1;
+            get_resource(_1);
+            return _1;
+
+        }
+
+        inline void clear_fields() {
+            if (_query.find("fields") == _query.end()) return;
+            _query.erase("fields");
+        }
+
+        inline void add_field(std::string field) {
+            if (_query.find("fields") == _query.end()) {
+                _query["fields"] = field;
+            } else {
+                _query["fields"] += "," + field;
+            }
+        };
+
+    protected:
+        void get_resource(ResType& res) {
+            CredentialHttpRequest::request();
+            if (_resp.status() != 200)
+                CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+            PError error;
+            JObject* obj = (JObject*)loads(_resp.content(), error);
+            if (obj != NULL) {
+                res.from_json(obj);
+                delete obj;
+            }
+        }
 };
-
-template<class ResType, RequestMethod method>
-ResType ResourceRequest<ResType, method>::execute() {
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* obj = (JObject*)loads(_resp.content(), error);
-    ResType _1;
-    if (obj != NULL) {
-        _1.from_json(obj);
-        delete obj;
-    }
-    return _1;
-}
 
 class DeleteRequest : public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
@@ -63,28 +80,47 @@ class DeleteRequest : public CredentialHttpRequest {
         bool execute();
 };
 
-class FieldRequest: public CredentialHttpRequest {
+template<class ResType, RequestMethod method>
+class ResourceAttachedRequest : public ResourceRequest<ResType, method> {
     CLASS_MAKE_LOGGER
     public:
-        FieldRequest(Credential* cred, std::string uri, RequestMethod method)
-            :CredentialHttpRequest(cred, uri, method) {}
-        inline void clear_fields() {
-            if (_query.find("fields") == _query.end()) return;
-            _query.erase("fields");
-            _fields.clear();
+        ResourceAttachedRequest(ResType* resource, Credential* cred, std::string uri)
+            :ResourceRequest<ResType, method>(cred, uri), _resource(resource) {}
+
+        ResType execute() {
+            _json_encode_body();
+            ResType _1 = *_resource;
+            get_resource(_1);
+            return _1;
         }
 
-        inline void add_field(std::string field) {
-            if (_query.find("fields") == _query.end()) {
-                _query["fields"] = field;
-            } else {
-                _query["fields"] += "," + field;
+    protected:
+        void _json_encode_body() {
+            std::set<std::string> fields = _resource->get_modified_fields();
+            _resource->clear();
+
+            JObject* tmp = _resource->to_json();
+            JObject* rst_obj = new JObject();
+            for(std::set<std::string>::iterator iter = fields.begin();
+                    iter != fields.end(); iter ++) {
+                std::string field = *iter;
+                if (tmp->contain(field)) {
+                    JValue* v = tmp->pop(field);
+                    rst_obj->put(field, v);
+                }
             }
-            _fields.insert(field);
-        };
-    protected: 
-        GFile get_file();
-        std::set<std::string> _fields;
+            char* buf;
+            dumps(rst_obj, &buf);
+            delete tmp;
+            delete rst_obj;
+            this->_body = std::string(buf);
+            free(buf);
+
+            this->_header["Content-Type"] = "application/json";
+            this->_header["Content-Length"] = VarString::itos(this->_body.size());
+        }
+
+        ResType* _resource;
 };
 
 class FileListRequest: public ResourceRequest<GFileList, RM_GET> {
@@ -112,23 +148,12 @@ typedef DeleteRequest FileDeleteRequest;
 typedef FileDeleteRequest FileEmptyTrashRequest;
 typedef ResourceRequest<GFile, RM_POST> FileTouchRequest;
 
-class FileAttachedRequest : public FieldRequest {
-    CLASS_MAKE_LOGGER
-    public:
-        FileAttachedRequest(GFile* file, Credential* cred, std::string uri, RequestMethod method)
-            :FieldRequest(cred, uri, method), _file(file) {}
-    protected:
-        void _json_encode_body();
-        GFile* _file;
-};
-
-class FilePatchRequest : public FileAttachedRequest {
+class FilePatchRequest : public ResourceAttachedRequest<GFile, RM_PATCH> {
     CLASS_MAKE_LOGGER
     public:
         FilePatchRequest(GFile* file, Credential* cred, std::string uri)
-            :FileAttachedRequest(file, cred, uri, RM_PATCH) {}
+            :ResourceAttachedRequest<GFile, RM_PATCH>(file, cred, uri) {}
 
-        GFile execute();
         void add_parent(std::string parent);
         void remove_parent(std::string parent);
 
@@ -146,13 +171,12 @@ class FilePatchRequest : public FileAttachedRequest {
         std::set<std::string> _parents;
 };
 
-class FileCopyRequest : public FileAttachedRequest {
+class FileCopyRequest : public ResourceAttachedRequest<GFile, RM_POST> {
     CLASS_MAKE_LOGGER
     public:
         FileCopyRequest(GFile* file, Credential* cred, std::string uri)
-            :FileAttachedRequest(file, cred, uri, RM_POST) {}
+            :ResourceAttachedRequest<GFile, RM_POST>(file, cred, uri) {}
 
-        GFile execute();
         BOOL_SET_ATTR(convert)
         BOOL_SET_ATTR(ocr)
         STRING_SET_ATTR(ocrLanguage)
@@ -171,11 +195,11 @@ enum UploadType {
     UT_UPDATE
 };
 
-class FileUploadRequest: public FileAttachedRequest {
+class FileUploadRequest: public ResourceAttachedRequest<GFile, RM_POST> {
     CLASS_MAKE_LOGGER
     public:
         FileUploadRequest(FileContent* content, GFile* file, Credential* cred, std::string uri, bool resumable = false)
-            :FileAttachedRequest(file, cred, uri, RM_POST), _content(content), _resumable(resumable), _type(UT_CREATE) {}
+            :ResourceAttachedRequest<GFile, RM_POST>(file, cred, uri), _content(content), _resumable(resumable), _type(UT_CREATE) {}
 
         GFile execute();
         BOOL_SET_ATTR(convert)
@@ -256,52 +280,24 @@ class ChildrenListRequest: public ResourceRequest<GChildrenList, RM_GET> {
 };
 
 typedef ResourceRequest<GChildren, RM_GET> ChildrenGetRequest;
-
-class ChildrenInsertRequest: public ResourceRequest<GChildren, RM_POST> {
-    CLASS_MAKE_LOGGER
-    public:
-        ChildrenInsertRequest(GChildren* child, Credential* cred, std::string uri)
-            :ResourceRequest<GChildren, RM_POST>(cred, uri), _child(child) {}
-        GChildren execute();
-
-    private:
-        void _json_encode_body();
-        GChildren * _child;
-};
-
+typedef ResourceAttachedRequest<GChildren, RM_POST> ChildrenInsertRequest;
 typedef DeleteRequest ChildrenDeleteRequest;
+
 typedef ResourceRequest<GParentList, RM_GET> ParentListRequest;
 typedef ResourceRequest<GParent, RM_GET> ParentGetRequest;
-
-class ParentInsertRequest: public ResourceRequest<GParent, RM_POST> {
-    CLASS_MAKE_LOGGER
-    public:
-        ParentInsertRequest(GParent* parent, Credential* cred, std::string uri)
-            :ResourceRequest<GParent, RM_POST>(cred, uri), _parent(parent) {}
-        GParent execute();
-
-    private:
-        void _json_encode_body();
-        GParent * _parent;
-};
+typedef ResourceAttachedRequest<GParent, RM_POST> ParentInsertRequest;
 
 typedef DeleteRequest ParentDeleteRequest;
 typedef ResourceRequest<GPermissionList, RM_GET> PermissionListRequest;
 typedef ResourceRequest<GPermission, RM_GET> PermissionGetRequest;
 
-class PermissionInsertRequest: public ResourceRequest<GPermission, RM_POST> {
+class PermissionInsertRequest: public ResourceAttachedRequest<GPermission, RM_POST> {
     CLASS_MAKE_LOGGER
     public:
         PermissionInsertRequest(GPermission* permission, Credential* cred, std::string uri)
-            :ResourceRequest<GPermission, RM_POST>(cred, uri), _permission(permission) {}
-        GPermission execute();
+            :ResourceAttachedRequest<GPermission, RM_POST>(permission, cred, uri) {}
         STRING_SET_ATTR(emailMessage)
         BOOL_SET_ATTR(sendNotificationEmails)
-
-    private:
-        void _json_encode_body();
-        GPermission * _permission;
-        std::set<std::string> _fields;
 };
 
 typedef DeleteRequest PermissionDeleteRequest;

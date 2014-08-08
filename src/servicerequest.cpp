@@ -19,21 +19,6 @@ bool DeleteRequest::execute() {
     }   
 }
 
-GFile FieldRequest::get_file() {
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* obj = (JObject*)loads(_resp.content(), error);
-    GFile file;
-    if (obj != NULL) {
-        file.from_json(obj);
-        delete obj;
-    }
-    return file;
-}
-
 void FileListRequest::set_corpus(std::string corpus) {
     if (corpus == "DEFAULT" or corpus == "DOMAIN") {
         _query["corpus"] = corpus;
@@ -50,29 +35,6 @@ void FileListRequest::set_maxResults(int max_results) {
     }
 }
 
-void FileAttachedRequest::_json_encode_body() {
-    JObject* tmp = _file->to_json();
-    JObject* rst_obj = new JObject();
-    for(std::set<std::string>::iterator iter = _fields.begin();
-            iter != _fields.end(); iter ++) {
-        std::string field = *iter;
-        if (tmp->contain(field)) {
-            JValue* v = tmp->pop(field);
-            rst_obj->put(field, v);
-        }
-    }
-    char* buf;
-    dumps(rst_obj, &buf);
-    delete tmp;
-    delete rst_obj;
-    _body = std::string(buf);
-    free(buf);
-
-    _header["Content-Type"] = "application/json";
-    _header["Content-Length"] = VarString::itos(_body.size());
-}
-
-
 void FilePatchRequest::add_parent(std::string parent) {
     _parents.insert(parent);
     _query["addParents"] = VarString::join(_parents,",");
@@ -86,20 +48,6 @@ void FilePatchRequest::remove_parent(std::string parent) {
     }
 }
 
-GFile FilePatchRequest::execute() {
-    _json_encode_body();
-    return get_file();
-}
-
-GFile FileCopyRequest::execute() {
-    if (_query.find("fields") != _query.end()) {
-        _query.erase("fields");
-    }
-    _fields = _file->get_modified_fields();
-    _json_encode_body();
-    return get_file();
-}
-
 int FileUploadRequest::_resume() {
     clear();
     int cur_pos = 0;
@@ -107,7 +55,7 @@ int FileUploadRequest::_resume() {
     _read_context = NULL;
     _header["Content-Length"] = "0";
     _header["Content-Range"] = "bytes */" + VarString::itos(_content->get_length());
-    FileAttachedRequest::request();
+    request();
     if ( _resp.status() == 308) {
         std::string range = _resp.get_header("Range");
         cur_pos = atoi(VarString::split(range, "-")[1].c_str());
@@ -121,8 +69,8 @@ int FileUploadRequest::_resume() {
 
 GFile FileUploadRequest::execute() {
     int upload_type = -1;
-    _fields = _file->get_modified_fields();
-    if (_fields.size() == 0 ) {
+    std::set<std::string> fields = _resource->get_modified_fields();
+    if (fields.size() == 0 ) {
         if ( _resumable == true || _content->get_length() >= RESUMABLE_THRESHOLD) {
             upload_type = 2;
             _query["uploadType"] = "resumable";
@@ -145,7 +93,7 @@ GFile FileUploadRequest::execute() {
         _read_context = (void*)_content;
         _header["Content-Type"] = _content->mimetype();
         _header["Content-Length"] = VarString::itos(_content->get_length());
-        FileAttachedRequest::request();
+        request();
         if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201))
             CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
     } else if (upload_type == 1) { // multipart upload
@@ -161,7 +109,7 @@ GFile FileUploadRequest::execute() {
               + _content->get_content() + "\n"
               + "--" + boundary + "--";
         _header["Content-Length"] = VarString::itos(_body.size());
-        FileAttachedRequest::request();
+        request();
         if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201))
             CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
 
@@ -169,10 +117,10 @@ GFile FileUploadRequest::execute() {
         // Step 1 - Start a resumable session
         _header["X-Upload-Content-Type"] = _content->mimetype();
         _header["X-Upload-Content-Length"] = VarString::itos(_content->get_length());
-        if (_fields.size() != 0) {
+        if (fields.size() != 0) {
             _json_encode_body();
         }
-        FileAttachedRequest::request();
+        request();
         
         // Step 2 - Save the resumable session URI
         if (_resp.status() != 200) 
@@ -199,7 +147,7 @@ GFile FileUploadRequest::execute() {
                 _read_hook = FileContent::resumable_read;
                 _read_context = (void*)_content;
                 CLOG_DEBUG("Sending out from %d - %d/%d\n", cur_pos, cur_pos + cur_length - 1, file_length);
-                FileAttachedRequest::request();
+                request();
                 
                 if (_resp.status() == 308) {
                     CLOG_DEBUG("Resumabled\n");
@@ -224,7 +172,7 @@ GFile FileUploadRequest::execute() {
                 _content->set_resumable_length(file_length - cur_pos);
                 _read_hook = FileContent::resumable_read;
                 _read_context = (void*)_content;
-                FileAttachedRequest::request();
+                request();
                 _read_hook = NULL;
                 _read_context = NULL;
                 if (_resp.status() == 200 || _resp.status() == 201) {
@@ -260,71 +208,6 @@ void FileUpdateRequest::remove_parent(std::string parent) {
         _parents.erase(iter);
         _query["addParents"] = VarString::join(_parents,",");
     }
-}
-
-
-void ChildrenInsertRequest::_json_encode_body() {
-    JObject* rst_obj = new JObject();
-    rst_obj->put("id", _child->get_id());
-    char* buf;
-    dumps(rst_obj, &buf);
-    delete rst_obj;
-    _body = std::string(buf);
-    free(buf);
-
-    _header["Content-Type"] = "application/json";
-    _header["Content-Length"] = VarString::itos(_body.size());
-}
-
-GChildren ChildrenInsertRequest::execute() {
-    _json_encode_body();
-    return ResourceRequest<GChildren, RM_POST>::execute();
-}
-
-void ParentInsertRequest::_json_encode_body() {
-    JObject* rst_obj = new JObject();
-    rst_obj->put("id", _parent->get_id());
-    char* buf;
-    dumps(rst_obj, &buf);
-    delete rst_obj;
-    _body = std::string(buf);
-    free(buf);
-
-    _header["Content-Type"] = "application/json";
-    _header["Content-Length"] = VarString::itos(_body.size());
-}
-
-GParent ParentInsertRequest::execute() {
-    _json_encode_body();
-    return ResourceRequest<GParent, RM_POST>::execute();
-}
-
-void PermissionInsertRequest::_json_encode_body() {
-    JObject* tmp = _permission->to_json();
-    JObject* rst_obj = new JObject();
-    for(std::set<std::string>::iterator iter = _fields.begin();
-            iter != _fields.end(); iter ++) {
-        std::string field = *iter;
-        if (tmp->contain(field)) {
-            JValue* v = tmp->pop(field);
-            rst_obj->put(field, v);
-        }
-    }
-    char* buf;
-    dumps(rst_obj, &buf);
-    delete tmp;
-    delete rst_obj;
-    _body = std::string(buf);
-    free(buf);
-
-    _header["Content-Type"] = "application/json";
-    _header["Content-Length"] = VarString::itos(_body.size());
-}
-
-GPermission PermissionInsertRequest::execute() {
-    _fields = _permission->get_modified_fields();
-    _json_encode_body();
-    return ResourceRequest<GPermission, RM_POST>::execute();
 }
 
 }
