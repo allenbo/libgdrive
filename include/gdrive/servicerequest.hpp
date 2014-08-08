@@ -28,6 +28,20 @@
     else _query[#name] = "false"; \
 }
 
+#define ADD_REMOVE_PARENT \
+    public: \
+        void add_parent(std::string parent) { \
+            _parents.insert(parent); \
+            _query["addParents"] = VarString::join(_parents,",");\
+        } \
+        void remove_parent(std::string parent) { \
+            _parents.erase(parent); \
+            _query["addParents"] = VarString::join(_parents,","); \
+        } \
+    private:\
+        std::set<std::string> _parents; \
+    public:
+
 namespace GDRIVE {
 
 template<class ResType, RequestMethod method>
@@ -154,8 +168,6 @@ class FilePatchRequest : public ResourceAttachedRequest<GFile, RM_PATCH> {
         FilePatchRequest(GFile* file, Credential* cred, std::string uri)
             :ResourceAttachedRequest<GFile, RM_PATCH>(file, cred, uri) {}
 
-        void add_parent(std::string parent);
-        void remove_parent(std::string parent);
 
         BOOL_SET_ATTR(convert)
         BOOL_SET_ATTR(newRevision)
@@ -167,8 +179,8 @@ class FilePatchRequest : public ResourceAttachedRequest<GFile, RM_PATCH> {
         STRING_SET_ATTR(timedTextTrackName)
         BOOL_SET_ATTR(updateViewedDate)
         BOOL_SET_ATTR(useContentAsIndexableText)
-    private:
-        std::set<std::string> _parents;
+
+        ADD_REMOVE_PARENT
 };
 
 class FileCopyRequest : public ResourceAttachedRequest<GFile, RM_POST> {
@@ -234,11 +246,7 @@ class FileUpdateRequest: public FileUploadRequest {
             _method = RM_PUT;
         }
 
-        void add_parent(std::string parent);
-        void remove_parent(std::string parent);
-
-    private:
-        std::set<std::string> _parents;
+        ADD_REMOVE_PARENT
 };
 
 class AboutGetRequest: public ResourceRequest<GAbout, RM_GET> {

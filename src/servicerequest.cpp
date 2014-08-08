@@ -35,19 +35,6 @@ void FileListRequest::set_maxResults(int max_results) {
     }
 }
 
-void FilePatchRequest::add_parent(std::string parent) {
-    _parents.insert(parent);
-    _query["addParents"] = VarString::join(_parents,",");
-}
-
-void FilePatchRequest::remove_parent(std::string parent) {
-    std::set<std::string>::iterator iter = find(_parents.begin(), _parents.end(), parent);
-    if (iter != _parents.end()) {
-        _parents.erase(iter);
-        _query["addParents"] = VarString::join(_parents,",");
-    }
-}
-
 int FileUploadRequest::_resume() {
     clear();
     int cur_pos = 0;
@@ -186,28 +173,9 @@ GFile FileUploadRequest::execute() {
             }
         }
     }
-
-    PError error;
-    JObject* obj = (JObject*)loads(_resp.content(), error);
-    GFile file;
-    if (obj != NULL) {
-        file.from_json(obj);
-        delete obj;
-    }
-    return file;
-}
-
-void FileUpdateRequest::add_parent(std::string parent) {
-    _parents.insert(parent);
-    _query["addParents"] = VarString::join(_parents,",");
-}
-
-void FileUpdateRequest::remove_parent(std::string parent) {
-    std::set<std::string>::iterator iter = find(_parents.begin(), _parents.end(), parent);
-    if (iter != _parents.end()) {
-        _parents.erase(iter);
-        _query["addParents"] = VarString::join(_parents,",");
-    }
+    GFile _1 = *_resource;
+    get_resource(_1);
+    return _1;
 }
 
 }
