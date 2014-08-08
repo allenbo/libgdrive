@@ -275,6 +275,17 @@ void GPermission::from_json(JObject* obj) {
     STRING_FROM_JSON(photoLink);
 }
 
+GPermissionList::GPermissionList() {
+    etag = selfLink = "";
+    items.clear();
+}
+
+void GPermissionList::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    INSTANCE_VECTOR_FROM_JSON(GPermission, items);
+}
+
 JObject* GPermission::to_json() {
     JObject* obj = new JObject();
     STRING_TO_JSON(etag);

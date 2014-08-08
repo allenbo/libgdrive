@@ -95,6 +95,8 @@ class GPermission {
 public:
     GPermission();
 
+    std::set<std::string> get_modified_fields() { return _fields;}
+
     READONLY(std::string, etag)
     WRITABLE(std::string, id)
     READONLY(std::string, selfLink)
@@ -112,6 +114,16 @@ public:
     JObject* to_json();
 private:
     std::set<std::string> _fields;
+};
+
+class GPermissionList {
+public:
+    GPermissionList();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::vector<GPermission>, items)
 };
 
 class GImageMediaMetaData {

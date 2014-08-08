@@ -322,6 +322,46 @@ class ParentDeleteRequest: public CredentialHttpRequest {
         bool execute();
 };
 
+class PermissionListRequest: public CredentialHttpRequest  {
+    CLASS_MAKE_LOGGER
+    public:
+        PermissionListRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        GPermissionList execute();
+
+};
+
+class PermissionGetRequest: public CredentialHttpRequest  {
+    CLASS_MAKE_LOGGER
+    public:
+        PermissionGetRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_GET) {}
+        GPermission execute();
+};
+
+class PermissionInsertRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        PermissionInsertRequest(GPermission* permission, Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_POST), _permission(permission) {}
+        GPermission execute();
+        STRING_SET_ATTR(emailMessage)
+        BOOL_SET_ATTR(sendNotificationEmails)
+
+    private:
+        void _json_encode_body();
+        GPermission * _permission;
+        std::set<std::string> _fields;
+};
+
+class PermissionDeleteRequest: public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        PermissionDeleteRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
+        bool execute();
+};
+
 
 }
 

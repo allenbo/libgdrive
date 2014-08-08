@@ -466,4 +466,82 @@ bool ParentDeleteRequest::execute() {
     }
 }
 
+GPermissionList PermissionListRequest::execute() {
+    GPermissionList permissionlist;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        permissionlist.from_json(value);
+        delete value;
+    }
+    return permissionlist;
+}
+
+GPermission PermissionGetRequest::execute() {
+    GPermission permission;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        permission.from_json(value);
+        delete value;
+    }
+    return permission;
+}
+
+bool PermissionDeleteRequest::execute() {
+    CredentialHttpRequest::request();
+    if (_resp.status() == 204) {
+        return true;
+    } else {
+        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
+        return false;
+    }
+}
+
+void PermissionInsertRequest::_json_encode_body() {
+    JObject* tmp = _permission->to_json();
+    JObject* rst_obj = new JObject();
+    for(std::set<std::string>::iterator iter = _fields.begin();
+            iter != _fields.end(); iter ++) {
+        std::string field = *iter;
+        if (tmp->contain(field)) {
+            JValue* v = tmp->pop(field);
+            rst_obj->put(field, v);
+        }
+    }
+    char* buf;
+    dumps(rst_obj, &buf);
+    delete tmp;
+    delete rst_obj;
+    _body = std::string(buf);
+    free(buf);
+
+    _header["Content-Type"] = "application/json";
+    _header["Content-Length"] = VarString::itos(_body.size());
+}
+
+GPermission PermissionInsertRequest::execute() {
+    _fields = _permission->get_modified_fields();
+    _json_encode_body();
+    GPermission permission;
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+    PError error;
+    JObject* value = (JObject*)loads(_resp.content(), error);
+    if (NULL != value) {
+        permission.from_json(value);
+        delete value;
+    }
+    return permission;   
+}
+
 }
