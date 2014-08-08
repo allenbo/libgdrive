@@ -278,7 +278,7 @@ void ChildrenInsertRequest::_json_encode_body() {
 
 GChildren ChildrenInsertRequest::execute() {
     _json_encode_body();
-    return ResourceRequest<GChildren>::execute();
+    return ResourceRequest<GChildren, RM_POST>::execute();
 }
 
 void ParentInsertRequest::_json_encode_body() {
@@ -296,7 +296,7 @@ void ParentInsertRequest::_json_encode_body() {
 
 GParent ParentInsertRequest::execute() {
     _json_encode_body();
-    return ResourceRequest<GParent>::execute();
+    return ResourceRequest<GParent, RM_POST>::execute();
 }
 
 void PermissionInsertRequest::_json_encode_body() {
@@ -324,7 +324,7 @@ void PermissionInsertRequest::_json_encode_body() {
 GPermission PermissionInsertRequest::execute() {
     _fields = _permission->get_modified_fields();
     _json_encode_body();
-    return ResourceRequest<GPermission>::execute();
+    return ResourceRequest<GPermission, RM_POST>::execute();
 }
 
 }
