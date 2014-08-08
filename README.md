@@ -115,8 +115,6 @@ file.set_title("New Title");
 file.set_decription("New Description");
 
 FilePatchRequest patch = service.files().Patch(file_id, &file);
-patch.add_field("title");
-patch.add_field("decription");
 GFile updated_file = patch.execute();
 ```
 For other operations, please check out fileservice.hpp for more information.
