@@ -9,6 +9,16 @@ using namespace JCONER;
 
 namespace GDRIVE {
 
+bool DeleteRequest::execute() {
+    CredentialHttpRequest::request();
+    if (_resp.status() == 204) {
+        return true;
+    } else {
+        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
+        return false;
+    }   
+}
+
 GFile FieldRequest::get_file() {
     CredentialHttpRequest::request();
     if (_resp.status() != 200)
@@ -37,39 +47,6 @@ void FileListRequest::set_maxResults(int max_results) {
         _query["maxResults"] = VarString::itos(max_results);
     } else {
         CLOG_WARN("Wrong maxResults parameter[%d], using 100\n", max_results);
-    }
-}
-
-GFileList FileListRequest::execute() {
-    GFileList filelist;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        filelist.from_json(value);
-        delete value;
-    }
-    return filelist;
-}
-
-GFile FileGetRequest::execute() {
-    return FieldRequest::get_file();
-}
-
-GFile FileTrashRequest::execute() {
-    return FieldRequest::get_file();
-}
-
-bool FileDeleteRequest::execute() {
-    CredentialHttpRequest::request();
-    if (_resp.status() == 204) {
-        return true;
-    } else {
-        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
-        return false;
     }
 }
 
@@ -286,80 +263,6 @@ void FileUpdateRequest::remove_parent(std::string parent) {
 }
 
 
-GAbout AboutGetRequest::execute() {
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* obj = (JObject*)loads(_resp.content(), error);
-    GAbout about;
-    if (obj != NULL) {
-        about.from_json(obj);
-        delete obj;
-    }
-    return about;
-}
-
-GChange ChangeGetRequest::execute() {
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* obj = (JObject*)loads(_resp.content(), error);
-    GChange change;
-    if (obj != NULL) {
-        change.from_json(obj);
-        delete obj;
-    }
-    return change;
-}
-
-GChangeList ChangeListRequest::execute() {
-    GChangeList changelist; 
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        changelist.from_json(value);
-        delete value;
-    }
-    return changelist;
-}
-
-GChildrenList ChildrenListRequest::execute() {
-    GChildrenList childrenlist;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        childrenlist.from_json(value);
-        delete value;
-    }
-    return childrenlist;
-}
-
-GChildren ChildrenGetRequest::execute() {
-    GChildren child;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        child.from_json(value);
-        delete value;
-    }
-    return child;
-}
-
-
 void ChildrenInsertRequest::_json_encode_body() {
     JObject* rst_obj = new JObject();
     rst_obj->put("id", _child->get_id());
@@ -375,57 +278,7 @@ void ChildrenInsertRequest::_json_encode_body() {
 
 GChildren ChildrenInsertRequest::execute() {
     _json_encode_body();
-    GChildren child;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        child.from_json(value);
-        delete value;
-    }
-    return child;
-}
-
-bool ChildrenDeleteRequest::execute() {
-    CredentialHttpRequest::request();
-    if (_resp.status() == 204) {
-        return true;
-    } else {
-        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
-        return false;
-    }
-}
-
-GParentList ParentListRequest::execute() {
-    GParentList parentlist;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        parentlist.from_json(value);
-        delete value;
-    }
-    return parentlist;
-}
-
-GParent ParentGetRequest::execute() {
-    GParent parent;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        parent.from_json(value);
-        delete value;
-    }
-    return parent;
+    return ResourceRequest<GChildren>::execute();
 }
 
 void ParentInsertRequest::_json_encode_body() {
@@ -443,67 +296,7 @@ void ParentInsertRequest::_json_encode_body() {
 
 GParent ParentInsertRequest::execute() {
     _json_encode_body();
-    GParent parent;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        parent.from_json(value);
-        delete value;
-    }
-    return parent;
-}
-
-bool ParentDeleteRequest::execute() {
-    CredentialHttpRequest::request();
-    if (_resp.status() == 204) {
-        return true;
-    } else {
-        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
-        return false;
-    }
-}
-
-GPermissionList PermissionListRequest::execute() {
-    GPermissionList permissionlist;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        permissionlist.from_json(value);
-        delete value;
-    }
-    return permissionlist;
-}
-
-GPermission PermissionGetRequest::execute() {
-    GPermission permission;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        permission.from_json(value);
-        delete value;
-    }
-    return permission;
-}
-
-bool PermissionDeleteRequest::execute() {
-    CredentialHttpRequest::request();
-    if (_resp.status() == 204) {
-        return true;
-    } else {
-        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
-        return false;
-    }
+    return ResourceRequest<GParent>::execute();
 }
 
 void PermissionInsertRequest::_json_encode_body() {
@@ -531,17 +324,7 @@ void PermissionInsertRequest::_json_encode_body() {
 GPermission PermissionInsertRequest::execute() {
     _fields = _permission->get_modified_fields();
     _json_encode_body();
-    GPermission permission;
-    CredentialHttpRequest::request();
-    if (_resp.status() != 200)
-        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
-    PError error;
-    JObject* value = (JObject*)loads(_resp.content(), error);
-    if (NULL != value) {
-        permission.from_json(value);
-        delete value;
-    }
-    return permission;   
+    return ResourceRequest<GPermission>::execute();
 }
 
 }

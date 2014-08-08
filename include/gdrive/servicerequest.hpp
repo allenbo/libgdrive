@@ -30,6 +30,39 @@
 
 namespace GDRIVE {
 
+template<class ResType>
+class ResourceRequest : public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        ResourceRequest(Credential* cred, std::string uri, RequestMethod method)
+            :CredentialHttpRequest(cred, uri, method) {}
+        ResType execute();
+};
+
+template<class ResType>
+ResType ResourceRequest<ResType>::execute() {
+    CredentialHttpRequest::request();
+    if (_resp.status() != 200)
+        CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+
+    PError error;
+    JObject* obj = (JObject*)loads(_resp.content(), error);
+    ResType _1;
+    if (obj != NULL) {
+        _1.from_json(obj);
+        delete obj;
+    }
+    return _1;
+}
+
+class DeleteRequest : public CredentialHttpRequest {
+    CLASS_MAKE_LOGGER
+    public:
+        DeleteRequest(Credential* cred, std::string uri)
+            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
+        bool execute();
+};
+
 class FieldRequest: public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
     public:
@@ -54,45 +87,35 @@ class FieldRequest: public CredentialHttpRequest {
         std::set<std::string> _fields;
 };
 
-class FileListRequest: public CredentialHttpRequest {
+class FileListRequest: public ResourceRequest<GFileList> {
     CLASS_MAKE_LOGGER
     public:
         FileListRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GFileList execute(); 
+            :ResourceRequest<GFileList>(cred, uri, RM_GET) {}
         STRING_SET_ATTR(pageToken)
         STRING_SET_ATTR(q)
         void set_corpus(std::string corpus);
         void set_maxResults(int max_results);
 };
 
-class FileGetRequest: public FieldRequest {
+class FileGetRequest: public ResourceRequest<GFile> {
     CLASS_MAKE_LOGGER
     public:
         FileGetRequest(Credential* cred, std::string uri)
-            :FieldRequest(cred, uri, RM_GET) {}
-        GFile execute();
+            :ResourceRequest<GFile>(cred, uri, RM_GET) {}
         BOOL_SET_ATTR(updateViewedDate)
 };
 
-class FileTrashRequest: public FieldRequest {
+//typedef ResourceRequest<GFile> FileTrashRequest;
+class FileTrashRequest: public ResourceRequest<GFile> {
     CLASS_MAKE_LOGGER
     public:
         FileTrashRequest(Credential* cred, std::string uri)
-            :FieldRequest(cred, uri, RM_POST) {}
-        GFile execute();
+            :ResourceRequest<GFile>(cred, uri, RM_POST) {}
 };
 
 typedef FileTrashRequest FileUntrashRequest;
-
-class FileDeleteRequest: public CredentialHttpRequest {
-    CLASS_MAKE_LOGGER
-    public:
-        FileDeleteRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
-        bool execute();
-};
-
+typedef DeleteRequest FileDeleteRequest;
 typedef FileDeleteRequest FileEmptyTrashRequest;
 
 
@@ -209,33 +232,29 @@ class FileUpdateRequest: public FileUploadRequest {
         std::set<std::string> _parents;
 };
 
-class AboutGetRequest: public CredentialHttpRequest {
+class AboutGetRequest: public ResourceRequest<GAbout> {
     CLASS_MAKE_LOGGER
     public:
         AboutGetRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
+            :ResourceRequest<GAbout>(cred, uri, RM_GET) {}
         
-        GAbout execute();
         BOOL_SET_ATTR(includeSubscribed)
         LONG_SET_ATTR(maxChangeIdCount)
         LONG_SET_ATTR(startChangeId)
 };
 
-class ChangeGetRequest: public CredentialHttpRequest {
+class ChangeGetRequest: public ResourceRequest<GChange> {
     CLASS_MAKE_LOGGER
     public:
         ChangeGetRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        
-        GChange execute();
+            :ResourceRequest<GChange>(cred, uri, RM_GET) {}
 };
 
-class ChangeListRequest: public CredentialHttpRequest {
+class ChangeListRequest: public ResourceRequest<GChangeList> {
     CLASS_MAKE_LOGGER
     public:
         ChangeListRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GChangeList execute();
+            :ResourceRequest<GChangeList>(cred, uri, RM_GET) {}
 
         BOOL_SET_ATTR(includeDeleted)
         BOOL_SET_ATTR(includeSubscribed)
@@ -245,31 +264,29 @@ class ChangeListRequest: public CredentialHttpRequest {
 };
 
 
-class ChildrenListRequest: public CredentialHttpRequest {
+class ChildrenListRequest: public ResourceRequest<GChildrenList> {
     CLASS_MAKE_LOGGER
     public:
         ChildrenListRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GChildrenList execute();
+            :ResourceRequest<GChildrenList>(cred, uri, RM_GET) {}
 
         LONG_SET_ATTR(maxResults)
         STRING_SET_ATTR(pageToken)
         STRING_SET_ATTR(q)
 };
 
-class ChildrenGetRequest: public CredentialHttpRequest {
+class ChildrenGetRequest: public ResourceRequest<GChildren> {
     CLASS_MAKE_LOGGER
     public:
         ChildrenGetRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GChildren execute();
+            :ResourceRequest<GChildren>(cred, uri, RM_GET) {}
 };
 
-class ChildrenInsertRequest: public CredentialHttpRequest {
+class ChildrenInsertRequest: public ResourceRequest<GChildren> {
     CLASS_MAKE_LOGGER
     public:
         ChildrenInsertRequest(GChildren* child, Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_POST), _child(child) {}
+            :ResourceRequest<GChildren>(cred, uri, RM_POST), _child(child) {}
         GChildren execute();
 
     private:
@@ -277,36 +294,28 @@ class ChildrenInsertRequest: public CredentialHttpRequest {
         GChildren * _child;
 };
 
-class ChildrenDeleteRequest: public CredentialHttpRequest {
-    CLASS_MAKE_LOGGER
-    public:
-        ChildrenDeleteRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
-        bool execute();
-};
+typedef DeleteRequest ChildrenDeleteRequest;
 
-class ParentListRequest: public CredentialHttpRequest  {
+class ParentListRequest: public ResourceRequest<GParentList>  {
     CLASS_MAKE_LOGGER
     public:
         ParentListRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GParentList execute();
+            :ResourceRequest<GParentList>(cred, uri, RM_GET) {}
 
 };
 
-class ParentGetRequest: public CredentialHttpRequest  {
+class ParentGetRequest: public ResourceRequest<GParent>  {
     CLASS_MAKE_LOGGER
     public:
         ParentGetRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GParent execute();
+            :ResourceRequest<GParent>(cred, uri, RM_GET) {}
 };
 
-class ParentInsertRequest: public CredentialHttpRequest {
+class ParentInsertRequest: public ResourceRequest<GParent> {
     CLASS_MAKE_LOGGER
     public:
         ParentInsertRequest(GParent* parent, Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_POST), _parent(parent) {}
+            :ResourceRequest<GParent>(cred, uri, RM_POST), _parent(parent) {}
         GParent execute();
 
     private:
@@ -314,36 +323,27 @@ class ParentInsertRequest: public CredentialHttpRequest {
         GParent * _parent;
 };
 
-class ParentDeleteRequest: public CredentialHttpRequest {
-    CLASS_MAKE_LOGGER
-    public:
-        ParentDeleteRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
-        bool execute();
-};
+typedef DeleteRequest ParentDeleteRequest;
 
-class PermissionListRequest: public CredentialHttpRequest  {
+class PermissionListRequest: public ResourceRequest<GPermissionList>  {
     CLASS_MAKE_LOGGER
     public:
         PermissionListRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GPermissionList execute();
-
+            :ResourceRequest<GPermissionList>(cred, uri, RM_GET) {}
 };
 
-class PermissionGetRequest: public CredentialHttpRequest  {
+class PermissionGetRequest: public ResourceRequest<GPermission>  {
     CLASS_MAKE_LOGGER
     public:
         PermissionGetRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_GET) {}
-        GPermission execute();
+            :ResourceRequest<GPermission>(cred, uri, RM_GET) {}
 };
 
-class PermissionInsertRequest: public CredentialHttpRequest {
+class PermissionInsertRequest: public ResourceRequest<GPermission> {
     CLASS_MAKE_LOGGER
     public:
         PermissionInsertRequest(GPermission* permission, Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_POST), _permission(permission) {}
+            :ResourceRequest<GPermission>(cred, uri, RM_POST), _permission(permission) {}
         GPermission execute();
         STRING_SET_ATTR(emailMessage)
         BOOL_SET_ATTR(sendNotificationEmails)
@@ -354,14 +354,7 @@ class PermissionInsertRequest: public CredentialHttpRequest {
         std::set<std::string> _fields;
 };
 
-class PermissionDeleteRequest: public CredentialHttpRequest {
-    CLASS_MAKE_LOGGER
-    public:
-        PermissionDeleteRequest(Credential* cred, std::string uri)
-            :CredentialHttpRequest(cred, uri, RM_DELETE) {}
-        bool execute();
-};
-
+typedef DeleteRequest PermissionDeleteRequest;
 
 }
 
