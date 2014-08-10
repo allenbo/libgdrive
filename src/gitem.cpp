@@ -735,4 +735,67 @@ void GRevisionList::from_json(JObject* obj) {
     INSTANCE_VECTOR_FROM_JSON(GRevision, items);
 }
 
+GAppIcon::GAppIcon() {
+    category = "";
+    size = -1;
+    iconUrl = "";
+}
+
+void GAppIcon::from_json(JObject* obj) {
+    STRING_FROM_JSON(category);
+    INT_FROM_JSON(size);
+    STRING_FROM_JSON(iconUrl);
+}
+
+GApp::GApp() {
+    id = name = objectType = shortDescription = longDescription = "";
+    supportsCreate = supportsImport = supportsMultiOpen = supportsOfflineCreate = false;
+    installed = authorized = hasDriveWideScope = useByDefault = false;
+    productUrl = productId = openUrlTemplate = createUrl = createInFolderTemplate = "";
+    primaryMimeTypes.clear();
+    secondaryMimeTypes.clear();
+    primaryFileExtensions.clear();
+    secondaryFileExtensions.clear();
+    icons.clear();
+}
+
+void GApp::from_json(JObject* obj) {
+    STRING_FROM_JSON(id);
+    STRING_FROM_JSON(name);
+    STRING_FROM_JSON(objectType);
+    STRING_FROM_JSON(shortDescription);
+    STRING_FROM_JSON(longDescription);
+    BOOL_FROM_JSON(supportsCreate);
+    BOOL_FROM_JSON(supportsImport);
+    BOOL_FROM_JSON(supportsMultiOpen);
+    BOOL_FROM_JSON(supportsOfflineCreate);
+    BOOL_FROM_JSON(installed);
+    BOOL_FROM_JSON(authorized);
+    BOOL_FROM_JSON(hasDriveWideScope);
+    BOOL_FROM_JSON(useByDefault);
+    STRING_FROM_JSON(productUrl);
+    STRING_FROM_JSON(productId);
+    STRING_FROM_JSON(openUrlTemplate);
+    STRING_FROM_JSON(createUrl);
+    STRING_FROM_JSON(createInFolderTemplate);
+    STRING_VECTOR_FROM_JSON(primaryMimeTypes);
+    STRING_VECTOR_FROM_JSON(secondaryMimeTypes);
+    STRING_VECTOR_FROM_JSON(primaryFileExtensions);
+    STRING_VECTOR_FROM_JSON(secondaryFileExtensions);
+    INSTANCE_VECTOR_FROM_JSON(GAppIcon, icons);
+}
+
+GAppList::GAppList() {
+    etag = selfLink = "";
+    items.clear();
+    defaultAppIds.clear();
+}
+
+void GAppList::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    INSTANCE_VECTOR_FROM_JSON(GApp, items);
+    STRING_VECTOR_FROM_JSON(defaultAppIds);
+}
+
 }

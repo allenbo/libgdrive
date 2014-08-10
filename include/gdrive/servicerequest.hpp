@@ -14,6 +14,7 @@
 #define FILES_URL SERVICE_URI "/files"
 #define ABOUT_URL SERVICE_URI "/about"
 #define CHANGES_URL SERVICE_URI "/changes"
+#define APPS_URL SERVICE_URI "/apps"
 
 #define STRING_SET_ATTR(name) void set_##name(std::string name) { \
     _query[#name] = name;\
@@ -346,6 +347,18 @@ class RevisionUpdateRequest : public ResourceAttachedRequest<GRevision, RM_PUT> 
         BOOL_SET_ATTR(published)
         BOOL_SET_ATTR(publishedOutsideDomain)
 };
+
+class AppListRequest: public ResourceRequest<GAppList, RM_GET> {
+    CLASS_MAKE_LOGGER
+    public:
+        AppListRequest(Credential* cred, std::string uri)
+            :ResourceRequest<GAppList, RM_GET>(cred, uri) {}
+        STRING_SET_ATTR(appFilterExtensions)
+        STRING_SET_ATTR(appFilterMimeTypes)
+        STRING_SET_ATTR(languageCode)
+};
+
+typedef ResourceRequest<GApp, RM_GET> AppGetRequest;
 
 }
 

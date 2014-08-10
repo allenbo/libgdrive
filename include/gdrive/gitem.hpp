@@ -433,6 +433,55 @@ public:
     READONLY(std::vector<GRevision>, items)
 };
 
-}
 
+class GAppIcon {
+public:
+    GAppIcon();
+    void from_json(JObject* obj);
+    READONLY(std::string, category)
+    READONLY(int, size)
+    READONLY(std::string, iconUrl)
+};
+
+class GApp {
+public:
+    GApp();
+    void from_json(JObject* obj);
+    READONLY(std::string, id)
+    READONLY(std::string, name)
+    READONLY(std::string, objectType)
+    READONLY(std::string, shortDescription)
+    READONLY(std::string, longDescription)
+    READONLY(bool, supportsCreate)
+    READONLY(bool, supportsImport)
+    READONLY(bool, supportsMultiOpen)
+    READONLY(bool, supportsOfflineCreate)
+    READONLY(bool, installed)
+    READONLY(bool, authorized)
+    READONLY(bool, hasDriveWideScope)
+    READONLY(bool, useByDefault)
+    READONLY(std::string, productUrl)
+    READONLY(std::string, productId)
+    READONLY(std::string, openUrlTemplate)
+    READONLY(std::string, createUrl)
+    READONLY(std::string, createInFolderTemplate)
+    READONLY(std::vector<std::string>, primaryMimeTypes)
+    READONLY(std::vector<std::string>, secondaryMimeTypes)
+    READONLY(std::vector<std::string>, primaryFileExtensions)
+    READONLY(std::vector<std::string>, secondaryFileExtensions)
+    READONLY(std::vector<GAppIcon>, icons)
+};
+
+class GAppList {
+public:
+    GAppList();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::vector<GApp>, items)
+    READONLY(std::vector<std::string>, defaultAppIds)
+};
+
+}
 #endif

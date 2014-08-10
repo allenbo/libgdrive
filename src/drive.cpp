@@ -38,4 +38,8 @@ RevisionService& Drive::revisions() {
     return RevisionService::get_instance(_cred);
 }
 
+AppService& Drive::apps() {
+    return AppService::get_instance(_cred);
+}
+
 }
