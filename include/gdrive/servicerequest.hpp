@@ -330,6 +330,23 @@ class PermissionUpdateRequest : public ResourceAttachedRequest<GPermission, RM_P
 
 typedef ResourceRequest<GPermissionId, RM_GET> PermissionGetIdForEmailRequest;
 
+typedef ResourceRequest<GRevisionList, RM_GET> RevisionListRequest;
+typedef ResourceRequest<GRevision, RM_GET> RevisionGetRequest;
+typedef DeleteRequest RevisionDeleteRequest;
+typedef ResourceAttachedRequest<GRevision, RM_PATCH> RevisionPatchRequest;
+
+class RevisionUpdateRequest : public ResourceAttachedRequest<GRevision, RM_PUT> {
+    CLASS_MAKE_LOGGER
+    public:
+        RevisionUpdateRequest(GRevision* revision, Credential* cred, std::string uri)
+            :ResourceAttachedRequest<GRevision, RM_PUT>(revision, cred, uri) {}
+
+        BOOL_SET_ATTR(pinned)
+        BOOL_SET_ATTR(publishedAuto)
+        BOOL_SET_ATTR(published)
+        BOOL_SET_ATTR(publishedOutsideDomain)
+};
+
 }
 
 #endif

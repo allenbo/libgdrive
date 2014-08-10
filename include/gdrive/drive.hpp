@@ -10,6 +10,8 @@
 #include "gdrive/service/changes.hpp"
 #include "gdrive/service/children.hpp"
 #include "gdrive/service/parents.hpp"
+#include "gdrive/service/permissions.hpp"
+#include "gdrive/service/revisions.hpp"
 #include "common/all.hpp"
 
 #include <vector>
@@ -26,6 +28,8 @@ class Drive {
         ChangeService& changes();
         ChildrenService& children();
         ParentService& parents();
+        PermissionService& permissions();
+        RevisionService& revisions();
     protected:
         Credential* _cred;
 };

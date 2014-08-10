@@ -30,4 +30,12 @@ ParentService& Drive::parents() {
     return ParentService::get_instance(_cred);
 }
 
+PermissionService& Drive::permissions() {
+    return PermissionService::get_instance(_cred);
+}
+
+RevisionService& Drive::revisions() {
+    return RevisionService::get_instance(_cred);
+}
+
 }

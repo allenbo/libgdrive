@@ -390,6 +390,49 @@ public:
     READONLY(std::vector<GChildren>, items)
 };
 
+
+// Revision representation
+class GRevision {
+public:
+    GRevision();
+    void from_json(JObject* obj);
+    JObject* to_json();
+
+    std::set<std::string> get_modified_fields() { return _fields;}
+    void clear() { _fields.clear();}
+
+    READONLY(std::string, etag)
+    WRITABLE(std::string, id)
+    READONLY(std::string, selfLink)
+    READONLY(std::string, mimeType)
+    READONLY(struct tm, modifiedDate)
+    WRITABLE(bool, pinned)
+    READONLY(bool, published)
+    READONLY(std::string, publishedLink)
+    READONLY(bool, publishedAuto)
+    READONLY(bool, publishedOutsideDomain)
+    READONLY(std::string, downloadUri)
+    READONLY(Links, exportLinks)
+    READONLY(std::string, lastModifyingUserName)
+    READONLY(GUser, lastModifyingUser)
+    READONLY(std::string, originalFilename)
+    READONLY(std::string, md5Checksum)
+    READONLY(long, fileSize)
+
+private:
+    std::set<std::string> _fields;
+};
+
+class GRevisionList {
+public:
+    GRevisionList();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, etag)
+    READONLY(std::string, selfLink)
+    READONLY(std::vector<GRevision>, items)
+};
+
 }
 
 #endif

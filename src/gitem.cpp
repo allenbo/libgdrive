@@ -673,4 +673,66 @@ void GChildrenList::from_json(JObject* obj) {
     INSTANCE_VECTOR_FROM_JSON(GChildren, items);
 }
 
+GRevision::GRevision() {
+    etag = id = selfLink = mimeType = "";
+    pinned = published = publishedAuto = publishedOutsideDomain = false;
+    publishedLink = downloadUri = "";
+    exportLinks.clear();
+    lastModifyingUserName = originalFilename = md5Checksum = "";
+    fileSize = -1;
+}
+
+void GRevision::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(id);
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(mimeType);
+    TIME_FROM_JSON(modifiedDate);
+    BOOL_FROM_JSON(pinned);
+    BOOL_FROM_JSON(published);
+    STRING_FROM_JSON(publishedLink);
+    BOOL_FROM_JSON(publishedAuto);
+    BOOL_FROM_JSON(publishedOutsideDomain);
+    STRING_FROM_JSON(downloadUri);
+    STRING_MAP_FROM_JSON(exportLinks);
+    STRING_FROM_JSON(lastModifyingUserName);
+    INSTANCE_FROM_JSON(lastModifyingUser);
+    STRING_FROM_JSON(originalFilename);
+    STRING_FROM_JSON(md5Checksum);
+    INT_FROM_JSON(fileSize);
+}
+
+JObject* GRevision::to_json() {
+    JObject * obj = new JObject();
+    STRING_TO_JSON(etag);
+    STRING_TO_JSON(id);
+    STRING_TO_JSON(selfLink);
+    STRING_TO_JSON(mimeType);
+    TIME_TO_JSON(modifiedDate);
+    BOOL_TO_JSON(pinned);
+    BOOL_TO_JSON(published);
+    STRING_TO_JSON(publishedLink);
+    BOOL_TO_JSON(publishedAuto);
+    BOOL_TO_JSON(publishedOutsideDomain);
+    STRING_TO_JSON(downloadUri);
+    STRING_MAP_TO_JSON(exportLinks);
+    STRING_TO_JSON(lastModifyingUserName);
+    INSTANCE_TO_JSON(lastModifyingUser);
+    STRING_TO_JSON(originalFilename);
+    STRING_TO_JSON(md5Checksum);
+    INT_TO_JSON(fileSize);
+    return obj;
+}
+
+GRevisionList::GRevisionList() {
+    etag = selfLink = "";
+    items.clear();
+}
+
+void GRevisionList::from_json(JObject* obj) {
+    STRING_FROM_JSON(etag);
+    STRING_FROM_JSON(selfLink);
+    INSTANCE_VECTOR_FROM_JSON(GRevision, items);
+}
+
 }
