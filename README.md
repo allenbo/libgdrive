@@ -117,9 +117,21 @@ file.set_decription("New Description");
 FilePatchRequest patch = service.files().Patch(file_id, &file);
 GFile updated_file = patch.execute();
 ```
-For other operations, please check out fileservice.hpp for more information.
+For other operations, please check out include/gdrive/service/files.hpp for more information.
+
+## Support
+* All file operations except watch are covered
+* About operations are all covered
+* All change operations except watch are covered
+* Child operations are all covered
+* Parent operations are all covered
+* Permission operations are all covered
+* Revision operations are all covered
+* App operation are all covered
+* Comment operation are all covered
+* Reply operation are all covered
 
 ## TODO
-* Add operations for other components like parents, permissions, channels and so on.
-* Throw exceptions when failures.
+* Write samples for all covered operations
 * Implemente gzip compression when transferring data
+* Throw exceptions when failures.
