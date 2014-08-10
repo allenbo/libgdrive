@@ -798,4 +798,45 @@ void GAppList::from_json(JObject* obj) {
     STRING_VECTOR_FROM_JSON(defaultAppIds);
 }
 
+GReply::GReply() {
+    replyId = htmlContent = content = verb = "";
+    deleted = false;
+}
+
+void GReply::from_json(JObject* obj) {
+    STRING_FROM_JSON(replyId);
+    TIME_FROM_JSON(createDate);
+    TIME_FROM_JSON(modifiedDate);
+    INSTANCE_FROM_JSON(author);
+    STRING_FROM_JSON(htmlContent);
+    STRING_FROM_JSON(content);
+    BOOL_FROM_JSON(deleted);
+    STRING_FROM_JSON(verb);
+}
+
+JObject* GReply::to_json() {
+    JObject* obj = new JObject();
+    STRING_TO_JSON(replyId);
+    TIME_TO_JSON(createDate);
+    TIME_TO_JSON(modifiedDate);
+    INSTANCE_TO_JSON(author);
+    STRING_TO_JSON(htmlContent);
+    STRING_TO_JSON(content);
+    BOOL_TO_JSON(deleted);
+    STRING_TO_JSON(verb);
+    return obj;
+}
+
+GReplyList::GReplyList() {
+    selfLink = nextPageToken = nextLink = "";
+    items.clear();
+}
+
+void GReplyList::from_json(JObject* obj) {
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(nextPageToken);
+    STRING_FROM_JSON(nextLink);
+    INSTANCE_VECTOR_FROM_JSON(GReply, items);
+}
+
 }

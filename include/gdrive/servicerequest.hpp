@@ -360,6 +360,29 @@ class AppListRequest: public ResourceRequest<GAppList, RM_GET> {
 
 typedef ResourceRequest<GApp, RM_GET> AppGetRequest;
 
+class ReplyListRequest: public ResourceRequest<GReplyList, RM_GET> {
+    CLASS_MAKE_LOGGER
+    public:
+        ReplyListRequest(Credential* cred, std::string uri)
+            :ResourceRequest<GReplyList, RM_GET>(cred, uri) {}
+        BOOL_SET_ATTR(includedDeleted)
+        LONG_SET_ATTR(maxResults)
+        STRING_SET_ATTR(pageToken)
+};
+
+class ReplyGetRequest: public ResourceRequest<GReply, RM_GET> {
+    CLASS_MAKE_LOGGER
+    public:
+        ReplyGetRequest(Credential* cred, std::string uri)
+            :ResourceRequest<GReply, RM_GET>(cred, uri) {}
+        BOOL_SET_ATTR(includedDeleted)
+};
+
+typedef DeleteRequest ReplyDeleteRequest;
+typedef ResourceAttachedRequest<GReply, RM_POST> ReplyInsertRequest;
+typedef ResourceAttachedRequest<GReply, RM_PATCH> ReplyPatchRequest;
+typedef ResourceAttachedRequest<GReply, RM_PUT> ReplyUpdateRequest;
+
 }
 
 #endif

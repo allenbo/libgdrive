@@ -42,4 +42,8 @@ AppService& Drive::apps() {
     return AppService::get_instance(_cred);
 }
 
+ReplyService& Drive::replies() {
+    return ReplyService::get_instance(_cred);
+}
+
 }

@@ -483,5 +483,37 @@ public:
     READONLY(std::vector<std::string>, defaultAppIds)
 };
 
+class GReply {
+public:
+    GReply();
+    void from_json(JObject* obj);
+    JObject* to_json();
+
+    READONLY(std::string, replyId)
+    READONLY(struct tm, createDate)
+    READONLY(struct tm, modifiedDate)
+    READONLY(GUser, author)
+    READONLY(std::string, htmlContent)
+    WRITABLE(std::string, content)
+    READONLY(bool, deleted)
+    WRITABLE(std::string, verb);
+
+    std::set<std::string> get_modified_fields() { return _fields;}
+    void clear() { _fields.clear();}
+private:
+    std::set<std::string> _fields;
+};
+
+class GReplyList {
+public:
+    GReplyList();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, selfLink)
+    READONLY(std::string, nextPageToken)
+    READONLY(std::string, nextLink)
+    READONLY(std::vector<GReply>, items)
+};
+
 }
 #endif
