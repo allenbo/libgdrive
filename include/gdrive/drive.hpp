@@ -14,6 +14,7 @@
 #include "gdrive/service/revisions.hpp"
 #include "gdrive/service/apps.hpp"
 #include "gdrive/service/replies.hpp"
+#include "gdrive/service/comments.hpp"
 #include "common/all.hpp"
 
 #include <vector>
@@ -34,6 +35,7 @@ class Drive {
         RevisionService& revisions();
         AppService& apps();
         ReplyService& replies();
+        CommentService& comments();
     protected:
         Credential* _cred;
 };

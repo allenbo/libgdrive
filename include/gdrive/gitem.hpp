@@ -515,5 +515,54 @@ public:
     READONLY(std::vector<GReply>, items)
 };
 
+
+class GCommentContext {
+public:
+    GCommentContext();
+    void from_json(JObject* obj);
+    JObject* to_json();
+
+    READONLY(std::string, type)
+    READONLY(std::string, value)
+};
+
+class GComment {
+public:
+    GComment();
+    void from_json(JObject* obj);
+    JObject* to_json();
+
+    READONLY(std::string, selfLink)
+    READONLY(std::string, commentId)
+    READONLY(struct tm, createdDate)
+    READONLY(struct tm, modifiedDate)
+    READONLY(GUser, author)
+    READONLY(std::string, htmlContent)
+    READONLY(std::string, content)
+    READONLY(bool, deleted)
+    READONLY(std::string, status)
+    READONLY(GCommentContext, context)
+    READONLY(std::string, anchor)
+    READONLY(std::string, fileId)
+    READONLY(std::string, fileTitle)
+    READONLY(std::vector<GReply>, replies)
+
+    std::set<std::string> get_modified_fields() { return _fields;}
+    void clear() { _fields.clear();}
+private:
+    std::set<std::string> _fields;
+};
+
+class GCommentList  {
+public:
+    GCommentList();
+    void from_json(JObject* obj);
+
+    READONLY(std::string, selfLink)
+    READONLY(std::string, nextPageToken)
+    READONLY(std::string, nextLink)
+    READONLY(std::vector<GComment>, items)
+};
+
 }
 #endif

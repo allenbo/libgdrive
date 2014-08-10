@@ -839,4 +839,75 @@ void GReplyList::from_json(JObject* obj) {
     INSTANCE_VECTOR_FROM_JSON(GReply, items);
 }
 
+GCommentContext::GCommentContext() {
+    type = value = "";
+}
+
+void GCommentContext::from_json(JObject* obj) {
+    STRING_FROM_JSON(type);
+    STRING_FROM_JSON(value);
+}
+
+JObject* GCommentContext::to_json() {
+    JObject* obj = new JObject();
+    STRING_TO_JSON(type);
+    STRING_TO_JSON(value);
+    return obj;
+}
+
+GComment::GComment() {
+    selfLink = commentId = htmlContent = content = status = ""; 
+    deleted = false;
+    anchor = fileId = fileTitle;
+    replies.clear();
+}
+
+void GComment::from_json(JObject* obj) {
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(commentId);
+    TIME_FROM_JSON(createdDate);
+    TIME_FROM_JSON(modifiedDate);
+    INSTANCE_FROM_JSON(author);
+    STRING_FROM_JSON(htmlContent);
+    STRING_FROM_JSON(content);
+    BOOL_FROM_JSON(deleted);
+    STRING_FROM_JSON(status);
+    INSTANCE_FROM_JSON(context);
+    STRING_FROM_JSON(anchor);
+    STRING_FROM_JSON(fileId);
+    STRING_FROM_JSON(fileTitle);
+    INSTANCE_VECTOR_FROM_JSON(GReply, replies);
+}
+
+JObject* GComment::to_json() {
+    JObject* obj = new JObject();
+    STRING_TO_JSON(selfLink);
+    STRING_TO_JSON(commentId);
+    TIME_TO_JSON(createdDate);
+    TIME_TO_JSON(modifiedDate);
+    INSTANCE_TO_JSON(author);
+    STRING_TO_JSON(htmlContent);
+    STRING_TO_JSON(content);
+    BOOL_TO_JSON(deleted);
+    STRING_TO_JSON(status);
+    INSTANCE_TO_JSON(context);
+    STRING_TO_JSON(anchor);
+    STRING_TO_JSON(fileId);
+    STRING_TO_JSON(fileTitle);
+    INSTANCE_VECTOR_TO_JSON(replies);
+    return obj;
+}
+
+GCommentList::GCommentList() {
+    selfLink = nextPageToken = nextLink = "";
+    items.clear();
+}
+
+void GCommentList::from_json(JObject* obj) {
+    STRING_FROM_JSON(selfLink);
+    STRING_FROM_JSON(nextPageToken);
+    STRING_FROM_JSON(nextLink);
+    INSTANCE_VECTOR_FROM_JSON(GComment, items);
+}
+
 }

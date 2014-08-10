@@ -46,4 +46,8 @@ ReplyService& Drive::replies() {
     return ReplyService::get_instance(_cred);
 }
 
+CommentService& Drive::comments() {
+    return CommentService::get_instance(_cred);
+}
+
 }

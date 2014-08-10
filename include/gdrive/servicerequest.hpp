@@ -383,6 +383,30 @@ typedef ResourceAttachedRequest<GReply, RM_POST> ReplyInsertRequest;
 typedef ResourceAttachedRequest<GReply, RM_PATCH> ReplyPatchRequest;
 typedef ResourceAttachedRequest<GReply, RM_PUT> ReplyUpdateRequest;
 
+class CommentListRequest: public ResourceRequest<GCommentList, RM_GET> {
+    CLASS_MAKE_LOGGER
+    public:
+        CommentListRequest(Credential* cred, std::string uri)
+            :ResourceRequest<GCommentList, RM_GET>(cred, uri) {}
+        BOOL_SET_ATTR(includedDeleted)
+        LONG_SET_ATTR(maxResults)
+        STRING_SET_ATTR(pageToken)
+        STRING_SET_ATTR(updateMin)
+};
+
+class CommentGetRequest: public ResourceRequest<GComment, RM_GET> {
+    CLASS_MAKE_LOGGER
+    public:
+        CommentGetRequest(Credential* cred, std::string uri)
+            :ResourceRequest<GComment, RM_GET>(cred, uri) {}
+        BOOL_SET_ATTR(includedDeleted)
+};
+
+typedef DeleteRequest CommentDeleteRequest;
+typedef ResourceAttachedRequest<GComment, RM_POST> CommentInsertRequest;
+typedef ResourceAttachedRequest<GComment, RM_PATCH> CommentPatchRequest;
+typedef ResourceAttachedRequest<GComment, RM_PUT> CommentUpdateRequest;
+
 }
 
 #endif
