@@ -212,6 +212,7 @@ public:
     READONLY(std::string, version)
     READONLY(GUser, sharingUser)
     WRITABLE(std::vector<GParent>, parents)
+    READONLY(std::string, downloadUrl)
     READONLY(GExportLink, exportLinks)
     WRITABLE(std::string, indexableText)
     READONLY(GPermission, userPermission)

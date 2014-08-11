@@ -174,7 +174,12 @@ GFile FileUploadRequest::execute() {
         }
     }
     GFile _1 = *_resource;
-    get_resource(_1);
+    PError error;
+    JObject* obj = (JObject*)loads(_resp.content(), error);
+    if (obj != NULL) {
+        _1.from_json(obj);
+        delete obj;
+    }
     return _1;
 }
 

@@ -387,7 +387,7 @@ JObject* GImageMediaMetaData::to_json() {
 GFile::GFile() {
     id = etag = selfLink = webContentLink = alternateLink = embedLink = "";
     openWithLinks.clear();
-    defaultOpenWithLink = iconLink = thumbnailLink = title = mimeType = description = version = "";
+    defaultOpenWithLink = iconLink = thumbnailLink = title = mimeType = description = version = downloadUrl = "";
     parents.clear();
     exportLinks.clear();
     indexableText = originalFilename = fileExtension = md5Checksum = "";
@@ -425,6 +425,7 @@ void GFile::from_json(JObject* obj) {
     INSTANCE_FROM_JSON(sharingUser);
     INSTANCE_VECTOR_FROM_JSON(GParent, parents);
     STRING_MAP_FROM_JSON(exportLinks);
+    STRING_FROM_JSON(downloadUrl);
     STRING_FROM_JSON(indexableText);
     INSTANCE_FROM_JSON(userPermission);
     INSTANCE_VECTOR_FROM_JSON(GPermission, permissions);
@@ -473,6 +474,7 @@ JObject* GFile::to_json() {
     INSTANCE_TO_JSON(sharingUser);
     INSTANCE_VECTOR_TO_JSON(parents);
     STRING_MAP_TO_JSON(exportLinks);
+    STRING_FROM_JSON(downloadUrl);
     STRING_TO_JSON(indexableText);
     INSTANCE_TO_JSON(userPermission);
     INSTANCE_VECTOR_TO_JSON(permissions);

@@ -1,10 +1,13 @@
 SRC_DIR := ./src
 TEST_SRC_DIR := ./test
+SAMPLE_SRC_DIR := ./sample
+
 INCLUDE_DIR := ./include
+
 BUILD_DIR := ./build
 TESTBIN_DIR := $(BUILD_DIR)/test
-LIB_DIR := ./lib 
 
+LIB_DIR := ./lib 
 LIB := -ljconer
 
 CPP := g++
@@ -17,13 +20,14 @@ ARFLAG := -rcs
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst %.cpp,%.o, $(subst $(SRC_DIR),$(BUILD_DIR), $(SRC)))
+
 TEST_SRC := $(wildcard $(TEST_SRC_DIR)/*.cpp)
 TEST_TARGET := $(patsubst %.cpp, %, $(subst $(TEST_SRC_DIR),$(TESTBIN_DIR), $(TEST_SRC)))
 
 ARCHIVE := libgdrive.a
 
-.PHONY:all target test $(BUILD_DIR) $(TESTBIN_DIR)
-all: test target
+.PHONY:all target test sample $(BUILD_DIR) $(TESTBIN_DIR)
+all: test target sample
 test: $(TESTBIN_DIR) $(TEST_TARGET) target
 target: $(BUILD_DIR) $(OBJ) $(ARCHIVE)
 
