@@ -130,6 +130,3 @@ For other operations, please check out include/gdrive/service/files.hpp for more
 * App operation are all covered
 * Comment operation are all covered
 * Reply operation are all covered
-
-## TODO
-* Throw exceptions when failures.
