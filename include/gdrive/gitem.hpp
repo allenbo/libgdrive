@@ -5,6 +5,8 @@
 #include <time.h>
 #include <set>
 #include <map>
+#include <exception>
+
 #include "jconer/json.hpp"
 
 #define GETTER(type, name) type get_##name() { return name;}
@@ -179,6 +181,7 @@ public:
 
 typedef std::map<std::string, std::string> GExportLink;
 typedef std::map<std::string, std::string> Links;
+typedef std::map<std::string, std::string> string_map;
 
 class GFile {
 public:
@@ -563,6 +566,17 @@ public:
     READONLY(std::string, nextPageToken)
     READONLY(std::string, nextLink)
     READONLY(std::vector<GComment>, items)
+};
+
+
+class GError {
+public:
+    GError();
+    void from_json(JObject* obj);
+
+    READONLY(int, code)
+    READONLY(std::string, message)
+    READONLY(std::vector<string_map>, errors)
 };
 
 }

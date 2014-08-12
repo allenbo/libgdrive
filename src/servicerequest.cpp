@@ -9,13 +9,22 @@ using namespace JCONER;
 
 namespace GDRIVE {
 
-bool DeleteRequest::execute() {
+GoogleJsonResponseException make_json_exception(std::string content) {
+    GError gerror;
+    PError perror;
+    JObject* obj = (JObject*)loads(content, perror);
+    if (obj != NULL) {
+        gerror.from_json(obj);
+        delete obj;
+    }
+    return GoogleJsonResponseException(gerror);
+}
+
+void DeleteRequest::execute() {
     CredentialHttpRequest::request();
-    if (_resp.status() == 204) {
-        return true;
-    } else {
-        CLOG_WARN("%d: %s\n", _resp.status(), _resp.content().c_str());
-        return false;
+    if (_resp.status() != 204) {
+        GoogleJsonResponseException exc = make_json_exception(_resp.content());
+        throw exc;
     }   
 }
 
@@ -47,7 +56,8 @@ int FileUploadRequest::_resume() {
         std::string range = _resp.get_header("Range");
         cur_pos = atoi(VarString::split(range, "-")[1].c_str());
     } else {
-        CLOG_ERROR("Unknown status from server %d while resuming, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+        GoogleJsonResponseException exc = make_json_exception(_resp.content());
+        throw exc;
     }
     _read_hook = FileContent::resumable_read;
     _read_context = (void*)_content;
@@ -81,8 +91,10 @@ GFile FileUploadRequest::execute() {
         _header["Content-Type"] = _content->mimetype();
         _header["Content-Length"] = VarString::itos(_content->get_length());
         request();
-        if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201))
-            CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+        if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201)) {
+            GoogleJsonResponseException exc = make_json_exception(_resp.content());
+            throw exc;
+        }
     } else if (upload_type == 1) { // multipart upload
         _json_encode_body();
         std::string boundary = _generate_boundary();
@@ -97,8 +109,10 @@ GFile FileUploadRequest::execute() {
               + "--" + boundary + "--";
         _header["Content-Length"] = VarString::itos(_body.size());
         request();
-        if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201))
-            CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+        if ((_type == UT_CREATE && _resp.status() != 200) || (_type == UT_UPDATE && _resp.status() != 201)) {
+            GoogleJsonResponseException exc = make_json_exception(_resp.content());
+            throw exc;
+        }
 
     } else {
         // Step 1 - Start a resumable session
@@ -110,8 +124,10 @@ GFile FileUploadRequest::execute() {
         request();
         
         // Step 2 - Save the resumable session URI
-        if (_resp.status() != 200) 
-            CLOG_ERROR("Unknown status from server %d after step 1, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+        if (_resp.status() != 200)  {
+            GoogleJsonResponseException exc = make_json_exception(_resp.content());
+            throw exc;
+        }
 
         std::string location = _resp.get_header("Location");
 
@@ -146,7 +162,8 @@ GFile FileUploadRequest::execute() {
                     // resume an interrupted upload
                     cur_pos = _resume();
                 } else {
-                    CLOG_ERROR("Unknown status from server %d after step 3, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+                    GoogleJsonResponseException exc = make_json_exception(_resp.content());
+                    throw exc;
                 }
             }
         } else { // Uploading the file completely in one request
@@ -168,18 +185,14 @@ GFile FileUploadRequest::execute() {
                     // resume an interrupted upload
                     cur_pos = _resume();
                 } else {
-                    CLOG_ERROR("Unknown status from server %d after step 3, This is the error message %s\n", _resp.status(), _resp.content().c_str());
+                    GoogleJsonResponseException exc = make_json_exception(_resp.content());
+                    throw exc;
                 }
             }
         }
     }
     GFile _1 = *_resource;
-    PError error;
-    JObject* obj = (JObject*)loads(_resp.content(), error);
-    if (obj != NULL) {
-        _1.from_json(obj);
-        delete obj;
-    }
+    this->get_resource(_1);
     return _1;
 }
 

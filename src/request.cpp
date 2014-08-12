@@ -1,6 +1,7 @@
 #include "gdrive/request.hpp"
 #include "gdrive/util.hpp"
 #include "gdrive/config.hpp"
+#include "gdrive/error.hpp"
 #include <curl/curl.h>
 
 #include <sstream>
@@ -189,7 +190,7 @@ HttpResponse& HttpRequest::request() {
     }
 
     if (res != CURLE_OK) {
-        CLOG_ERROR("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        throw CurlException(res, curl_easy_strerror(res)); 
     }
 
     int status;

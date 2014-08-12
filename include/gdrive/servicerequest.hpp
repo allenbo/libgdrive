@@ -6,6 +6,7 @@
 #include "gdrive/util.hpp"
 #include "gdrive/gitem.hpp"
 #include "gdrive/filecontent.hpp"
+#include "gdrive/error.hpp"
 #include "common/all.hpp"
 
 #include <vector>
@@ -45,6 +46,8 @@
 
 namespace GDRIVE {
 
+GoogleJsonResponseException make_json_exception(std::string content);
+
 template<class ResType, RequestMethod method>
 class ResourceRequest : public CredentialHttpRequest {
     CLASS_MAKE_LOGGER
@@ -54,6 +57,7 @@ class ResourceRequest : public CredentialHttpRequest {
 
         ResType execute() {
             ResType _1;
+            CredentialHttpRequest::request();
             get_resource(_1);
             return _1;
 
@@ -74,15 +78,17 @@ class ResourceRequest : public CredentialHttpRequest {
 
     protected:
         void get_resource(ResType& res) {
-            CredentialHttpRequest::request();
-            if (_resp.status() != 200)
-                CLOG_ERROR("Unknown status from server %d, This is the error message %s\n", _resp.status(), _resp.content().c_str());
 
-            PError error;
-            JObject* obj = (JObject*)loads(_resp.content(), error);
-            if (obj != NULL) {
-                res.from_json(obj);
-                delete obj;
+            if (_resp.status() != 200) {
+                GoogleJsonResponseException exc = make_json_exception(_resp.content());
+                throw exc;
+            } else {
+                PError error;
+                JObject* obj = (JObject*)loads(_resp.content(), error);
+                if (obj != NULL) {
+                    res.from_json(obj);
+                    delete obj;
+                }
             }
         }
 };
@@ -92,7 +98,7 @@ class DeleteRequest : public CredentialHttpRequest {
     public:
         DeleteRequest(Credential* cred, std::string uri)
             :CredentialHttpRequest(cred, uri, RM_DELETE) {}
-        bool execute();
+        void execute();
 };
 
 template<class ResType, RequestMethod method>
@@ -105,6 +111,7 @@ class ResourceAttachedRequest : public ResourceRequest<ResType, method> {
         ResType execute() {
             _json_encode_body();
             ResType _1 = *_resource;
+            CredentialHttpRequest::request();
             this->get_resource(_1);
             return _1;
         }

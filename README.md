@@ -132,6 +132,4 @@ For other operations, please check out include/gdrive/service/files.hpp for more
 * Reply operation are all covered
 
 ## TODO
-* Write samples for all covered operations
-* Implemente gzip compression when transferring data
 * Throw exceptions when failures.

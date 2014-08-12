@@ -65,6 +65,22 @@ namespace GDRIVE {
     }\
     }while(0)
 
+#define STRINGMAP_VECTOR_FROM_JSON(name) do { \
+    if (obj->contain(#name)) {\
+        JArray* _1 = (JArray*)obj->get(#name);\
+        for (int i = 0; i < _1->size(); i ++) {\
+            JObject* _2 = (JObject*)_1->get(i); \
+            std::vector<std::string> keys = _2->getKeys();\
+            string_map _3; \
+            for(int j = 0; j < keys.size(); j ++) {\
+                std::string key = keys[j]; \
+                _3[key] = ((JString*)_2->get(key))->getValue(); \
+            } \
+            name.push_back(_3);\
+        }\
+    }\
+    }while(0)
+
 #define TIME_FROM_JSON(name) do { \
     if (obj->contain(#name)) {\
         std::string repr = ((JString*)obj->get(#name))->getValue();\
@@ -910,6 +926,18 @@ void GCommentList::from_json(JObject* obj) {
     STRING_FROM_JSON(nextPageToken);
     STRING_FROM_JSON(nextLink);
     INSTANCE_VECTOR_FROM_JSON(GComment, items);
+}
+
+GError::GError() {
+    code = -1;
+    message = "";
+    errors.clear();
+}
+
+void GError::from_json(JObject* obj) {
+    STRING_FROM_JSON(message);
+    INT_FROM_JSON(code);
+    STRINGMAP_VECTOR_FROM_JSON(errors);
 }
 
 }
