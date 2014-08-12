@@ -105,7 +105,7 @@ class ResourceAttachedRequest : public ResourceRequest<ResType, method> {
         ResType execute() {
             _json_encode_body();
             ResType _1 = *_resource;
-            get_resource(_1);
+            this->get_resource(_1);
             return _1;
         }
 
