@@ -1,5 +1,6 @@
 libgdrive
 ======
+[![Build Status](https://travis-ci.org/allenbo/libgdrive.svg?branch=master)](https://travis-ci.org/allenbo/libgdrive)
 
 A C++ implementation of Google drive API.
 
