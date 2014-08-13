@@ -1,9 +1,10 @@
-gdrive
+libgdrive
 ======
 
 A C++ implementation of Google drive API.
 
 ## Build
+Gdrive depends on libcurl to communicate with server, so be sure libcurl has been installed  before you build libgdrive.
 Gdrive is using my JSON implementation [JConer](https://github.com/allenbo/JConer) and utility classes in [common](https://github.com/allenbo/common). You should also download and install them.
 
 ```
@@ -11,8 +12,8 @@ git clone https://github.com/allenbo/common.git
 git clone https://github.com/allenbo/JConer.git
 cd JConer && cp -R ../common/include/common include/ && make
 cd ../
-git clone https://github.com/allenbo/gdrive.git
-cd gdrive 
+git clone https://github.com/allenbo/libgdrive.git
+cd libgdrive 
 cp -R ../JConer/include/jconer include/ && cp ../JConer/libjconer.a lib/
 cp -R ../common/include/common include/
 make
