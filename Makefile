@@ -2,7 +2,8 @@ SRC_DIR := ./src
 TEST_SRC_DIR := ./test
 SAMPLE_SRC_DIR := ./sample
 
-INCLUDE_DIR := ./include
+INCLUDE_DIR := -I./include
+
 
 BUILD_DIR := ./build
 TESTBIN_DIR := $(BUILD_DIR)/test
@@ -10,6 +11,8 @@ TESTBIN_DIR := $(BUILD_DIR)/test
 LIB_DIR := ./lib 
 LIB := -ljconer
 
+THIRD_INC_DIR := -I/home/justin/pkg/curl/include
+THIRD_LIB_DIR := -L/home/justin/pkg/curl/lib
 CPP := g++
 CC := gcc
 AR := ar
@@ -35,7 +38,7 @@ $(BUILD_DIR):
 	mkdir -p $@
 
 $(BUILD_DIR)/%.o:$(SRC_DIR)/%.cpp
-	$(CPP) -c $< $(CFLAG) -o $@ -I$(INCLUDE_DIR)
+	$(CPP) -c $< $(CFLAG) -o $@ $(INCLUDE_DIR) $(THIRD_INC_DIR)
 
 $(ARCHIVE):$(OBJ)
 	$(AR) $(ARFLAG) $@ $(OBJ)
@@ -44,7 +47,7 @@ $(TESTBIN_DIR):
 	mkdir -p $@
 
 $(TESTBIN_DIR)/%:$(TEST_SRC_DIR)/%.cpp $(OBJ)
-	$(CPP) $^ $(CFLAG) $(LFLAG) -o $@ -I$(INCLUDE_DIR)
+	$(CPP) $^ $(CFLAG) $(LFLAG) -o $@ $(INCLUDE_DIR) $(THIRD_INC_DIR) $(THIRD_LIB_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR) $(TESTBIN_DIR) $(ARCHIVE)

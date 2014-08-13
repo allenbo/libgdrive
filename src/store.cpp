@@ -6,7 +6,7 @@ FileStore::FileStore(std::string filename)
     :_filename(filename)
 {
     _status = SS_EMPTY;
-    std::ifstream fin(_filename);
+    std::ifstream fin(_filename.c_str());
     if (!fin.good()){
         return;
     }
@@ -47,7 +47,7 @@ void FileStore::put(std::string key, std::string value) {
 }
 
 bool FileStore::dump() {
-    std::ofstream fout(_filename);
+    std::ofstream fout(_filename.c_str());
     if (!fout.good()) {
         return false;
     }
