@@ -9,7 +9,7 @@ BUILD_DIR := ./build
 TESTBIN_DIR := $(BUILD_DIR)/test
 
 LIB_DIR := ./lib 
-LIB := -ljconer
+LIB := -ljconer -lpthread
 
 THIRD_INC_DIR := -I/home/justin/pkg/curl/include
 THIRD_LIB_DIR := -L/home/justin/pkg/curl/lib
