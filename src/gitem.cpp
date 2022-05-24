@@ -89,8 +89,8 @@ namespace GDRIVE {
     }while(0)
 
 #define BOOL_TO_JSON(name) do {\
-    if (name) obj->put(#name, new JTrue());\
-    else obj->put(#name, new JFalse());\
+    if (name) obj->put(#name, JTrue::getInstance());\
+    else obj->put(#name, JFalse::getInstance());\
     }while(0)
 
 #define STRING_TO_JSON(name) do {\
